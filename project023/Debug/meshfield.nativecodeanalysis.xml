@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DEFECTS>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+      <FILENAME>meshfield.cpp</FILENAME>
+      <LINE>518</LINE>
+      <COLUMN>10</COLUMN>
+    </SFA>
+    <DEFECTCODE>6031</DEFECTCODE>
+    <DESCRIPTION>戻り値が無視されました: 'fscanf'</DESCRIPTION>
+    <FUNCTION>CMeshField::UpDownLoad</FUNCTION>
+    <DECORATED>?UpDownLoad@CMeshField@@QAEXPBD@Z</DECORATED>
+    <FUNCLINE>499</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+      <FILENAME>meshfield.cpp</FILENAME>
+      <LINE>519</LINE>
+      <COLUMN>10</COLUMN>
+    </SFA>
+    <DEFECTCODE>6031</DEFECTCODE>
+    <DESCRIPTION>戻り値が無視されました: 'fscanf'</DESCRIPTION>
+    <FUNCTION>CMeshField::UpDownLoad</FUNCTION>
+    <DECORATED>?UpDownLoad@CMeshField@@QAEXPBD@Z</DECORATED>
+    <FUNCLINE>499</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+</DEFECTS>

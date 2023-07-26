@@ -272,3 +272,11 @@ void CEnemy::Controller(void)
 	float fHeight = CManager::GetMeshField()->GetHeight(m_Info.pos, nor);
 	m_Info.pos.y = fHeight;
 }
+
+//===============================================
+// ƒqƒbƒgˆ—
+//===============================================
+void CEnemy::Hit(float fDamage)
+{
+
+}

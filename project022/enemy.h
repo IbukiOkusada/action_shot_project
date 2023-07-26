@@ -45,6 +45,7 @@ public:	// 誰でもアクセス可能
 	void Draw(void);
 	static CEnemy *Create(const D3DXVECTOR3 pos, const D3DXVECTOR3 rot, const D3DXVECTOR3 move,
 		const char *pBodyName, const int nPriority = 4);
+	void Hit(float fDamage);
 
 	// メンバ関数(設定)
 	void SetMove(const D3DXVECTOR3 move) { m_Info.move = move; }
@@ -72,6 +73,8 @@ private:	// 自分だけがアクセス可能
 	float m_fRotDiff;		// 目的の角度
 	float m_fRotDest;		// 角度計算
 	CShadow *pShadow;		// 影
+	float m_fLife;			// 体力
+	float m_fDamInterval;	// 被弾インターバル
 	CObjectBillboard *m_pBillState;	// 状態表示用ビルボード
 };
 

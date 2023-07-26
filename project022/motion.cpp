@@ -401,6 +401,10 @@ void CMotion::Set(int nType)
 				m_OldKey[nCntParts].fRotX = m_FileData.ppParts[nCntParts]->GetRotation().x + aInfo[m_nNowMotion].pKeyInfo[m_nNowKey].aKey[nCntParts].fRotX;
 				m_OldKey[nCntParts].fRotY = m_FileData.ppParts[nCntParts]->GetRotation().y + aInfo[m_nNowMotion].pKeyInfo[m_nNowKey].aKey[nCntParts].fRotY;
 				m_OldKey[nCntParts].fRotZ = m_FileData.ppParts[nCntParts]->GetRotation().z + aInfo[m_nNowMotion].pKeyInfo[m_nNowKey].aKey[nCntParts].fRotZ;
+
+				// Ý’è
+				m_FileData.ppParts[nCntParts]->SetCurrentPosition(D3DXVECTOR3(m_OldKey[nCntParts].fPosX, m_OldKey[nCntParts].fPosY, m_OldKey[nCntParts].fPosZ));
+				m_FileData.ppParts[nCntParts]->SetCurrentRotation(D3DXVECTOR3(m_OldKey[nCntParts].fRotX, m_OldKey[nCntParts].fRotY, m_OldKey[nCntParts].fRotZ));
 			}
 		}
 	}

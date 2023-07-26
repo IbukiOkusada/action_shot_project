@@ -15,6 +15,7 @@
 #include "texture.h"
 #include "Xfile.h"
 #include "bullet.h"
+#include "meshorbit.h"
 
 // 静的メンバ変数宣言
 LPD3DXFONT CDebugProc::m_pFont = NULL;	// デバッグフォントへのポインタ
@@ -113,7 +114,7 @@ void CDebugProc::Update(void)
 //==========================================================
 void CDebugProc::Draw(void)
 {
-	Print("現在の球数 %d\n", CBullet::GetNumAll());
+	Print("現在の軌跡数 %d\n", CMeshOrbit::Get());
 
 	RECT rect = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
 

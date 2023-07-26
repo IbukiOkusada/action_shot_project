@@ -19,6 +19,7 @@
 #include "objectX.h"
 #include "Xfile.h"
 #include "slow.h"
+#include "meshorbit.h"
 
 //===============================================
 // マクロ定義
@@ -52,6 +53,7 @@ CBullet::CBullet(D3DXVECTOR3 pos, D3DXVECTOR3 move)
 	m_pTarget = NULL;
 	m_pNext = NULL;
 	m_pPrev = NULL;
+	m_pOrbit = NULL;
 
 	// 自分自身をリストに追加
 	if (m_pTop != NULL)
@@ -65,6 +67,8 @@ CBullet::CBullet(D3DXVECTOR3 pos, D3DXVECTOR3 move)
 		m_pTop = this;	// 自分自身が先頭になる
 		m_pCur = this;	// 自分自身が最後尾になる
 	}
+
+	m_pOrbit2 = NULL;
 }
 
 //===============================================
@@ -81,7 +85,7 @@ CBullet::~CBullet()
 HRESULT CBullet::Init(void)
 {
 	// オブジェクトの初期化処理
-	CObjectBillboard::Init();
+	CObject3D::Init();
 
 	m_fLife = LIFE;
 	m_nChangeTimer = 20;
@@ -97,12 +101,22 @@ HRESULT CBullet::Init(void)
 void CBullet::Uninit(void)
 {
 	// オブジェクトの終了処理
-	CObjectBillboard::Uninit();
+	CObject3D::Uninit();
 
 	if (m_pTarget != NULL)
 	{
 		delete m_pTarget;
 		m_pTarget = NULL;
+	}
+
+	if (m_pOrbit != NULL)
+	{
+		m_pOrbit->Uninit();
+	}
+
+	if (m_pOrbit2 != NULL)
+	{
+		m_pOrbit2->Uninit();
 	}
 
 	m_bDeath = true;
@@ -151,6 +165,9 @@ void CBullet::Update(void)
 		DeathCheck();
 		return;
 	}
+
+	// マトリックス設定
+	SetMtx();
 }
 
 //===============================================
@@ -198,6 +215,18 @@ CBullet *CBullet::Create(D3DXVECTOR3 pos, D3DXVECTOR3 move, TYPE type)
 		pBullet->BindTexture(-1);
 
 		pBullet->SetSize(10.0f, 10.0f);
+
+		pBullet->SetMtx();
+
+		// 軌跡の
+		if (type == TYPE_NONE)
+		{
+			pBullet->m_pOrbit = CMeshOrbit::Create(pBullet->GetMtx(), D3DXVECTOR3(0.0f, 3.0f, 0.0f), D3DXVECTOR3(0.0f, -3.0f, 0.0f), CMeshOrbit::TYPE_BULLET);
+			pBullet->m_pOrbit2 = CMeshOrbit::Create(pBullet->GetMtx(), D3DXVECTOR3(0.0f, 3.0f, 0.0f), D3DXVECTOR3(0.0f, -3.0f, 0.0f), CMeshOrbit::TYPE_BULLET);
+			pBullet->m_pOrbit2->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\water000.jpg"));
+			pBullet->m_pOrbit->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\water001.jpg"));
+		}
+		//pBullet->m_pOrbit->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\water000.jpg"));
 	}
 	else
 	{// 生成に失敗した場合
@@ -224,9 +253,8 @@ void CBullet::Controller(void)
 
 		if (m_fParTimer >= 1.0f)
 		{
-			//CEffect::Create(pos, CEffect::TYPE_BULLET);
 			CParticle::Create(pos, m_move, CEffect::TYPE_BULLET);
-			m_fParTimer = 0.0f;
+			//m_fParTimer = 0.0f;
 		}
 	}
 
@@ -260,7 +288,34 @@ void CBullet::Controller(void)
 			}
 		}
 		pos += m_move * CManager::GetSlow()->Get();	// 移動量加算
+	}
 
+	if (m_pOrbit != NULL)
+	{
+		D3DXVECTOR3 nor = pos - GetPosition();
+
+		D3DXVec3Normalize(&nor, &nor);	// ベクトルを正規化する
+
+		m_pOrbit->SetNor(nor);
+	}
+
+	if (m_pOrbit2 != NULL)
+	{
+		D3DXVECTOR3 nor = pos - GetPosition();
+
+		D3DXVec3Normalize(&nor, &nor);	// ベクトルを正規化する
+
+		m_pOrbit2->SetNor(nor);
+	}
+
+	if (m_nType == TYPE_NONE)
+	{
+		if (m_fParTimer >= 1.0f)
+		{
+			//CEffect::Create(pos, CEffect::TYPE_BULLET);
+			CParticle::Create(pos, m_move, CEffect::TYPE_BULLET);
+			m_fParTimer = 0.0f;
+		}
 	}
 
 	// 頂点情報設定
@@ -282,7 +337,6 @@ bool CBullet::Collision(D3DXVECTOR3 pos, CObject::TYPE ObjType)
 		{// 使用されていない状態まで
 
 			CObject *pObjectNext = pObj->GetNext();	// 次のオブジェクトへのポインタを取得
-
 
 			if (pObj->GetDeath() == false)
 			{

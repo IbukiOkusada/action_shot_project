@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DEFECTS>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+      <FILENAME>motion.cpp</FILENAME>
+      <LINE>229</LINE>
+      <COLUMN>9</COLUMN>
+    </SFA>
+    <DEFECTCODE>6031</DEFECTCODE>
+    <DESCRIPTION>戻り値が無視されました: 'fscanf'</DESCRIPTION>
+    <FUNCTION>CMotion::LoadMotionData</FUNCTION>
+    <DECORATED>?LoadMotionData@CMotion@@QAEXPAU_iobuf@@@Z</DECORATED>
+    <FUNCLINE>209</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+      <FILENAME>motion.cpp</FILENAME>
+      <LINE>230</LINE>
+      <COLUMN>9</COLUMN>
+    </SFA>
+    <DEFECTCODE>6031</DEFECTCODE>
+    <DESCRIPTION>戻り値が無視されました: 'fscanf'</DESCRIPTION>
+    <FUNCTION>CMotion::LoadMotionData</FUNCTION>
+    <DECORATED>?LoadMotionData@CMotion@@QAEXPAU_iobuf@@@Z</DECORATED>
+    <FUNCLINE>209</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+      <FILENAME>motion.cpp</FILENAME>
+      <LINE>243</LINE>
+      <COLUMN>9</COLUMN>
+    </SFA>
+    <DEFECTCODE>6031</DEFECTCODE>
+    <DESCRIPTION>戻り値が無視されました: 'fscanf'</DESCRIPTION>
+    <FUNCTION>CMotion::LoadMotionData</FUNCTION>
+    <DECORATED>?LoadMotionData@CMotion@@QAEXPAU_iobuf@@@Z</DECORATED>
+    <FUNCLINE>209</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+      <FILENAME>motion.cpp</FILENAME>
+      <LINE>244</LINE>
+      <COLUMN>9</COLUMN>
+    </SFA>
+    <DEFECTCODE>6031</DEFECTCODE>
+    <DESCRIPTION>戻り値が無視されました: 'fscanf'</DESCRIPTION>
+    <FUNCTION>CMotion::LoadMotionData</FUNCTION>
+    <DECORATED>?LoadMotionData@CMotion@@QAEXPAU_iobuf@@@Z</DECORATED>
+    <FUNCLINE>209</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+      <FILENAME>motion.cpp</FILENAME>
+      <LINE>266</LINE>
+      <COLUMN>10</COLUMN>
+    </SFA>
+    <DEFECTCODE>6031</DEFECTCODE>
+    <DESCRIPTION>戻り値が無視されました: 'fscanf'</DESCRIPTION>
+    <FUNCTION>CMotion::LoadMotionData</FUNCTION>
+    <DECORATED>?LoadMotionData@CMotion@@QAEXPAU_iobuf@@@Z</DECORATED>
+    <FUNCLINE>209</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+      <FILENAME>motion.cpp</FILENAME>
+      <LINE>274</LINE>
+      <COLUMN>11</COLUMN>
+    </SFA>
+    <DEFECTCODE>6031</DEFECTCODE>
+    <DESCRIPTION>戻り値が無視されました: 'fscanf'</DESCRIPTION>
+    <FUNCTION>CMotion::LoadMotionData</FUNCTION>
+    <DECORATED>?LoadMotionData@CMotion@@QAEXPAU_iobuf@@@Z</DECORATED>
+    <FUNCLINE>209</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+      <FILENAME>motion.cpp</FILENAME>
+      <LINE>275</LINE>
+      <COLUMN>11</COLUMN>
+    </SFA>
+    <DEFECTCODE>6031</DEFECTCODE>
+    <DESCRIPTION>戻り値が無視されました: 'fscanf'</DESCRIPTION>
+    <FUNCTION>CMotion::LoadMotionData</FUNCTION>
+    <DECORATED>?LoadMotionData@CMotion@@QAEXPAU_iobuf@@@Z</DECORATED>
+    <FUNCLINE>209</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+      <FILENAME>motion.cpp</FILENAME>
+      <LINE>283</LINE>
+      <COLUMN>12</COLUMN>
+    </SFA>
+    <DEFECTCODE>6031</DEFECTCODE>
+    <DESCRIPTION>戻り値が無視されました: 'fscanf'</DESCRIPTION>
+    <FUNCTION>CMotion::LoadMotionData</FUNCTION>
+    <DECORATED>?LoadMotionData@CMotion@@QAEXPAU_iobuf@@@Z</DECORATED>
+    <FUNCLINE>209</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+      <FILENAME>motion.cpp</FILENAME>
+      <LINE>291</LINE>
+      <COLUMN>13</COLUMN>
+    </SFA>
+    <DEFECTCODE>6031</DEFECTCODE>
+    <DESCRIPTION>戻り値が無視されました: 'fscanf'</DESCRIPTION>
+    <FUNCTION>CMotion::LoadMotionData</FUNCTION>
+    <DECORATED>?LoadMotionData@CMotion@@QAEXPAU_iobuf@@@Z</DECORATED>
+    <FUNCLINE>209</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+      <FILENAME>motion.cpp</FILENAME>
+      <LINE>292</LINE>
+      <COLUMN>13</COLUMN>
+    </SFA>
+    <DEFECTCODE>6031</DEFECTCODE>
+    <DESCRIPTION>戻り値が無視されました: 'fscanf'</DESCRIPTION>
+    <FUNCTION>CMotion::LoadMotionData</FUNCTION>
+    <DECORATED>?LoadMotionData@CMotion@@QAEXPAU_iobuf@@@Z</DECORATED>
+    <FUNCLINE>209</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+      <FILENAME>motion.cpp</FILENAME>
+      <LINE>293</LINE>
+      <COLUMN>13</COLUMN>
+    </SFA>
+    <DEFECTCODE>6031</DEFECTCODE>
+    <DESCRIPTION>戻り値が無視されました: 'fscanf'</DESCRIPTION>
+    <FUNCTION>CMotion::LoadMotionData</FUNCTION>
+    <DECORATED>?LoadMotionData@CMotion@@QAEXPAU_iobuf@@@Z</DECORATED>
+    <FUNCLINE>209</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+      <FILENAME>motion.cpp</FILENAME>
+      <LINE>294</LINE>
+      <COLUMN>13</COLUMN>
+    </SFA>
+    <DEFECTCODE>6031</DEFECTCODE>
+    <DESCRIPTION>戻り値が無視されました: 'fscanf'</DESCRIPTION>
+    <FUNCTION>CMotion::LoadMotionData</FUNCTION>
+    <DECORATED>?LoadMotionData@CMotion@@QAEXPAU_iobuf@@@Z</DECORATED>
+    <FUNCLINE>209</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+      <FILENAME>motion.cpp</FILENAME>
+      <LINE>298</LINE>
+      <COLUMN>13</COLUMN>
+    </SFA>
+    <DEFECTCODE>6031</DEFECTCODE>
+    <DESCRIPTION>戻り値が無視されました: 'fscanf'</DESCRIPTION>
+    <FUNCTION>CMotion::LoadMotionData</FUNCTION>
+    <DECORATED>?LoadMotionData@CMotion@@QAEXPAU_iobuf@@@Z</DECORATED>
+    <FUNCLINE>209</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+      <FILENAME>motion.cpp</FILENAME>
+      <LINE>299</LINE>
+      <COLUMN>13</COLUMN>
+    </SFA>
+    <DEFECTCODE>6031</DEFECTCODE>
+    <DESCRIPTION>戻り値が無視されました: 'fscanf'</DESCRIPTION>
+    <FUNCTION>CMotion::LoadMotionData</FUNCTION>
+    <DECORATED>?LoadMotionData@CMotion@@QAEXPAU_iobuf@@@Z</DECORATED>
+    <FUNCLINE>209</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+      <FILENAME>motion.cpp</FILENAME>
+      <LINE>300</LINE>
+      <COLUMN>13</COLUMN>
+    </SFA>
+    <DEFECTCODE>6031</DEFECTCODE>
+    <DESCRIPTION>戻り値が無視されました: 'fscanf'</DESCRIPTION>
+    <FUNCTION>CMotion::LoadMotionData</FUNCTION>
+    <DECORATED>?LoadMotionData@CMotion@@QAEXPAU_iobuf@@@Z</DECORATED>
+    <FUNCLINE>209</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+      <FILENAME>motion.cpp</FILENAME>
+      <LINE>301</LINE>
+      <COLUMN>13</COLUMN>
+    </SFA>
+    <DEFECTCODE>6031</DEFECTCODE>
+    <DESCRIPTION>戻り値が無視されました: 'fscanf'</DESCRIPTION>
+    <FUNCTION>CMotion::LoadMotionData</FUNCTION>
+    <DECORATED>?LoadMotionData@CMotion@@QAEXPAU_iobuf@@@Z</DECORATED>
+    <FUNCLINE>209</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+</DEFECTS>

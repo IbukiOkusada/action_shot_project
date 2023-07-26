@@ -63,8 +63,8 @@ void CObjectX::Update(void)
 			int nRand = rand() % 201 - 100;
 			float fRot = D3DX_PI * ((float)nRand * 0.01f);
 
-			CEnemy::Create(D3DXVECTOR3(1900.0f, 0.0f, 1500.0f), D3DXVECTOR3(0.0f, fRot, 0.0f),
-				D3DXVECTOR3(-sinf(fRot) * 2.0f, 0.0f, -cosf(fRot) * 2.0f), "data\\TXT\\motion_murabito.txt");
+			CEnemy::Create(D3DXVECTOR3(1000.0f, 0.0f, 1500.0f), D3DXVECTOR3(0.0f, fRot, 0.0f),
+				D3DXVECTOR3(-sinf(fRot) * 4.0f, 0.0f, -cosf(fRot) * 4.0f), "data\\TXT\\motion_murabito.txt");
 		}
 	}
 }

@@ -10,6 +10,7 @@
 #include "manager.h"
 #include "renderer.h"
 #include "texture.h"
+#include "debugproc.h"
 
 //==========================================================
 //マクロ定義
@@ -22,6 +23,10 @@
 CObject3D::CObject3D(int nPriority) : CObject(nPriority)
 {
 	m_nIdxTexture = -1;
+
+	//各種変数の初期化
+	m_pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	m_rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 }
 
 //==========================================================
@@ -39,10 +44,6 @@ HRESULT CObject3D::Init(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();		//デバイスへのポインタを取得
 	CTexture *pTexture = CManager::GetTexture();	// テクスチャへのポインタ
-
-	//各種変数の初期化
-	m_pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	m_rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	// テクスチャの割り当て
 	m_nIdxTexture = pTexture->Regist(TEXTUREFILE_DATA);
@@ -366,4 +367,82 @@ float CObject3D::GetHeight(D3DXVECTOR3 pos, D3DXVECTOR3 &normal)
 	}
 
 	return pos.y;
+}
+
+//==========================================================
+//サイズ設定
+//==========================================================
+void CObject3D::SetSize(float fWidth, float fHeight)
+{
+	VERTEX_3D *pVtx;
+
+	m_fWidth = fWidth;
+	m_fHeight = fHeight;
+
+	//頂点バッファをロックし頂点情報へのポインタを取得
+	m_pVtxBuff->Lock(
+		0,
+		0,
+		(void**)&pVtx,
+		0);
+
+	//頂点座標の設定
+	pVtx[0].pos = D3DXVECTOR3(-m_fWidth, +m_fHeight, 0.0f);
+	pVtx[1].pos = D3DXVECTOR3(+m_fWidth, +m_fHeight, 0.0f);
+	pVtx[2].pos = D3DXVECTOR3(-m_fWidth, -m_fHeight, 0.0f);
+	pVtx[3].pos = D3DXVECTOR3(+m_fWidth, -m_fHeight, 0.0f);
+
+	//頂点バッファをアンロックする
+	m_pVtxBuff->Unlock();
+}
+
+//==========================================================
+// 色設定
+//==========================================================
+void CObject3D::SetCol(D3DXCOLOR col)
+{
+	VERTEX_3D *pVtx;
+
+	//頂点バッファをロックし頂点情報へのポインタを取得
+	m_pVtxBuff->Lock(
+		0,
+		0,
+		(void**)&pVtx,
+		0);
+
+	//頂点カラーの設定
+	pVtx[0].col = col;
+	pVtx[1].col = col;
+	pVtx[2].col = col;
+	pVtx[3].col = col;
+
+	//頂点バッファをアンロックする
+	m_pVtxBuff->Unlock();
+}
+
+//==========================================================
+// マトリックス設定
+//==========================================================
+void CObject3D::SetMtx(void)
+{
+	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();		//デバイスへのポインタを取得
+	CTexture *pTexture = CManager::GetTexture();	// テクスチャへのポインタ
+
+	D3DXMATRIX mtxRot, mtxTrans;	//計算用マトリックス
+
+	//ワールドマトリックスの初期化
+	D3DXMatrixIdentity(&m_mtxWorld);
+
+	//向きを反映
+	D3DXMatrixRotationYawPitchRoll(&mtxRot, m_rot.y, m_rot.x, m_rot.z);
+	D3DXMatrixMultiply(&m_mtxWorld, &m_mtxWorld, &mtxRot);
+
+	//位置を反映
+	D3DXMatrixTranslation(&mtxTrans, m_pos.x, m_pos.y, m_pos.z);
+	D3DXMatrixMultiply(&m_mtxWorld, &m_mtxWorld, &mtxTrans);
+
+	//ワールドマトリックスの設定
+	pDevice->SetTransform(D3DTS_WORLD, &m_mtxWorld);
+
+	CManager::GetDebugProc()->Print("%f,%f,%f\n", m_pos.x, m_pos.y, m_pos.z);
 }

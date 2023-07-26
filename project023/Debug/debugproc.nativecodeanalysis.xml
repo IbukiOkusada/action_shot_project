@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DEFECTS>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+      <FILENAME>debugproc.cpp</FILENAME>
+      <LINE>172</LINE>
+      <COLUMN>53</COLUMN>
+    </SFA>
+    <DEFECTCODE>28199</DEFECTCODE>
+    <DESCRIPTION>初期化されていない可能性のあるメモリ 'aSaveString' を使用しています。変数のアドレスが取得されましたが、それへの割り当ては検出されませんでした。</DESCRIPTION>
+    <FUNCTION>CDebugProc::Print</FUNCTION>
+    <DECORATED>?Print@CDebugProc@@QAAXPBDZZ</DECORATED>
+    <FUNCLINE>134</FUNCLINE>
+    <PROBABILITY>1</PROBABILITY>
+    <RANK>4</RANK>
+    <CATEGORY>
+      <RULECATEGORY>mspft</RULECATEGORY>
+    </CATEGORY>
+    <PATH>
+      <SFA>
+        <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+        <FILENAME>debugproc.cpp</FILENAME>
+        <LINE>136</LINE>
+        <COLUMN>9</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+        <FILENAME>debugproc.cpp</FILENAME>
+        <LINE>137</LINE>
+        <COLUMN>6</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+        <FILENAME>debugproc.cpp</FILENAME>
+        <LINE>138</LINE>
+        <COLUMN>6</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+        <FILENAME>debugproc.cpp</FILENAME>
+        <LINE>139</LINE>
+        <COLUMN>5</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+        <FILENAME>debugproc.cpp</FILENAME>
+        <LINE>140</LINE>
+        <COLUMN>5</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+        <FILENAME>debugproc.cpp</FILENAME>
+        <LINE>143</LINE>
+        <COLUMN>7</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+        <FILENAME>debugproc.cpp</FILENAME>
+        <LINE>145</LINE>
+        <COLUMN>1</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+        <FILENAME>debugproc.cpp</FILENAME>
+        <LINE>147</LINE>
+        <COLUMN>11</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+        <FILENAME>debugproc.cpp</FILENAME>
+        <LINE>147</LINE>
+        <COLUMN>32</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+        <FILENAME>debugproc.cpp</FILENAME>
+        <LINE>149</LINE>
+        <COLUMN>9</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+        <FILENAME>debugproc.cpp</FILENAME>
+        <LINE>152</LINE>
+        <COLUMN>4</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+        <FILENAME>debugproc.cpp</FILENAME>
+        <LINE>154</LINE>
+        <COLUMN>11</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+        <FILENAME>debugproc.cpp</FILENAME>
+        <LINE>157</LINE>
+        <COLUMN>11</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+        <FILENAME>debugproc.cpp</FILENAME>
+        <LINE>164</LINE>
+        <COLUMN>3</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+        <FILENAME>debugproc.cpp</FILENAME>
+        <LINE>166</LINE>
+        <COLUMN>11</COLUMN>
+        <KEYEVENT>
+          <ID>1</ID>
+          <KIND>宣言</KIND>
+          <IMPORTANCE>Essential</IMPORTANCE>
+          <MESSAGE>'aSaveString' が初期化されていません</MESSAGE>
+        </KEYEVENT>
+      </SFA>
+      <SFA>
+        <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+        <FILENAME>debugproc.cpp</FILENAME>
+        <LINE>169</LINE>
+        <COLUMN>12</COLUMN>
+        <KEYEVENT>
+          <ID>2</ID>
+          <KIND>使用法</KIND>
+          <IMPORTANCE>Full</IMPORTANCE>
+          <MESSAGE>'aSaveString' は 'strlen' への入力です (c:\program files (x86)\windows kits\10\include\10.0.10240.0\ucrt\string.h:215 で宣言)</MESSAGE>
+        </KEYEVENT>
+      </SFA>
+      <SFA>
+        <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+        <FILENAME>debugproc.cpp</FILENAME>
+        <LINE>172</LINE>
+        <COLUMN>13</COLUMN>
+      </SFA>
+      <SFA>
+        <FILEPATH>c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project022 - コピー\</FILEPATH>
+        <FILENAME>debugproc.cpp</FILENAME>
+        <LINE>172</LINE>
+        <COLUMN>53</COLUMN>
+        <KEYEVENT>
+          <ID>3</ID>
+          <KIND>使用法</KIND>
+          <IMPORTANCE>Essential</IMPORTANCE>
+          <MESSAGE>'aSaveString' が使用されますが、初期化されていない可能性があります</MESSAGE>
+        </KEYEVENT>
+      </SFA>
+    </PATH>
+  </DEFECT>
+</DEFECTS>

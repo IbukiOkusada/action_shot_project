@@ -25,6 +25,7 @@
 #include "meshfield.h"
 #include "Xfile.h"
 #include "lockon.h"
+#include "meshorbit.h"
 
 //===============================================
 // マクロ定義
@@ -240,6 +241,8 @@ HRESULT CPlayer::Init(const char *pBodyName, const char *pLegName)
 	m_pLockon->SetDistance(SHOT_LENGTH, SHOT_RANGE);
 	m_pLockon->SetLock(true);
 
+	m_pOrbit = CMeshOrbit::Create(&m_Info.mtxWorld, D3DXVECTOR3(0.0f, 20.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+
 	return S_OK;
 }
 
@@ -328,6 +331,7 @@ void CPlayer::Update(void)
 
 	// 追従処理
 	pCamera->Pursue(GetPosition(), GetRotation());
+	
 }
 
 //===============================================
@@ -618,12 +622,12 @@ void CPlayer::Controller(void)
 	pos = GetPosition();
 
 	// デバッグ表示
-	CManager::GetDebugProc()->Print("\n移動[W,A,S,D] : ジャンプ[SPACE] : 発射[L, マウス左クリック]\n : スロー[ENTER長押し, マウス右クリック長押し]\n");
+	/*CManager::GetDebugProc()->Print("\n移動[W,A,S,D] : ジャンプ[SPACE] : 発射[L, マウス左クリック]\n : スロー[ENTER長押し, マウス右クリック長押し]\n");
 	CManager::GetDebugProc()->Print("プレイヤーの座標[ %f, %f, %f ]\n", pos.x, pos.y, pos.z);
 	CManager::GetDebugProc()->Print("プレイヤーの向き[ %f, %f, %f ]\n", rot.x, rot.y, rot.z);
 	CManager::GetDebugProc()->Print("プレイヤーの移動量[ %f, %f, %f ]\n", m_Info.move.x, m_Info.move.y, m_Info.move.z);
 	CManager::GetDebugProc()->Print("スロー可能タイマー[ %d ]\n", m_nSlowTime);
-	CManager::GetDebugProc()->Print("重力[ %f ]\n", fGravity);
+	CManager::GetDebugProc()->Print("重力[ %f ]\n", fGravity);*/
 }
 
 //===============================================
@@ -855,7 +859,7 @@ void CPlayer::Attack(void)
 
 					D3DXVec3Normalize(&vec, &vec);	// ベクトルを正規化する
 
-					BulletMove = vec * 20.0f;
+					BulletMove = vec * 50.0f;
 				}
 
 

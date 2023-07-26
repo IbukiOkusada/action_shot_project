@@ -8,12 +8,15 @@
 #define _BULLET_H_		// 二重インクルード防止用マクロを定義
 
 #include "main.h"
-#include "billboard.h"
+#include "object3D.h"
+
+// 前方宣言
+class CMeshOrbit;
 
 //==========================================================
 // 弾のクラス定義(派生クラス)
 //==========================================================
-class CBullet : public CObjectBillboard
+class CBullet : public CObject3D
 {
 private:	// 自分だけがアクセス可能な定義
 
@@ -71,6 +74,8 @@ private:	// 自分だけがアクセス可能
 	int m_nChangeTimer;		// 種類変更タイマー
 	int m_nIdxTexture;		// テクスチャ番号
 	bool m_bDeath;
+	CMeshOrbit *m_pOrbit;	// 軌跡のポインタ
+	CMeshOrbit *m_pOrbit2;	// 軌跡のポインタ
 };
 
 #endif

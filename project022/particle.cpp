@@ -62,6 +62,7 @@ void CParticle::Set(D3DXVECTOR3 Defpos, D3DXVECTOR3 Defmove, CEffect::TYPE type)
 	float fRadius = 0.0f;
 	float fLife = 0;
 	D3DXVECTOR3 nor;
+	float fCol = (float)(rand() % 3) / 10.0f + 0.3f;
 
 	// 移動ベクトルを求める
 	D3DXVec3Normalize(&nor, &Defmove);	// ベクトルを正規化する
@@ -78,29 +79,24 @@ void CParticle::Set(D3DXVECTOR3 Defpos, D3DXVECTOR3 Defmove, CEffect::TYPE type)
 
 	case CEffect::TYPE_BULLET:	// 弾
 
-		for (int nCnt = 0; nCnt < 4; nCnt++)
-		{
 			// 座標の設定
 			pos = Defpos;
 
-			float fCol = (float)(rand() % 3) / 10.0f + 0.3f;
-
 			//移動量の設定
-			move.x = sinf((float)(rand() % (nMoveX + 1) - (nMoveX / 2)) / 100.0f) * ((float)(rand() % 51 - 25)) * 0.1f;
-			move.y = cosf((float)(rand() % (nMoveY + 1) - (nMoveY / 2)) / 100.0f) * ((float)(rand() % 51 - 25)) * 0.1f;
-			move.z = sinf((float)(rand() % (nMoveZ + 1) - (nMoveZ / 2)) / 100.0f) * ((float)(rand() % 51 - 25)) * 0.1f;
+			move.x = sinf((float)(rand() % 629 - 314) / 100.0f) * ((float)(rand() % 100)) * 0.1f;
+			move.y = cosf((float)(rand() % 629 - 314) / 100.0f) * ((float)(rand() % 100)) * 0.1f;
+			move.z = cosf((float)(rand() % 629 - 314) / 100.0f) * ((float)(rand() % 100)) * 0.1f;
 
 			//色の設定
 			col = D3DXCOLOR(fCol, fCol + 0.1f, 1.0f, 1.0f);
 
 			//半径の設定
-			fRadius = 5.0f;
+			fRadius = 2.0f;
 
 			//寿命の設定
 			fLife = 10.0f;
 
 			CEffect::Create(Defpos, move, col, fRadius, fLife, type);
-		}
 
 		break;
 

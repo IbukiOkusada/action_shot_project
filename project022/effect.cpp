@@ -127,9 +127,13 @@ void CEffect::Update(void)
 
 		switch (m_Info.Type)
 		{
+		case TYPE_NONE:
+			m_Info.col.a -= 0.05f * CManager::GetSlow()->Get();
+			m_Info.fRadius += 0.1f * CManager::GetSlow()->Get();
+			break;
 		case TYPE_BULLET:
 			m_Info.col.a -= 0.05f * CManager::GetSlow()->Get();
-			m_Info.fRadius -= 0.1f * CManager::GetSlow()->Get();
+			m_Info.fRadius += 0.1f * CManager::GetSlow()->Get();
 			break;
 		case TYPE_EXPLOSION:
 			m_Info.col.a -= 0.05f * CManager::GetSlow()->Get();

@@ -17,6 +17,7 @@ class CWaist;
 class CObjectBillboard;
 class CModel;
 class CLockOn;
+class CMeshOrbit;
 
 //==========================================================
 // プレイヤーのクラス定義(派生クラス)
@@ -116,6 +117,7 @@ private:	// 自分だけがアクセス可能
 	CCharacter *m_pLeg;		// 下半身
 	CModel *m_pWeaponL;		// 武器左
 	CModel *m_pWeaponR;		// 武器右
+	CMeshOrbit *m_pOrbit;	// 軌跡
 	INFO m_Info;			// 自分自身の情報
 	bool m_bJump;			// ジャンプしたかどうか
 	bool m_bAttack;			// 攻撃しているかどうか

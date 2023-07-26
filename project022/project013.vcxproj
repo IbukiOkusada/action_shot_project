@@ -40,6 +40,7 @@
     <ClCompile Include="meshcylinder.cpp" />
     <ClCompile Include="meshdome.cpp" />
     <ClCompile Include="meshfield.cpp" />
+    <ClCompile Include="meshorbit.cpp" />
     <ClCompile Include="meshwall.cpp" />
     <ClCompile Include="model.cpp" />
     <ClCompile Include="motion.cpp" />
@@ -88,6 +89,7 @@
     <ClInclude Include="meshcylinder.h" />
     <ClInclude Include="meshdome.h" />
     <ClInclude Include="meshfield.h" />
+    <ClInclude Include="meshorbit.h" />
     <ClInclude Include="meshwall.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="motion.h" />
