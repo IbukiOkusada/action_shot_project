@@ -936,6 +936,7 @@ void CPlayer::Attack(void)
 					pBullet = CBullet::Create(pos,
 						move, CBullet::TYPE_SHOWER);
 					pBullet->SetInerMove(D3DXVECTOR3(m_Info.move.x, 0.0f, m_Info.move.z));
+					pBullet->SetLife(300.0f);
 				}
 
 				CParticle::Create(D3DXVECTOR3(mtx._41, mtx._42, mtx._43), CamRot, CEffect::TYPE_SHWBULLET);

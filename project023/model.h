@@ -40,11 +40,14 @@ public:	// 誰でもアクセス可能
 	void SetRotation(const D3DXVECTOR3 rot);
 	void SetCurrentPosition(const D3DXVECTOR3 pos);
 	void SetCurrentRotation(const D3DXVECTOR3 rot);
+	void SetChangeCol(const bool bChange, D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 
 private:	// 自分だけがアクセス可能
 
 	// メンバ変数
 	int m_nIdxModel;		// モデル番号
+	bool m_bChangeCol;		// 色変更をするかどうか
+	D3DMATERIAL9 m_ChangeMat;
 	D3DXVECTOR3 m_pos;		// 位置
 	D3DXVECTOR3 m_rot;		// 向き
 	D3DXVECTOR3 m_CurPos;	// 現在の位置

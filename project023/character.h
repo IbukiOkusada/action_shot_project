@@ -44,6 +44,7 @@ public:	// 誰でもアクセス可能
 	D3DXVECTOR3 GetPosition(void) { return m_pos; }
 	D3DXMATRIX *GetMtxWorld(void) { return &m_mtxWorld; }
 	CModel *GetParts(int nIdx);
+	int GetNumParts(void) { return m_nNumParts; }
 	CMotion *GetMotion(void) { return m_pMotion; }
 
 private:	// 自分だけがアクセス可能

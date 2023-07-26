@@ -86,6 +86,7 @@ private:	// 自分だけがアクセス可能
 	// メンバ関数
 	void Controller(void);
 	void SetParticle(void);
+	void SetCol(void);
 
 	// メンバ変数
 	static const int m_aParticleCounter[STATE_MAX];

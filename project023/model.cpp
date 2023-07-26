@@ -17,8 +17,12 @@ CModel::CModel()
 {
 	// 値のクリア
 	m_nIdxModel = -1;
+	m_bChangeCol = false;
 	m_pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	m_ChangeMat.Ambient = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	m_ChangeMat.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	m_ChangeMat.Emissive = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 	//m_pParent = NULL;
 }
 
@@ -110,8 +114,17 @@ void CModel::Draw(void)
 		{
 			int nIdxTex = pFileData->pIdexTexture[nCntMat];	// テクスチャ番号
 
-			//マテリアルの設定
-			pDevice->SetMaterial(&pMat[nCntMat].MatD3D);
+			if (m_bChangeCol == false)
+			{
+				//マテリアルの設定
+				pDevice->SetMaterial(&pMat[nCntMat].MatD3D);
+			}
+			else
+			{
+				//マテリアルの設定
+				m_ChangeMat.Emissive = pMat[nCntMat].MatD3D.Emissive;
+				pDevice->SetMaterial(&m_ChangeMat);
+			}
 
 			//テクスチャの設定
 			pDevice->SetTexture(0, pTexture->SetAddress(nIdxTex));
@@ -201,4 +214,15 @@ void CModel::SetCurrentRotation(const D3DXVECTOR3 rot)
 void CModel::BindModelFile(int nIdx)
 {
 	m_nIdxModel = nIdx;
+}
+
+//==========================================================
+// モデルカラー設定
+//==========================================================
+void CModel::SetChangeCol(const bool bChange, D3DXCOLOR col)
+{
+	m_bChangeCol = bChange;
+	m_ChangeMat.Ambient = col;
+	m_ChangeMat.Diffuse = col;
+	m_ChangeMat.Emissive = col;
 }

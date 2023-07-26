@@ -40,8 +40,8 @@
 const int CEnemy::m_aParticleCounter[STATE_MAX] =
 {
 	30,
-	10,
-	10,
+	20,
+	20,
 	10,
 	10,
 };
@@ -332,6 +332,8 @@ void CEnemy::Controller(void)
 	D3DXVECTOR3 nor;
 	float fHeight = CGame::GetMeshField()->GetHeight(m_Info.pos, nor);
 	m_Info.pos.y = fHeight;
+
+	SetCol();
 }
 
 //===============================================
@@ -391,7 +393,7 @@ void CEnemy::SetState(void)
 //===============================================
 void CEnemy::SetParticle(void)
 {
-	/*switch (m_state)
+	switch (m_state)
 	{
 	case STATE_NORMAL:
 		CParticle::Create(D3DXVECTOR3(m_pBody->GetParts(3)->GetMtxWorld()->_41,
@@ -413,10 +415,33 @@ void CEnemy::SetParticle(void)
 			m_pBody->GetParts(3)->GetMtxWorld()->_43),
 			CEffect::TYPE_HEAT);
 
-		CParticle::Create(D3DXVECTOR3(m_pBody->GetParts(3)->GetMtxWorld()->_41,
+		/*CParticle::Create(D3DXVECTOR3(m_pBody->GetParts(3)->GetMtxWorld()->_41,
 			m_pBody->GetParts(3)->GetMtxWorld()->_42,
 			m_pBody->GetParts(3)->GetMtxWorld()->_43),
-			CEffect::TYPE_SWEAT);
+			CEffect::TYPE_SWEAT);*/
 		break;
-	}*/
+	}
+}
+
+void CEnemy::SetCol(void)
+{
+	D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+
+	col.g = 1.0f - (float)(m_fLife / MAX_LIFE);
+	col.b = 1.0f - (float)(m_fLife / MAX_LIFE);
+
+	for (int nCnt = 0; nCnt < m_pBody->GetNumParts(); nCnt++)
+	{
+		if (m_pBody->GetParts(nCnt) != NULL)
+		{
+			if (m_fLife >= 200)
+			{
+				m_pBody->GetParts(nCnt)->SetChangeCol(true, col);
+			}
+			else
+			{
+				m_pBody->GetParts(nCnt)->SetChangeCol(false);
+			}
+		}
+	}
 }

@@ -103,7 +103,7 @@ void CParticle::Set(D3DXVECTOR3 Defpos, D3DXVECTOR3 Defmove, CEffect::TYPE type)
 
 	case CEffect::TYPE_EXPLOSION:	// ”š”­
 
-		for (int nCnt = 0; nCnt < 4; nCnt++)
+		for (int nCnt = 0; nCnt < 2; nCnt++)
 		{
 			// À•W‚ÌÝ’è
 			pos = Defpos;
@@ -193,7 +193,7 @@ void CParticle::Set(D3DXVECTOR3 Defpos, D3DXVECTOR3 Defmove, CEffect::TYPE type)
 
 		fCol = (float)(rand() % 3) / 10.0f + 0.3f;
 
-		for (int nCnt = 0; nCnt < 2; nCnt++)
+		for (int nCnt = 0; nCnt < 1; nCnt++)
 		{
 			// À•W‚ÌÝ’è
 			pos = Defpos;
