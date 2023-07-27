@@ -88,7 +88,14 @@ void CMeshOrbit::Uninit(void)
 //==========================================================
 void CMeshOrbit::Update(void)
 {
-	
+	m_fTimer += CManager::GetSlow()->Get();
+
+	if (m_fTimer >= 1)
+	{
+		// 頂点設定
+		SetVtxInfo();
+		m_fTimer = 0;
+	}
 }
 
 //==========================================================
@@ -98,15 +105,6 @@ void CMeshOrbit::Draw(void)
 {
 	//デバイスの取得
 	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();		//デバイスへのポインタ
-
-	m_fTimer += CManager::GetSlow()->Get();
-
-	if (m_fTimer >= 1)
-	{
-		// 頂点設定
-		SetVtxInfo();
-		m_fTimer = 0;
-	}
 
 	//ライティングをオフにする
 	pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);

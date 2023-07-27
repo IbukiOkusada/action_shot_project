@@ -23,6 +23,7 @@
 #include "Xfile.h"
 #include "input.h"
 #include "fade.h"
+#include "pause.h"
 
 //===============================================
 // 静的メンバ変数
@@ -33,6 +34,7 @@ CPlayer *CGame::m_pPlayer = NULL;	// プレイヤーのポインタ
 CSlow *CGame::m_pSlow = NULL;		// スロー状態へのポインタ
 CMeshField *CGame::m_pMeshField = NULL;
 CFileLoad *CGame::m_pFileLoad = NULL;
+CPause *CGame::m_pPause = NULL;
 
 //===============================================
 // コンストラクタ
@@ -84,6 +86,12 @@ HRESULT CGame::Init(void)
 	m_pTime = CTime::Create(D3DXVECTOR3(500.0f, 50.0f, 0.0f));
 	m_pTime->Set(120);
 
+	// ポーズの生成
+	if (m_pPause == NULL)
+	{
+		m_pPause = CPause::Create();
+	}
+
 	return S_OK;
 }
 
@@ -117,17 +125,16 @@ void CGame::Uninit(void)
 	}
 
 	// スロー
-	if (m_pSlow != NULL)
+	if (m_pPause != NULL)
 	{
-		m_pSlow->Uninit();
-		delete m_pSlow;	// メモリの開放
-		m_pSlow = NULL;	// 使用していない状態にする
+		m_pPause->Uninit();
+		delete m_pPause;	// メモリの開放
+		m_pPause = NULL;	// 使用していない状態にする
 	}
 
 	m_pScore = NULL;		// スコアのポインタ
 	m_pTime = NULL;		// タイムのポインタ
 	m_pPlayer = NULL;	// プレイヤーのポインタ
-	m_pSlow = NULL;		// スロー状態へのポインタ
 	m_pMeshField = NULL;
 	m_pFileLoad = NULL;
 }
@@ -137,11 +144,23 @@ void CGame::Uninit(void)
 //===============================================
 void CGame::Update(void)
 {
-	// スロー
-	if (m_pSlow != NULL)
+	// ポーズ
+	if (m_pPause != NULL)
 	{
-		m_pSlow->Update();
+		m_pPause->Update();
+
+		if (m_pPause->GetEnable() == true)
+		{
+			if (m_pPause->GetSelect() == true)
+			{
+				CManager::GetFade()->Update();
+			}
+			return;
+		}
 	}
+
+	// 更新処理
+	CScene::Update();
 
 	// タイム
 	if (m_pTime != NULL)
@@ -164,7 +183,13 @@ void CGame::Update(void)
 //===============================================
 void CGame::Draw(void)
 {
-	
+	CScene::Draw();
+
+	// ポーズ
+	if (m_pPause != NULL)
+	{
+		m_pPause->Draw();
+	}
 }
 
 //===================================================

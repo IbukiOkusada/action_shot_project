@@ -20,6 +20,7 @@ class CEditor;
 class CSlow;
 class CObject3D;
 class CMeshField;
+class CPause;
 
 //===============================================
 // ゲームクラスの定義(派生クラス)
@@ -46,16 +47,18 @@ public:
 	static CMeshField *GetMeshField(void);
 	static void SetMesh(CMeshField *pMesh) { m_pMeshField = pMesh; }
 	static CFileLoad *GetFileLoad(void);
+	static CPause *GetPause(void);
 	void DataReset(void);
 
 private:
 
-	static CFileLoad *m_pFileLoad;	// ファイル読み込みのポインタ
+	static CFileLoad *m_pFileLoad;		// ファイル読み込みのポインタ
 	static CScore *m_pScore;			// スコアのポインタ
 	static CTime *m_pTime;				// タイムのポインタ
 	static CPlayer *m_pPlayer;			// プレイヤーのポインタ
 	static CSlow *m_pSlow;				// スローのポインタ
 	static CMeshField *m_pMeshField;	// メッシュフィールドのポインタ
+	static CPause *m_pPause;			// ポーズのポインタ
 };
 
 #endif

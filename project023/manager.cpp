@@ -351,33 +351,6 @@ void CManager::Update(void)
 		m_pInputPad->Update();
 	}
 
-	// カメラの更新処理
-	if (m_pCamera != NULL)
-	{
-		m_pCamera->Update();
-	}
-
-	// スローの更新処理
-	if (m_pSlow != NULL)
-	{
-		m_pSlow->Update();
-	}
-
-	// レンダラーの更新処理
-	if (m_pRenderer != NULL)
-	{// 使用している場合
-		CEditor *pEditor = GetEditor();
-
-		/*if (pEditor == NULL)
-		{
-			m_pRenderer->Update();
-		}
-		else if (pEditor != NULL && pEditor->GetUse() == false)
-		{*/
-			m_pRenderer->Update();
-		//}
-	}
-
 	if (m_pScene != NULL)
 	{
 		m_pScene->Update();
@@ -399,10 +372,9 @@ void CManager::Update(void)
 //===================================================
 void CManager::Draw(void)
 {
-	// 描画処理
-	if (m_pRenderer != NULL)
-	{// 使用している場合
-		m_pRenderer->Draw();
+	if (m_pScene != NULL)
+	{
+		m_pScene->Draw();
 	}
 }
 
@@ -667,7 +639,23 @@ void CScene::Uninit(void)
 //===================================================
 void CScene::Update(void)
 {
+	// カメラの更新処理
+	if (CManager::GetCamera() != NULL)
+	{
+		CManager::GetCamera()->Update();
+	}
 
+	// スローの更新処理
+	if (CManager::GetSlow() != NULL)
+	{
+		CManager::GetSlow()->Update();
+	}
+
+	// レンダラーの更新処理
+	if (CManager::GetRenderer() != NULL)
+	{// 使用している場合
+		CManager::GetRenderer()->Update();
+	}
 }
 
 //===================================================
@@ -675,5 +663,9 @@ void CScene::Update(void)
 //===================================================
 void CScene::Draw(void)
 {
-
+	// 描画処理
+	if (CManager::GetRenderer() != NULL)
+	{// 使用している場合
+		CManager::GetRenderer()->Draw();
+	}
 }

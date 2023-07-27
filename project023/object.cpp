@@ -200,9 +200,13 @@ void CObject::DrawAll(void)
 		{// 使用されていない状態まで
 			CObject *pObjectNext = pObject->m_pNext;	// 次のオブジェクトへのポインタを取得
 
-			// 描画処理
-			pObject->Draw();
+			if (pObject->m_type != TYPE_PAUSE)
+			{// ポーズ画面以外
 
+				// 描画処理
+				pObject->Draw();
+
+			}
 			pObject = pObjectNext;	// 次のオブジェクトに移動
 		}
 	}
@@ -289,8 +293,15 @@ void CObject::DeathCheck(void)
 				}
 				else
 				{
-					pObject->m_pPrev->m_pNext = pObject->m_pNext;	// 自身の前に次のポインタを覚えさせる
-					pObject->m_pNext->m_pPrev = pObject->m_pPrev;	// 自身の次に前のポインタを覚えさせる
+					if (pObject->m_pPrev != NULL)
+					{
+						pObject->m_pPrev->m_pNext = pObject->m_pNext;	// 自身の前に次のポインタを覚えさせる
+					}
+
+					if (pObject->m_pNext != NULL)
+					{
+						pObject->m_pNext->m_pPrev = pObject->m_pPrev;	// 自身の次に前のポインタを覚えさせる
+					}
 				}
 
 				delete pObject;	// メモリの開放

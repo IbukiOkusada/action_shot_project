@@ -300,7 +300,7 @@ CEnemy *CEnemy::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 move, const
 		pEnemy->m_pBillState->SetPosition(pEnemy->GetPosition());
 
 		// ビルボードの設定
-		//pEnemy->m_pBillState = CObjectBillboard::Create()
+		//pEnemy->m_pBillState = CObjectBillboard::Create();
 	}
 	else
 	{// 生成に失敗した場合

@@ -65,6 +65,8 @@ void CResult::Update(void)
 	{
 		CManager::GetFade()->Set(CScene::MODE_TITLE);
 	}
+
+	CScene::Update();
 }
 
 //===============================================
@@ -72,5 +74,5 @@ void CResult::Update(void)
 //===============================================
 void CResult::Draw(void)
 {
-	
+	CScene::Draw();
 }

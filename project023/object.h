@@ -38,6 +38,7 @@ public:	// 誰でもアクセス可能
 		TYPE_BLOCK,		// ブロック
 		TYPE_MODEL,		// モデル
 		TYPE_ENEMYSPAWN,	// エネミー生成モデル
+		TYPE_PAUSE,		// ポーズ画面
 		TYPE_MAX
 	}TYPE;
 
