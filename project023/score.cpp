@@ -171,3 +171,16 @@ void CScore::SetValue(void)
 	}
 }
 
+//===============================================
+// êFê›íË
+//===============================================
+void CScore::SetColor(D3DXCOLOR col)
+{
+	for (int nCnt = 0; nCnt < NUM_SCORE; nCnt++)
+	{
+		if (m_apNumber[nCnt] != NULL)
+		{// égópÇµÇƒÇ¢Ç»Ç¢èÍçá
+			m_apNumber[nCnt]->GetObject2D()->SetCol(col);
+		}
+	}
+}

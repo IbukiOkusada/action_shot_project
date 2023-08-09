@@ -11,6 +11,7 @@
 
 // 前方宣言
 class CModel;
+class CEnemy;
 class CObject;
 
 //**********************************************************
@@ -18,15 +19,16 @@ class CObject;
 //**********************************************************
 class CLockOn : public CObjectBillboard
 {
-private:	// 自分だけがアクセス可能
+public:		// 誰でもアクセス可能な定義
 
-	// 射程構造体
-	typedef struct
+	// ロックオン種類
+	typedef enum 
 	{
-		D3DXVECTOR3 pos;		// 位置
-		D3DXVECTOR3 rot;		// 向き
-		D3DXMATRIX mtxWorld;	// ワールドマトリックス
-	}DISTANCE;
+		TYPE_NONE = 0,	// 何もない
+		TYPE_TARGET,	// 単体ロックオン
+		TYPE_MULTI,		// multiロックオン
+		TYPE_MAX
+	}TYPE;
 
 public:	// 誰でもアクセス可能
 
@@ -39,26 +41,35 @@ public:	// 誰でもアクセス可能
 	void Update(void);
 	void Draw(void);
 	void SetParent(D3DXMATRIX *pMtx);
-	void SetDistance(float fLength, float fAngle);
 	bool GetLock(void) { return m_bLock; }
 	void SetLock(bool bLock) { m_bUse = bLock; }
-	static CLockOn *Create(D3DXMATRIX *pMtx);
+	static CLockOn *Create(D3DXMATRIX *pMtx, TYPE type = TYPE_TARGET);
 	CObject *GetTag(void);
+	void SetTag(CEnemy *pEnemy) { m_pObj = pEnemy; }
+	static void Check(CEnemy *pObject);
+	void DeathCheck(void);
+	static void MultiDeath(void);
+	static CLockOn *GetTop(void) { return m_pTop; }
+	CLockOn *GetNext(void) { return m_pNext; }
+	CEnemy *GetEnemy(void) { return m_pObj; }
+	TYPE GetType(void) { return m_type; }
+	bool GetDeath(void) { return m_bDeath; }
 
 private:	// 自分だけがアクセス可能
 
 	// メンバ関数
 	void LockOn(void);
-	void SetDisMtx(DISTANCE *pDis);
 
-	CObject *m_pObj;		// ロックオンするモデル
+	static CLockOn *m_pTop;	// 先頭のオブジェクトへのポインタ
+	static CLockOn *m_pCur;	// 最後尾のオブジェクトへのポインタ
+	CLockOn *m_pPrev;		// 前のオブジェクトへのポインタ
+	CLockOn *m_pNext;		// 次のオブジェクトへのポインタ
+	CEnemy *m_pObj;		// ロックオンするモデル
 	D3DXMATRIX *m_pMtx;		// 親のマトリックス
-	DISTANCE m_DisL;		// 左側距離
-	DISTANCE m_DisR;		// 右側距離
-	float m_fLength;		// 長さ
-	float m_fAngle;			// 角度
 	bool m_bLock;			// ロックオンしているかどうか
 	bool m_bUse;			// 使用するかどうか
+	bool m_bDeath;			// 死亡フラグ
+	TYPE m_type;			// ロックオン種類
 };
 
 #endif

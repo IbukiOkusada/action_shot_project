@@ -33,6 +33,7 @@ private:	// 自分だけがアクセス可能
 	int m_nTimeCnt;		// タイマー
 	int m_nTimer;		// カウント規定値
 	float m_fAdd;		// スロー倍率
+	float m_fMulOld;	// 前回の倍率
 };
 
 #endif

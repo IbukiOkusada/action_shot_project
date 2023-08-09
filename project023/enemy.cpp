@@ -21,7 +21,9 @@
 #include "bullet.h"
 #include "particle.h"
 #include "score.h"
+#include "lockon.h"
 #include "game.h"
+#include "player.h"
 
 //===============================================
 // マクロ定義
@@ -67,6 +69,7 @@ CEnemy::CEnemy(int nPriOrity)
 	m_fLife = 0.0f;
 	m_Interval.fHot = 0;
 	m_Interval.fDamage = 0;
+	m_pLockOn = NULL;
 }
 
 //===============================================
@@ -109,7 +112,7 @@ HRESULT CEnemy::Init(const char *pName)
 	m_fMoveCnt = (float)(rand() % 1000);
 	m_fLife = 200.0f;
 
-	m_pBillState = CObjectBillboard::Create(m_pBody->GetParts(2)->GetPosition());
+	m_pBillState = CObjectBillboard::Create(m_pBody->GetParts(2)->GetPosition(), 6);
 	m_pBillState->BindTexture(CTexture::TYPE_ENEMYSTATE);
 	m_pBillState->SetSize(10.0f, 10.0f);
 
@@ -143,8 +146,16 @@ void CEnemy::Uninit(void)
 		m_pBillState = NULL;
 	}
 
+	// ロックオンの終了
+	if (m_pLockOn != NULL)
+	{
+		m_pLockOn->Uninit();
+		m_pLockOn = NULL;
+	}
+
 	// ロックオン確認
 	CBullet::Check(this);
+	CLockOn::Check(this);
 
 	// 廃棄
 	Release();
@@ -240,6 +251,8 @@ void CEnemy::Update(void)
 //===============================================
 void CEnemy::Draw(void)
 {
+	SetCol();
+
 	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();	//デバイスへのポインタを取得
 	CTexture *pTexture = CManager::GetTexture();	// テクスチャへのポインタ
 	D3DXMATRIX mtxRot, mtxTrans;	//計算用マトリックス
@@ -254,7 +267,7 @@ void CEnemy::Draw(void)
 	//位置を反映
 	D3DXMatrixTranslation(&mtxTrans, m_Info.pos.x, m_Info.pos.y, m_Info.pos.z);
 	D3DXMatrixMultiply(&m_Info.mtxWorld, &m_Info.mtxWorld, &mtxTrans);
-
+	
 	//ワールドマトリックスの設定
 	pDevice->SetTransform(D3DTS_WORLD, &m_Info.mtxWorld);
 
@@ -343,8 +356,15 @@ void CEnemy::Hit(float fDamage)
 {
 	if (m_Interval.fDamage <= 0)
 	{
+		float fLifeOld = m_fLife;
 		m_fLife -= fDamage;
-		CGame::GetScore()->Add(100);
+
+		if (m_fLife < 0)
+		{
+			m_fLife = 0;
+		}
+
+		CGame::GetScore()->Add((int)(fLifeOld - m_fLife));
 		CParticle::Create(D3DXVECTOR3(m_pBody->GetParts(3)->GetMtxWorld()->_41,
 			m_pBody->GetParts(3)->GetMtxWorld()->_42,
 			m_pBody->GetParts(3)->GetMtxWorld()->_43), CEffect::TYPE_EXPLOSION);
@@ -369,6 +389,11 @@ void CEnemy::SetState(void)
 	{// 0以下
 		//m_state = STATE_COOL;
 		Uninit();
+
+		if (CGame::GetPlayer() != NULL)
+		{
+			CGame::GetPlayer()->AddSlowTime();
+		}
 	}
 	else if (m_fLife < 200 * STATE_HOT)
 	{//あともう少し
@@ -393,6 +418,28 @@ void CEnemy::SetState(void)
 //===============================================
 void CEnemy::SetParticle(void)
 {
+	D3DXMATRIX mtxProjection;
+	D3DXMATRIX mtxView;
+	D3DXMATRIX mtxWorld;
+	D3DXVECTOR3 ScreenPos;
+	D3DVIEWPORT9 Viewport;
+
+	//デバイスの取得
+	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
+
+	pDevice->GetTransform(D3DTS_PROJECTION, &mtxProjection);
+	pDevice->GetTransform(D3DTS_VIEW, &mtxView);
+	pDevice->GetViewport(&Viewport);
+	//ワールドマトリックスの初期化
+	D3DXMatrixIdentity(&mtxWorld);
+	D3DXVec3Project(&ScreenPos, &GetPosition(), &Viewport, &mtxProjection, &mtxView, &mtxWorld);
+
+	if (ScreenPos.x < 0.0f || ScreenPos.x > SCREEN_WIDTH || 
+		ScreenPos.y < 0.0f || ScreenPos.y > SCREEN_HEIGHT || ScreenPos.z >= 1.0f)
+	{// 画面に描画されていない
+		return;
+	}
+
 	switch (m_state)
 	{
 	case STATE_NORMAL:
@@ -423,6 +470,9 @@ void CEnemy::SetParticle(void)
 	}
 }
 
+//===============================================
+// 色設定
+//===============================================
 void CEnemy::SetCol(void)
 {
 	D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);

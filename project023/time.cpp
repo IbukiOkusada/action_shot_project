@@ -10,7 +10,7 @@
 #include "texture.h"
 #include "number.h"
 #include "object2D.h"
-
+#include "slow.h"
 
 // マクロ定義
 #define WIDTH	(30)	// 幅
@@ -30,7 +30,7 @@ CTime::CTime()
 
 	m_pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_nNum = 0;
-	m_nAnimTimer = 0;
+	m_fAnimTimer = 0.0f;
 	m_nIdxTexture = -1;
 }
 
@@ -97,11 +97,11 @@ void CTime::Uninit(void)
 //===============================================
 void CTime::Update(void)
 {
-	m_nAnimTimer++;
+	m_fAnimTimer += CManager::GetSlow()->Get();
 
-	if (m_nAnimTimer >= 60)
+	if (m_fAnimTimer >= 60)
 	{// 60フレーム立った
-		m_nAnimTimer = 0;	// カウンターリセット
+		m_fAnimTimer = 0;	// カウンターリセット
 		Add(-1);
 	}
 }

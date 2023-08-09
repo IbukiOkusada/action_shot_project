@@ -45,6 +45,10 @@ public:	// 誰でもアクセス可能
 
 private:	// 自分だけがアクセス可能
 	
+	// メンバ関数
+	D3DMATERIAL9 SetSlowCol(D3DMATERIAL9 *pMat);
+
+	// メンバ変数
 	D3DXVECTOR3 m_pos;		//位置
 	D3DXVECTOR3 m_rot;		//向き
 	D3DXMATRIX m_mtxWorld;	//ワールドマトリックス

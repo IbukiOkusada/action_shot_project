@@ -142,6 +142,13 @@ void CEffect::Update(void)
 			m_Info.fRadius += 0.1f * CManager::GetSlow()->Get();
 			break;
 
+		case TYPE_DUST:
+			m_Info.col.a -= 0.01f * CManager::GetSlow()->Get();
+			m_Info.fRadius -= 0.1f * CManager::GetSlow()->Get();
+
+			m_Info.move -= m_Info.move * 0.035f * CManager::GetSlow()->Get();
+
+			break;
 		case TYPE_EXPLOSION:
 			m_Info.col.a -= 0.01f * CManager::GetSlow()->Get();
 			m_Info.move.y += -0.05f * CManager::GetSlow()->Get();
@@ -177,6 +184,15 @@ void CEffect::Update(void)
 			m_Info.fRadius -= (rand() % 100 - 50) * 0.01f;
 			//m_Info.move.y += -0.1f * CManager::GetSlow()->Get();
 			break;
+
+		case TYPE_SWAP:
+
+			m_Info.col.a -= 0.05f * CManager::GetSlow()->Get();
+			m_Info.move.x -= m_Info.move.x * 0.5f * CManager::GetSlow()->Get();
+			m_Info.move.z -= m_Info.move.z * 0.5f * CManager::GetSlow()->Get();
+			m_Info.move.y -= m_Info.move.y * 0.05f * CManager::GetSlow()->Get();
+
+			break;
 		}
 
 		if (m_Info.col.a < 0.0f)
@@ -185,7 +201,11 @@ void CEffect::Update(void)
 		}
 		else
 		{
-			SetSize(m_Info.fRadius, m_Info.fRadius);
+			if (m_Info.Type != TYPE_SWAP)
+			{
+				SetSize(m_Info.fRadius, m_Info.fRadius);
+			}
+
 			SetCol(m_Info.col);
 		}
 	}

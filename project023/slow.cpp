@@ -56,6 +56,8 @@ void CSlow::Uninit(void)
 //==========================================================
 void CSlow::Update(void)
 {
+	m_fMulOld = m_fAdd;
+
 	if (m_nTimer > 0)
 	{// スローにする
 		m_nTimeCnt++;	// カウントアップ
@@ -116,4 +118,12 @@ void CSlow::SetSlow(bool bUse)
 			}
 		}
 	}
+}
+
+//==========================================================
+// 前回の倍率を取得
+//==========================================================
+float CSlow::GetOld(void)
+{
+	return m_fMulOld;
 }

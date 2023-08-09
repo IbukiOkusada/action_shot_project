@@ -32,6 +32,10 @@ public:	// 誰でもアクセス可能な定義
 		TYPE_BULLET,		// 弾
 		TYPE_ENEMYSTATE,	// 敵の状態
 		TYPE_ENEMYSTATEADD,	// 敵の状態悪
+		TYPE_SLOWLOCK,		// スロー中ロックオン
+		TYPE_PERFECT,
+		TYPE_GOOD,
+		TYPE_SLOWGUNFIL,
 		TYPE_MAX
 	}TYPE;
 

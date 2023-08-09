@@ -63,11 +63,17 @@ public:		// 誰でもアクセス可能
 	// メンバ関数
 	void Uninit(void);
 	void Update(void);
+	void Update(float fSpeedMul);
 	void BlendSet(int nType);
 	void Set(int nType);
 	void InitSet(int nType);
 	void SetModel(CModel **pModel, int nNumParts);
 	void LoadMotionData(FILE *pFile);
+	int GetNowKey(void) { return m_nNowKey; }
+	int GetNowMotion(void) { return m_nNowMotion; }
+	int GetOldMotion(void) { return m_nOldType; }
+	float GetNowFrame(void) { return m_fNowFrame; }
+	int GetNowNumKey(void) { return aInfo[m_nNowMotion].nNumKey; }
 
 private:	// 自分だけがアクセス可能
 
@@ -76,6 +82,7 @@ private:	// 自分だけがアクセス可能
 	INFO aInfo[MAX_MOTION];	// モーション情報
 	int m_nNumMotion;		// モーション数
 	int m_nNowFrame;		// 現在のフレーム数
+	float m_fNowFrame;		// 現在のフレーム数
 	int m_nNowMotion;		// 現在のモーション番号
 	int m_nNowKey;			// 現在のキー数
 	int m_nOldType;			// 前回のモーションタイプ

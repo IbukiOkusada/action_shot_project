@@ -13,15 +13,16 @@
 #include "fade.h"
 
 //===============================================
-// 静的メンバ変数
+// マクロ定義
 //===============================================
+#define AUTOMOVE_RANKING	(420)	// ランキング自動遷移
 
 //===============================================
 // コンストラクタ
 //===============================================
 CTitle::CTitle()
 {
-
+	m_nTimer = 0;
 }
 
 //===============================================
@@ -59,13 +60,24 @@ void CTitle::Uninit(void)
 void CTitle::Update(void)
 {
 	CInputPad *pInputPad = CManager::GetInputPad();
+	CInputKeyboard *pInputKey = CManager::GetInputKeyboard();
 
-	if (CManager::GetInputKeyboard()->GetTrigger(DIK_RETURN) || pInputPad->GetTrigger(CInputPad::BUTTON_A, 0))
+	if (pInputKey->GetTrigger(DIK_RETURN) || pInputPad->GetTrigger(CInputPad::BUTTON_A, 0))
 	{
 		CManager::GetFade()->Set(CScene::MODE_GAME);
 	}
 
 	CScene::Update();
+
+	if (CManager::GetFade()->GetState() == CFade::STATE_NONE)
+	{
+		m_nTimer++;
+
+		if (m_nTimer >= AUTOMOVE_RANKING)
+		{// タイトル自動遷移規定値
+			CManager::GetFade()->Set(CScene::MODE_RANKING);
+		}
+	}
 }
 
 //===============================================

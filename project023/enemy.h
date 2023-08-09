@@ -16,7 +16,7 @@ class CShadow;
 class CObjectBillboard;
 
 //==========================================================
-// プレイヤーのクラス定義(派生クラス)
+// 敵のクラス定義(派生クラス)
 //==========================================================
 class CEnemy : public CObject
 {
@@ -80,6 +80,8 @@ public:	// 誰でもアクセス可能
 	D3DXVECTOR3 GetPosition(void) { return m_Info.pos; }
 	D3DXVECTOR3 GetRotation(void) { return m_Info.rot; }
 	D3DXMATRIX *GetMtx(void) { return &m_Info.mtxWorld; }
+	CEnemy *GetEnemy(void) { return this; }
+	CCharacter *GetBody(void) { return m_pBody; }
 
 private:	// 自分だけがアクセス可能
 
@@ -102,6 +104,7 @@ private:	// 自分だけがアクセス可能
 	float m_fLife;			// 体力
 	Interval m_Interval;	// インターバル
 	STATE m_state;			// 状態管理
+	CObject *m_pLockOn;		// ロックオン
 	CObjectBillboard *m_pBillState;	// 状態表示用ビルボード
 };
 

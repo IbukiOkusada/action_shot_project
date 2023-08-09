@@ -14,6 +14,7 @@
 class CShadow;
 class CCharacter;
 class CWaist;
+class CObject2D;
 class CObjectBillboard;
 class CModel;
 class CLockOn;
@@ -35,6 +36,8 @@ private:	// 自分だけがアクセス可能な定義
 		BMOTION_LAND,			// 着地モーション
 		BMOTION_TWINATK,		// 二丁射撃モーション
 		BMOTION_SHWATK,			// シャワー射撃モーション
+		BMOTION_SLOWATK,		// スロー中二丁射撃モーション
+		BMOTION_SLOWSHW,		// スロー中シャワー射撃モーション
 		BMOTION_MAX
 	}BMOTION;
 
@@ -95,6 +98,7 @@ public:	// 誰でもアクセス可能
 	void SetMove(const D3DXVECTOR3 move) { m_Info.move = move; }
 	void SetPosition(const D3DXVECTOR3 pos) { m_Info.pos = pos; }
 	void SetRotation(const D3DXVECTOR3 rot) { m_Info.rot = rot; }
+	void AddSlowTime(int nAddTime = 10);
 
 	// メンバ関数(取得)
 	D3DXVECTOR3 GetMove(void) { return m_Info.move; }
@@ -110,6 +114,10 @@ private:	// 自分だけがアクセス可能
 	void Move(void);
 	void Jump(void);
 	void Slow(void);
+	void SlowShw(void);
+	void SlowGun(void);
+	void SetGageColor(float fRate);
+	void Particle(void);
 
 	// メンバ変数
 	CWaist *m_pWaist;		// 腰
@@ -117,16 +125,19 @@ private:	// 自分だけがアクセス可能
 	CCharacter *m_pLeg;		// 下半身
 	CModel *m_pWeaponL;		// 武器左
 	CModel *m_pWeaponR;		// 武器右
+	CObject2D *m_pSlowGage;	// スローゲージ
 	CMeshOrbit *m_pOrbit;	// 軌跡
 	INFO m_Info;			// 自分自身の情報
 	bool m_bJump;			// ジャンプしたかどうか
 	bool m_bAttack;			// 攻撃しているかどうか
-	float m_fAttackTimer;		// 攻撃タイマー
+	float m_fAttackTimer;	// 攻撃タイマー
 	int m_nAttackHand;		// 攻撃する手
 	ATK m_WepType;			// 装備中武器種類
+	ATK m_WepTypeOld;		// 変更前の武器種類
 	bool m_bMove;			// 移動したかどうか
 	int m_nSlowTime;		// スロー可能時間
-	bool m_bSlow;			// スロー入力できるか否か
+	bool m_bActiveSlow;		// スロー入力できるか否か
+	bool m_bSlow;			// スロー状態か否か
 	bool m_bLock;			// ロックオンしているか否か
 	float m_fRotMove;		// 現在の角度
 	float m_fRotDiff;		// 目的の角度
@@ -134,8 +145,8 @@ private:	// 自分だけがアクセス可能
 	CShadow *pShadow;		// 影
 	CLockOn *m_pLockon;		// ロックオン
 	static const D3DXVECTOR3 SetWepPos[WEAPON_MAX];	// 武器設定位置
-	static const int m_aWepTimer[ATK_MAX];		// 攻撃タイマー
-	int m_aWepNum[WEAPON_MAX];				// 武器ファイル読み込み番号
+	static const int m_aWepTimer[ATK_MAX];			// 攻撃タイマー
+	int m_aWepNum[WEAPON_MAX];						// 武器ファイル読み込み番号
 	static const char *m_apFileName[WEAPON_MAX];	// 武器ファイル名
 };
 

@@ -28,6 +28,8 @@ public:	// 誰でもアクセス可能な定義
 		TYPE_SHWREF,	// 地面反射シャワー
 		TYPE_SWEAT,		// 汗
 		TYPE_HEAT,		// 熱中症状態
+		TYPE_JUMP,		// ジャンプ
+		TYPE_SWAP,		// 軌跡っぽいの
 		TYPE_MAX
 	}TYPE;
 

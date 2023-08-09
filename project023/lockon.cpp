@@ -12,6 +12,24 @@
 #include "objectX.h"
 #include "model.h"
 #include "camera.h"
+#include "slow.h"
+#include "enemy.h"
+#include "character.h"
+
+// マクロ定義
+#define MULTIDEF_SIZE	(50.0f)		// デフォルトサイズ
+#define MULTISTART_SIZE	(1000.0f)	// 表示開始サイズ
+#define MULTIMINUS_SIZE	(120.0f)	// サイズ変更
+#define MULTIADD_COLA	(0.1f)		// 色
+#define DEF_SIZE		(20.0f)		// デフォルトサイズ
+#define START_SIZE		(700.0f)	// 表示開始サイズ
+#define MINUS_SIZE		(60.0f)		// サイズ変更
+#define ADD_COLA		(0.1f)		// 色
+#define SHOT_LENGTH		(3000.0f)
+
+// 静的メンバ変数
+CLockOn *CLockOn::m_pTop = NULL;	// 先頭のオブジェクトへのポインタ
+CLockOn *CLockOn::m_pCur = NULL;	// 最後尾のオブジェクトへのポインタ
 
 //==========================================================
 // コンストラクタ
@@ -20,13 +38,23 @@ CLockOn::CLockOn(int nPriOrity) : CObjectBillboard(nPriOrity)
 {
 	// 値のクリア
 	m_bLock = false;
-	m_DisL.pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	m_DisL.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	m_DisR.pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	m_DisR.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	m_fLength = 0.0f;
-	m_fAngle = 0.0f;
 	m_pMtx = NULL;
+	m_bDeath = false;
+	m_pNext = NULL;
+	m_pPrev = NULL;
+
+	// 自分自身をリストに追加
+	if (m_pTop != NULL)
+	{// 先頭が存在している場合
+		m_pCur->m_pNext = this;	// 現在最後尾のオブジェクトのポインタにつなげる
+		m_pPrev = m_pCur;
+		m_pCur = this;	// 自分自身が最後尾になる
+	}
+	else
+	{// 存在しない場合
+		m_pTop = this;	// 自分自身が先頭になる
+		m_pCur = this;	// 自分自身が最後尾になる
+	}
 }
 
 //==========================================================
@@ -48,6 +76,8 @@ HRESULT CLockOn::Init(void)
 	// 色を変更
 	SetVtx(D3DXCOLOR(1.0f, 1.0f, 0.5f, 1.0f));
 
+	SetSize(MULTISTART_SIZE, MULTISTART_SIZE);
+
 	return S_OK;
 }
 
@@ -58,6 +88,10 @@ void CLockOn::Uninit(void)
 {
 	// 終了
 	CObjectBillboard::Uninit();
+
+	m_bDeath = true;
+
+	DeathCheck();
 }
 
 //==========================================================
@@ -65,8 +99,45 @@ void CLockOn::Uninit(void)
 //==========================================================
 void CLockOn::Update(void)
 {
-	if (m_bUse == false)
+	if (m_bUse == false && m_type == TYPE_TARGET)
 	{
+		return;
+	}
+	else if (m_type != TYPE_TARGET)
+	{
+		SetPosition(D3DXVECTOR3(m_pObj->GetMtx()->_41, m_pObj->GetMtx()->_42 + 50.0f, m_pObj->GetMtx()->_43));
+
+		float fSize = GetWidth();
+		D3DXCOLOR col = GetCol();
+		D3DXVECTOR3 rot = GetRotation();
+
+		if (fSize > MULTIDEF_SIZE)
+		{// 既定のサイズより大きい
+			fSize -= MULTIMINUS_SIZE;
+			col.a += MULTIADD_COLA;
+			rot.z += D3DX_PI * 0.025f;
+
+			if (fSize < MULTIDEF_SIZE)
+			{
+				fSize = MULTIDEF_SIZE;
+				rot.z = 0.0f;
+			}
+
+			if (col.a > 1.0f)
+			{
+				col.a = 1.0f;
+			}
+
+			if (rot.z > D3DX_PI)
+			{
+				rot.z += -D3DX_PI * 2;
+			}
+
+			SetRotation(rot);
+			SetSize(fSize, fSize);
+			SetCol(col);
+		}
+
 		return;
 	}
 
@@ -76,20 +147,29 @@ void CLockOn::Update(void)
 	// ロックオン処理
 	LockOn();
 
-	if (m_pMtx != NULL)
-	{
-		m_DisL.pos.x = m_pMtx->_41 + cosf(m_DisL.rot.z + CamRot.y + (-m_fAngle)) * m_fLength;
-		m_DisL.pos.y = m_pMtx->_42 + 0.0f;
-		m_DisL.pos.z = m_pMtx->_43 + sinf(m_DisL.rot.z + CamRot.y + (-m_fAngle)) * m_fLength;
+	float fSize = GetWidth();
+	D3DXCOLOR col = GetCol();
+	D3DXVECTOR3 rot = GetRotation();
 
-		m_DisR.pos.x = m_pMtx->_41 + cosf(m_DisR.rot.z + CamRot.y + (m_fAngle)) * m_fLength;
-		m_DisR.pos.y = m_pMtx->_42 + 0.0f;
-		m_DisR.pos.z = m_pMtx->_43 + sinf(m_DisR.rot.z + CamRot.y + (m_fAngle)) * m_fLength;
+	if (fSize > MINUS_SIZE)
+	{// 既定のサイズより大きい
+		fSize -= MINUS_SIZE;
+		col.a += ADD_COLA;
+
+		if (fSize < DEF_SIZE)
+		{
+			fSize = MINUS_SIZE;
+			col.a = 1.0f;
+		}
+
+		if (col.a > 1.0f)
+		{
+			col.a = 1.0f;
+		}
+
+		SetSize(fSize, fSize);
+		SetCol(col);
 	}
-
-	// マトリックス更新
-	SetDisMtx(&m_DisL);
-	SetDisMtx(&m_DisR);
 }
 
 //==========================================================
@@ -97,7 +177,7 @@ void CLockOn::Update(void)
 //==========================================================
 void CLockOn::Draw(void)
 {
-	if (m_bUse == false || m_bLock == false)
+	if ((m_bUse == false || m_bLock == false) && m_type == TYPE_TARGET)
 	{
 		return;
 	}
@@ -114,7 +194,7 @@ void CLockOn::Draw(void)
 	pDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS);
 	pDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
 
-	CObjectBillboard::Draw();
+	CObjectBillboard::RotFusionDraw();
 
 	//ライティングをオフにする
 	pDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
@@ -125,26 +205,9 @@ void CLockOn::Draw(void)
 }
 
 //==========================================================
-// 範囲設定
-//==========================================================
-void CLockOn::SetDistance(float fLength, float fAngle)
-{
-	m_fAngle = fAngle;
-	m_fLength = fLength;
-
-	m_DisL.pos.x = sinf(m_DisL.rot.z + D3DX_PI * 0.25f + (-fAngle)) * fLength;
-	m_DisL.pos.y = 0.0f;
-	m_DisL.pos.z = cosf(m_DisL.rot.z + D3DX_PI * 0.25f + (-fAngle)) * fLength;
-
-	m_DisR.pos.x = sinf(m_DisR.rot.z + D3DX_PI * 0.25f + (fAngle)) * fLength;
-	m_DisR.pos.y = 0.0f;
-	m_DisR.pos.z = cosf(m_DisR.rot.z + D3DX_PI * 0.25f + (fAngle)) * fLength;
-}
-
-//==========================================================
 // 生成
 //==========================================================
-CLockOn *CLockOn::Create(D3DXMATRIX *pMtx)
+CLockOn *CLockOn::Create(D3DXMATRIX *pMtx, TYPE type)
 {
 	CLockOn *pLock = NULL;
 
@@ -165,6 +228,9 @@ CLockOn *CLockOn::Create(D3DXMATRIX *pMtx)
 	// テクスチャ指定
 	pLock->BindTexture(CTexture::TYPE_LOCKON);
 
+	// 種類設定
+	pLock->m_type = type;
+
 	return pLock;
 }
 
@@ -174,8 +240,27 @@ CLockOn *CLockOn::Create(D3DXMATRIX *pMtx)
 void CLockOn::LockOn(void)
 {
 	CObject *pOldObj = NULL;
-	int nCnt = 0;
-	int nCntObj = 0;
+	CEnemy *pEnemy = NULL;
+	D3DXMATRIX mtxProjection;
+	D3DXMATRIX mtxView;
+	D3DXMATRIX mtxWorld;
+	D3DXVECTOR3 EnemyPos;
+	D3DXVECTOR3 ScreenPos;
+	D3DVIEWPORT9 Viewport;
+	float fMultiScreen = 0.3f;	// 判定範囲
+
+	if (CManager::GetSlow()->Get() != 1.0f)
+	{
+		fMultiScreen = 0.4f;
+	}
+
+	//デバイスの取得
+	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
+	pDevice->GetTransform(D3DTS_PROJECTION, &mtxProjection);
+	pDevice->GetTransform(D3DTS_VIEW, &mtxView);
+	pDevice->GetViewport(&Viewport);
+	//ワールドマトリックスの初期化
+	D3DXMatrixIdentity(&mtxWorld);
 
 	for (int nCntPri = 0; nCntPri < NUM_PRIORITY; nCntPri++)
 	{
@@ -198,77 +283,139 @@ void CLockOn::LockOn(void)
 				continue;
 			}
 
-			if (pObj->GetDeath() == false)
+			if (pObj->GetDeath() == true)
 			{
-				D3DXVECTOR3 ObjPos = pObj->GetPosition();
+				pObj = pObjectNext;	// 次のオブジェクトに移動
+				continue;
+			}
 
-				D3DXVECTOR3 vec1, vec2;	//判定用変数
-				D3DXVECTOR3 vecToPos;	//判定用変数
-				float fMaxField;		//判定用
-				float fField, fField2;
-				float fRate, fRate2;	//判定用変数
+			pEnemy = pObj->GetEnemy();
 
-				// プレイヤーから判定距離へのベクトルを求める
-				vec1 = D3DXVECTOR3(m_DisL.mtxWorld._41 - m_pMtx->_41, m_DisL.mtxWorld._42 - m_pMtx->_42, m_DisL.mtxWorld._43 - m_pMtx->_43);
-				vec2 = D3DXVECTOR3(m_DisR.mtxWorld._41 - m_pMtx->_41, m_DisR.mtxWorld._42 - m_pMtx->_42, m_DisR.mtxWorld._43 - m_pMtx->_43);
+			if (pEnemy == NULL)
+			{
+				pObj = pObjectNext;	// 次のオブジェクトに移動
+				continue;
+			}
 
-				// 現在の座標のベクトルを求める
-				vecToPos = D3DXVECTOR3(ObjPos.x - m_pMtx->_41,
-					ObjPos.y - m_pMtx->_42,
-					ObjPos.z - m_pMtx->_43);
+			EnemyPos.x = pEnemy->GetBody()->GetParts(0)->GetMtxWorld()->_41;
+			EnemyPos.y = pEnemy->GetBody()->GetParts(0)->GetMtxWorld()->_42;
+			EnemyPos.z = pEnemy->GetBody()->GetParts(0)->GetMtxWorld()->_43;
 
-				// 面積を求める
-				fMaxField = (vec1.x * vec2.z) - (vec1.z * vec2.x);
+			D3DXVec3Project(&ScreenPos, &EnemyPos, &Viewport, &mtxProjection, &mtxView, &mtxWorld);
 
-				// 現在の位置との面積を求める
-				fField = (vecToPos.x * vec2.z) - (vecToPos.z * vec2.x);
-				fField2 = (vecToPos.z * vec1.x) - (vecToPos.x * vec1.z);
+			if (ScreenPos.x < SCREEN_WIDTH * fMultiScreen || ScreenPos.x > SCREEN_WIDTH * (1.0f - fMultiScreen) ||
+				ScreenPos.y < SCREEN_HEIGHT * fMultiScreen || ScreenPos.y > SCREEN_HEIGHT * (1.0f - fMultiScreen) || ScreenPos.z >= 1.0f)
+			{// 画面に描画されていない
+				pObj = pObjectNext;	// 次のオブジェクトに移動
+				pEnemy = NULL;
+				continue;
+			}
 
-				// 交点の割合を求める
-				fRate = fField / fMaxField;
-				fRate2 = fField2 / fMaxField;
+			CLockOn *pLock = m_pTop;	// 先頭を取得
 
-				if (fRate >= 0.0f && fRate <= 1.0f && fRate2 >= 0.0f && fRate2 <= 1.0f && (fRate + fRate2) <= 1.0f)
-				{// 三角ポリゴンの中にいる
-					if (pOldObj != NULL)
-					{// 一番近いオブジェクトがある場合
+			while (pLock != NULL)
+			{// 使用されている間繰り返し
+				CLockOn *pLockNext = pLock->m_pNext;	// 次を保持
 
-						D3DXVECTOR3 OldPos = pOldObj->GetPosition();
-
-						// 一番近いモデルとプレイヤーの距離を求める
-						float fOldObjLength =
-							sqrtf((OldPos.x - m_pMtx->_41) * (OldPos.x - m_pMtx->_41)
-								+ (OldPos.y - m_pMtx->_42) * (OldPos.y - m_pMtx->_42)
-								+ (OldPos.z - m_pMtx->_43) * (OldPos.z - m_pMtx->_43));
-
-						// 今回のモデルとプレイヤーの距離を求める
-						float fObjLength =
-							sqrtf((ObjPos.x - m_pMtx->_41) * (ObjPos.x - m_pMtx->_41)
-								+ (ObjPos.y - m_pMtx->_42) * (ObjPos.y - m_pMtx->_42)
-								+ (ObjPos.z - m_pMtx->_43) * (ObjPos.z - m_pMtx->_43));
-
-						if (fObjLength < fOldObjLength)
-						{// 今回のモデルの方が近い場合
-							pOldObj = pObj;	// 一番近いモデルを変更
-						}
+				if (pLock->m_bDeath == false && pLock->m_type == TYPE_MULTI)
+				{
+					if (pLock->m_pObj == pEnemy)
+					{// 同じ標的の場合
+						pEnemy = NULL;
+						pOldObj = NULL;
+						break;
 					}
-					else
-					{// 前回モデルを覚えていない場合
-						pOldObj = pObj;
-					}
+				}
+
+				pLock = pLockNext;	// 次に移動
+			}
+
+			if (pOldObj != NULL)
+			{// 一番近いオブジェクトがある場合
+
+				D3DXVECTOR3 OldPos = pOldObj->GetPosition();
+
+				// 一番近いモデルとプレイヤーの距離を求める
+				float fOldObjLength =
+					sqrtf((OldPos.x - m_pMtx->_41) * (OldPos.x - m_pMtx->_41)
+						+ (OldPos.z - m_pMtx->_43) * (OldPos.z - m_pMtx->_43));
+
+				// 今回のモデルとプレイヤーの距離を求める
+				float fObjLength =
+					sqrtf((EnemyPos.x - m_pMtx->_41) * (EnemyPos.x - m_pMtx->_41)
+						+ (EnemyPos.z - m_pMtx->_43) * (EnemyPos.z - m_pMtx->_43));
+
+				if (fObjLength < fOldObjLength)
+				{// 今回のモデルの方が近い場合
+					pOldObj = pObj;	// 一番近いモデルを変更
+				}
+			}
+			else
+			{// 前回モデルを覚えていない場合
+				if (pEnemy != NULL)
+				{
+					pOldObj = pObj;
 				}
 			}
 
 			pObj = pObjectNext;	// 次のオブジェクトに移動
+
+			if (CManager::GetSlow()->Get() != 1.0f)
+			{
+				if (pOldObj != NULL)
+				{
+					break;
+				}
+			}
 		}
 	}
 
 	if (pOldObj != NULL)
+	{
+		pEnemy = pOldObj->GetEnemy();
+	}
+
+	if (pEnemy != NULL)
 	{// 使用されている場合
-		SetPosition(D3DXVECTOR3(pOldObj->GetPosition().x, pOldObj->GetPosition().y + 30.0f, pOldObj->GetPosition().z));
-		SetSize(20.0f, 20.0f);
-		m_bLock = true;
-		m_pObj = pOldObj;
+
+		EnemyPos.x = pEnemy->GetBody()->GetParts(0)->GetMtxWorld()->_41;
+		EnemyPos.y = pEnemy->GetBody()->GetParts(0)->GetMtxWorld()->_42;
+		EnemyPos.z = pEnemy->GetBody()->GetParts(0)->GetMtxWorld()->_43;
+		// 今回のモデルとプレイヤーの距離を求める
+		float fObjLength =
+			sqrtf((EnemyPos.x - m_pMtx->_41) * (EnemyPos.x - m_pMtx->_41)
+				+ (EnemyPos.z - m_pMtx->_43) * (EnemyPos.z - m_pMtx->_43));
+
+		if (fObjLength >= SHOT_LENGTH)
+		{
+			m_bLock = false;
+			SetSize(0.0f, 0.0f);
+			m_pObj = NULL;
+			return;
+		}
+
+		if (CManager::GetSlow()->Get() == 1.0f)
+		{// スローしていない
+			SetPosition(D3DXVECTOR3(pOldObj->GetPosition().x, pOldObj->GetPosition().y + 30.0f, pOldObj->GetPosition().z));
+			if (m_pObj != pEnemy)
+			{
+				SetSize(START_SIZE, START_SIZE);
+				SetCol(D3DXCOLOR(GetCol().r, GetCol().g, GetCol().b, 0.3f));
+			}
+
+			m_bLock = true;
+			m_pObj = pEnemy;
+		}
+		else
+		{// スローしている
+			m_bLock = false;
+			SetSize(0.0f, 0.0f);
+			m_pObj = NULL;
+
+			CLockOn *pLock = CLockOn::Create(pEnemy->GetMtx(), CLockOn::TYPE_MULTI);
+			pLock->SetTag(pEnemy);
+			pLock->SetCol(D3DXCOLOR(0.0f, 1.0f, 0.5f, 0.3f));
+		}
 	}
 	else
 	{
@@ -276,25 +423,6 @@ void CLockOn::LockOn(void)
 		SetSize(0.0f, 0.0f);
 		m_pObj = NULL;
 	}
-}
-
-//==========================================================
-// 範囲マトリックス変更
-//==========================================================
-void CLockOn::SetDisMtx(DISTANCE *pDis)
-{
-	D3DXMATRIX mtxRot, mtxTrans, mtxParent;	//計算用マトリックス
-
-	//ワールドマトリックスの初期化
-	D3DXMatrixIdentity(&pDis->mtxWorld);
-
-	//向きを反映
-	D3DXMatrixRotationYawPitchRoll(&mtxRot, pDis->rot.y, pDis->rot.x, pDis->rot.z);
-	D3DXMatrixMultiply(&pDis->mtxWorld, &pDis->mtxWorld, &mtxRot);
-
-	//位置を反映
-	D3DXMatrixTranslation(&mtxTrans, pDis->pos.x, pDis->pos.y, pDis->pos.z);
-	D3DXMatrixMultiply(&pDis->mtxWorld, &pDis->mtxWorld, &mtxTrans);
 }
 
 //==========================================================
@@ -321,4 +449,94 @@ CObject *CLockOn::GetTag(void)
 	}
 
 	return NULL;
+}
+
+//===============================================
+// 死亡確認
+//===============================================
+void CLockOn::DeathCheck(void)
+{
+	if (m_bDeath == true)
+	{
+		// リストから自分自身を削除する
+		if (m_pTop == this)
+		{// 自身が先頭
+			if (m_pNext != NULL)
+			{// 次が存在している
+				m_pTop = m_pNext;	// 次を先頭にする
+				m_pNext->m_pPrev = NULL;	// 次の前のポインタを覚えていないようにする
+			}
+			else
+			{// 存在していない
+				m_pTop = NULL;	// 先頭がない状態にする
+				m_pCur = NULL;	// 最後尾がない状態にする
+			}
+		}
+		else if (m_pCur == this)
+		{// 自身が最後尾
+			if (m_pPrev != NULL)
+			{// 次が存在している
+				m_pCur = m_pPrev;	// 前を最後尾にする
+				m_pPrev->m_pNext = NULL;	// 前の次のポインタを覚えていないようにする
+			}
+			else
+			{// 存在していない
+				m_pTop = NULL;	// 先頭がない状態にする
+				m_pCur = NULL;	// 最後尾がない状態にする
+			}
+		}
+		else
+		{
+			if (m_pNext != NULL)
+			{
+				m_pNext->m_pPrev = m_pPrev;	// 自身の次に前のポインタを覚えさせる
+			}
+			if (m_pPrev != NULL)
+			{
+				m_pPrev->m_pNext = m_pNext;	// 自身の前に次のポインタを覚えさせる
+			}
+		}
+	}
+}
+
+//===============================================
+// 死亡確認
+//===============================================
+void CLockOn::Check(CEnemy *pObject)
+{
+	CLockOn *pLock = m_pTop;	// 先頭を取得
+
+	while (pLock != NULL)
+	{// 使用されている間繰り返し
+		CLockOn *pLockNext = pLock->m_pNext;	// 次を保持
+
+		if (pLock->m_bDeath == false && pLock->m_type == TYPE_MULTI)
+		{
+			if (pLock->m_pObj == pObject)
+			{// 同じ標的の場合
+				pLock->Uninit();
+			}
+		}
+
+		pLock = pLockNext;	// 次に移動
+	}
+}
+
+//===============================================
+// multiターゲット削除
+//===============================================
+void CLockOn::MultiDeath(void)
+{
+	CLockOn *pLock = m_pTop;	// 先頭を取得
+
+	while (pLock != NULL)
+	{// 使用されている間繰り返し
+		CLockOn *pLockNext = pLock->m_pNext;	// 次を保持
+
+		if (pLock->m_bDeath == false && pLock->m_type == TYPE_MULTI)
+		{
+			pLock->Uninit();
+		}
+		pLock = pLockNext;	// 次に移動
+	}
 }

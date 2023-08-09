@@ -24,6 +24,14 @@
 #include "input.h"
 #include "fade.h"
 #include "pause.h"
+#include "result.h"
+#include "lockon.h"
+
+//===============================================
+// マクロ定義
+//===============================================
+#define START_TIME	(120)	// 制限時間
+#define START_SCORE	(0)		// 開始スコア
 
 //===============================================
 // 静的メンバ変数
@@ -81,16 +89,19 @@ HRESULT CGame::Init(void)
 
 	// スコアの生成
 	m_pScore = CScore::Create(D3DXVECTOR3(800.0f, 50.0f, 0.0f));
+	m_pScore->Set(START_SCORE);
 
 	// タイムの生成
 	m_pTime = CTime::Create(D3DXVECTOR3(500.0f, 50.0f, 0.0f));
-	m_pTime->Set(120);
+	m_pTime->Set(START_TIME);
 
 	// ポーズの生成
 	if (m_pPause == NULL)
 	{
 		m_pPause = CPause::Create();
 	}
+
+	CManager::GetCamera()->SerMode(CCamera::MODE_NORMAL);
 
 	return S_OK;
 }
@@ -111,6 +122,7 @@ void CGame::Uninit(void)
 	// スコア
 	if (m_pScore != NULL)
 	{
+		CResult::SetScore(m_pScore->GetNum());
 		m_pScore->Uninit();
 		delete m_pScore;	// メモリの開放
 		m_pScore = NULL;	// 使用していない状態にする
@@ -172,10 +184,10 @@ void CGame::Update(void)
 		}
 	}
 
-	/*if (CManager::GetInputKeyboard()->GetTrigger(DIK_RETURN))
+	if (CManager::GetSlow()->Get() == 1.0f && CManager::GetSlow()->GetOld() != 1.0f)
 	{
-		CManager::GetFade()->Set(CScene::MODE_RESULT);
-	}*/
+		CLockOn::MultiDeath();
+	}
 }
 
 //===============================================
@@ -238,6 +250,14 @@ CMeshField *CGame::GetMeshField(void)
 CFileLoad *CGame::GetFileLoad(void)
 {
 	return m_pFileLoad;
+}
+
+//===================================================
+// ポーズの取得
+//===================================================
+CPause *CGame::GetPause(void)
+{
+	return m_pPause;
 }
 
 //===================================================

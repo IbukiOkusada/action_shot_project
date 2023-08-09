@@ -11,6 +11,7 @@
 #include "texture.h"
 #include "Xfile.h"
 #include "enemy.h"
+#include "slow.h"
 
 //==========================================================
 // コンストラクタ
@@ -105,8 +106,10 @@ void CObjectX::Draw(void)
 		pMat = (D3DXMATERIAL*)pFileData->pBuffMat->GetBufferPointer();
 		for (int nCntMat = 0; nCntMat < (int)pFileData->dwNumMat; nCntMat++)
 		{
+			D3DMATERIAL9 mat = SetSlowCol(&pMat[nCntMat].MatD3D);
+
 			//マテリアルの設定
-			pDevice->SetMaterial(&pMat[nCntMat].MatD3D);
+			pDevice->SetMaterial(&mat);
 
 			//テクスチャの設定
 			pDevice->SetTexture(0, pTexture->SetAddress(pFileData->pIdexTexture[nCntMat]));
@@ -205,4 +208,31 @@ void CObjectX::SetRotation(const D3DXVECTOR3 rot)
 	{// x座標角度限界
 		m_rot.y += -D3DX_PI * 2;
 	}
+}
+
+//==========================================================
+// スロー状態の色設定
+//==========================================================
+D3DMATERIAL9 CObjectX::SetSlowCol(D3DMATERIAL9 *pMat)
+{
+	CSlow *pSlow = CManager::GetSlow();
+	D3DMATERIAL9 mat = *pMat;
+
+	if (pSlow == NULL)
+	{
+		return mat;
+	}
+
+	if (pSlow->Get() == 1.0f)
+	{
+		return mat;
+	}
+
+	float GetSlowMul = pSlow->Get();
+
+	mat.Ambient = D3DXCOLOR(mat.Ambient.r * GetSlowMul, mat.Ambient.g * GetSlowMul, mat.Ambient.b, mat.Ambient.a);
+	mat.Diffuse = D3DXCOLOR(mat.Diffuse.r * GetSlowMul, mat.Diffuse.r * GetSlowMul, mat.Diffuse.b, mat.Diffuse.a);
+	mat.Emissive = D3DXCOLOR(mat.Emissive.r * GetSlowMul, mat.Emissive.r * GetSlowMul, mat.Emissive.b, mat.Emissive.a);
+
+	return mat;
 }

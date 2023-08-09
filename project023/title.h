@@ -27,6 +27,8 @@ public:
 	void Draw(void);
 
 private:
+
+	int m_nTimer;	// 自動遷移タイマー
 };
 
 #endif

@@ -72,6 +72,7 @@ private:	// 自分だけがアクセス可能
 	void CreateVertex(void);
 	void CreateIndex(void);
 	void SetIndex(void);
+	void SetSlowCol(void);
 
 	// メンバ変数
 	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;	//頂点バッファへのポインタ

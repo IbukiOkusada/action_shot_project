@@ -39,6 +39,7 @@ public:	// 誰でもアクセス可能
 	void Draw(void);
 	void Set(CScene::MODE modeNext);
 	void SetState(STATE state);
+	STATE GetState(void) { return m_state; }
 	static CFade *Create(CScene::MODE modeNext);
 
 private:	// 自分だけがアクセス可能な定義

@@ -92,7 +92,7 @@ void CParticle::Set(D3DXVECTOR3 Defpos, D3DXVECTOR3 Defmove, CEffect::TYPE type)
 			col = D3DXCOLOR(fCol, fCol + 0.1f, 1.0f, 1.0f);
 
 			//半径の設定
-			fRadius = 2.0f;
+			fRadius = 3.0f;
 
 			//寿命の設定
 			fLife = 10.0f;
@@ -127,27 +127,28 @@ void CParticle::Set(D3DXVECTOR3 Defpos, D3DXVECTOR3 Defmove, CEffect::TYPE type)
 
 		break;
 
-	case CEffect::TYPE_DUST:	// 爆発
+	case CEffect::TYPE_DUST:	// 煙
 
-		for (int nCnt = 0; nCnt < 1; nCnt++)
+		for (int nCnt = 0; nCnt < 15; nCnt++)
 		{
 			// 座標の設定
 			pos = Defpos;
 
 			//移動量の設定
-			move.x = sinf((float)(rand() % 629 - 314) / 100.0f) * ((float)(rand() % 10 - 1)) / 10.0f;
-			move.y = cosf((float)(rand() % 629 - 314) / 100.0f) * ((float)(rand() % 10 - 1)) / 10.0f;
+			move.x = sinf((float)(rand() % 629 - 314)  * 0.01f) * ((float)(rand() % 100)) * 0.04f;
+			move.y = ((float)(rand() % 100)) * 0.001f;
+			move.z = cosf((float)(rand() % 629 - 314)  * 0.01f) * ((float)(rand() % 100)) * 0.04f;
 
 			//色の設定
-			col = D3DXCOLOR(0.5f, 0.5f, 0.5f, 1.0f);
+			col = D3DXCOLOR(0.08f, 0.07f, 0.07f, 1.0f);
 
 			//半径の設定
-			fRadius = (float)(rand() % 20);
+			fRadius = 30.0f;
 
 			//寿命の設定
-			fLife = 20.0f;
+			fLife = 100.0f;
 
-			CEffect::Create(Defpos, move, col, fRadius, fLife, type);
+			CEffect::Create(Defpos, move + Defmove * 0.5f, col, fRadius, fLife, type);
 		}
 
 		break;
@@ -246,6 +247,73 @@ void CParticle::Set(D3DXVECTOR3 Defpos, D3DXVECTOR3 Defmove, CEffect::TYPE type)
 			fLife = 100.0f;
 
 			CEffect::Create(pos, move, col, fRadius, fLife, type);
+		}
+
+		break;
+
+	case CEffect::TYPE_JUMP:	// ジャンプ
+
+		for (int nCnt = 0; nCnt < 10; nCnt++)
+		{
+			// 座標の設定
+			pos = Defpos;
+
+			//移動量の設定
+			move.x = sinf((float)(rand() % 629 - 314)  * 0.01f) * ((float)(rand() % 100)) * 0.04f;
+			move.y = -0.01f;
+			move.z = cosf((float)(rand() % 629 - 314)  * 0.01f) * ((float)(rand() % 100)) * 0.04f;
+
+			// 移動ベクトルを求める
+			D3DXVec3Normalize(&nor, &move);	// ベクトルを正規化する
+
+			pos += nor * 100.0f;
+			pos.y = Defpos.y;
+
+			//色の設定
+			col = D3DXCOLOR(0.08f, 0.07f, 0.07f, 1.0f);
+
+			//半径の設定
+			fRadius = 20.0f;
+
+			//寿命の設定
+			fLife = 100.0f;
+
+			CEffect::Create(pos, move + Defmove * 0.5f, col, fRadius, fLife, type);
+		}
+
+		break;
+
+	case CEffect::TYPE_SWAP:	// ジャンプ
+
+		for (int nCnt = 0; nCnt < 20; nCnt++)
+		{
+			// 座標の設定
+			pos = Defpos;
+
+			//移動量の設定
+			move.x = sinf((float)(rand() % 629 - 314)  * 0.01f) * ((float)(rand() % 100)) * 0.04f;
+			move.z = cosf((float)(rand() % 629 - 314)  * 0.01f) * ((float)(rand() % 100)) * 0.04f;
+
+			// 移動ベクトルを求める
+			D3DXVec3Normalize(&nor, &move);	// ベクトルを正規化する
+
+			pos += nor * 100.0f;
+			pos.y = Defpos.y;
+
+			move = Defmove;
+
+			//色の設定
+			col = D3DXCOLOR(0.2f, 0.2f, 0.2f, 1.0f);
+
+			//半径の設定
+			fRadius = 5.0f;
+
+			//寿命の設定
+			fLife = 100.0f;
+
+			CEffect *pEffect = CEffect::Create(pos, move, col, fRadius, fLife, type);
+
+			pEffect->SetSize(fRadius, 50.0f);
 		}
 
 		break;

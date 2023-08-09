@@ -8,6 +8,8 @@
 #include "manager.h"
 #include "renderer.h"
 #include "texture.h"
+#include "slow.h"
+#include "debugproc.h"
 
 //==========================================================
 // コンストラクタ
@@ -93,6 +95,9 @@ void CObjectMesh::Draw(void)
 
 	if (m_pVtxBuff != NULL)
 	{
+		// 色設定
+		SetSlowCol();
+
 		//ワールドマトリックスの初期化
 		D3DXMatrixIdentity(&m_mtxWorld);
 
@@ -325,6 +330,8 @@ void CObjectMesh::NotMtxDraw(void)
 
 	if (m_pVtxBuff != NULL)
 	{
+		// 色設定
+		//SetSlowCol();
 
 		//ワールドマトリックスの設定
 		pDevice->SetTransform(D3DTS_WORLD, &m_mtxWorld);
@@ -354,4 +361,43 @@ void CObjectMesh::NotMtxDraw(void)
 			m_nIndex - 2	//描画するプリミティブ数
 		);
 	}
+}
+
+//==========================================================
+// スロー状態色設定
+//==========================================================
+void CObjectMesh::SetSlowCol(void)
+{
+	CSlow *pSlow = CManager::GetSlow();
+
+	if (pSlow == NULL)
+	{
+		return;
+	}
+
+	if (pSlow->Get() == pSlow->GetOld())
+	{
+		return;
+	}
+
+	float GetSlowMul = pSlow->Get();
+
+	VERTEX_3D *pVtx;
+
+	//頂点バッファをロックし頂点情報へのポインタを取得
+	m_pVtxBuff->Lock(
+		0,
+		0,
+		(void**)&pVtx,
+		0);
+
+	for (int nCntVtx = 0; nCntVtx < m_nVertex; nCntVtx++)
+	{
+		D3DXCOLOR col = m_pVtx[nCntVtx].col;
+		m_pVtx[nCntVtx].col = D3DXCOLOR(GetSlowMul, GetSlowMul, col.b, col.a);
+		pVtx[nCntVtx].col = (D3DXCOLOR)m_pVtx[nCntVtx].col;
+	}
+
+	//頂点バッファをアンロックする
+	m_pVtxBuff->Unlock();
 }

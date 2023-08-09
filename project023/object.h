@@ -16,6 +16,7 @@
 // 前方宣言
 class CObject2D;
 class CMultiBg;
+class CEnemy;
 
 //===============================================
 // オブジェクトクラスの定義(抽象クラス)
@@ -62,7 +63,8 @@ public:	// 誰でもアクセス可能
 	virtual CObject2D *GetObject2D(void) { return NULL; }
 	virtual int GetModelType(void) { return -1; }
 	virtual D3DXMATRIX *GetMtx(void) { return NULL; }
-	bool GetDeath(void) { return m_bDeath; }
+	virtual CEnemy *GetEnemy(void) { return NULL; }
+	virtual bool GetDeath(void) { return m_bDeath; }
 
 	// メンバ関数
 	static void ReleaseAll(void);

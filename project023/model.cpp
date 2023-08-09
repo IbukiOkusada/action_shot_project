@@ -9,6 +9,7 @@
 #include "manager.h"
 #include "texture.h"
 #include "renderer.h"
+#include "slow.h"
 
 //==========================================================
 // コンストラクタ
@@ -74,8 +75,10 @@ void CModel::Draw(void)
 	D3DXMATRIX mtxRot, mtxTrans;	//計算用マトリックス
 	CXFile *pModelFile = CManager::GetModelFile();	// Xファイル情報のポインタ
 	D3DMATERIAL9 matDef;			//現在のマテリアル保存用
+	D3DMATERIAL9 LightUpmat;
 	D3DXMATERIAL *pMat;				//マテリアルデータへのポインタ
 	D3DXMATRIX mtxParent;			// 親のマトリックス情報
+	CSlow *pSlow = CManager::GetSlow();
 
 	//ワールドマトリックスの初期化
 	D3DXMatrixIdentity(&m_mtxWorld);
@@ -122,7 +125,21 @@ void CModel::Draw(void)
 			else
 			{
 				//マテリアルの設定
-				m_ChangeMat.Emissive = pMat[nCntMat].MatD3D.Emissive;
+				if (pSlow->Get() != 1.0f)
+				{
+					m_ChangeMat.Emissive.r -= 0.3f;
+					m_ChangeMat.Emissive.g -= 0.3f;
+					m_ChangeMat.Emissive.b -= 0.3f;
+					m_ChangeMat.Emissive.a -= 0.3f;
+				}
+				else
+				{
+					m_ChangeMat.Emissive = pMat[nCntMat].MatD3D.Emissive;
+					m_ChangeMat.Emissive.r += 0.1f;
+					m_ChangeMat.Emissive.g += 0.1f;
+					m_ChangeMat.Emissive.b += 0.1f;
+					m_ChangeMat.Emissive.a += 0.1f;
+				}
 				pDevice->SetMaterial(&m_ChangeMat);
 			}
 

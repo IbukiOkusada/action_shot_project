@@ -24,6 +24,10 @@ const char *CTexture::m_apDefFileName[TYPE_MAX] =
 	"data\\TEXTURE\\bullet000.png",
 	"data\\TEXTURE\\state000.png",
 	"data\\TEXTURE\\state001.png",
+	"data\\TEXTURE\\target_range.png",
+	"data\\TEXTURE\\message000.png",
+	"data\\TEXTURE\\message001.png",
+	"data\\TEXTURE\\filter000.png",
 };
 
 //===============================================

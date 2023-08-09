@@ -27,17 +27,24 @@
 #include "lockon.h"
 #include "meshorbit.h"
 #include "game.h"
+#include "filter.h"
+#include "object2D.h"
 
 //===============================================
 // マクロ定義
 //===============================================
 #define MOVE	(3.0f)		// 移動量
-#define PLAYER_GRAVITY	(-0.2f)	//プレイヤー重力
-#define PLAYER_JUMP		(11.0f)	//プレイヤージャンプ力
+#define SHW_MOVE	(1.5f)
+#define PLAYER_GRAVITY	(-0.15f)		//プレイヤー重力
+#define PLAYER_JUMP		(10.0f)		//プレイヤージャンプ力
 #define DEF_SLOWTIME	(60 * 5)	// スロー可能時間
 #define SLOW_OK			(60 * 2)	// スロー可能になる時間
 #define SHOT_LENGTH	(4000.0f)		// 射程範囲
 #define SHOT_RANGE	(D3DX_PI * 0.9f)	// 射程角度
+#define SHOT_INTERVAL	(10)		// 攻撃インターバル
+#define GUN_BULMOVE	(50.0f)
+#define DEF_SLOWGAGELENGSH	(SCREEN_WIDTH * 0.4f)	// スローゲージマックスサイズ
+#define SLOWGAGE_HEIGHT	(SCREEN_HEIGHT * 0.01f)
 
 //===============================================
 // 武器ごとの設定
@@ -54,7 +61,7 @@ const D3DXVECTOR3 CPlayer::SetWepPos[WEAPON_MAX] =	// 武器設定位置
 //===============================================
 const int CPlayer::m_aWepTimer[ATK_MAX] =		// 攻撃タイマー
 {
-	19,
+	21,
 	5,
 };
 
@@ -99,6 +106,7 @@ CPlayer::CPlayer(const D3DXVECTOR3 pos)
 	m_pWaist = NULL;
 	m_pWeaponL = NULL;
 	m_pWeaponR = NULL;
+	m_pSlowGage = NULL;
 }
 
 //===============================================
@@ -108,6 +116,7 @@ CPlayer::CPlayer(int nPriOrity)
 {
 	// 値をクリアする
 	m_bJump = false;
+	m_bActiveSlow = false;
 	m_bSlow = false;
 	m_Info.pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_Info.posOld = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
@@ -124,6 +133,7 @@ CPlayer::CPlayer(int nPriOrity)
 	m_bAttack = false;
 	m_fAttackTimer = 0;
 	m_nAttackHand = 0;
+
 
 	for (int nCnt = 0; nCnt < WEAPON_MAX; nCnt++)
 	{
@@ -212,24 +222,35 @@ HRESULT CPlayer::Init(const char *pBodyName, const char *pLegName)
 	}
 
 	// スロー可能時間を初期設定
-	m_nSlowTime = DEF_SLOWTIME;
+	m_nSlowTime = 0;
 
-	CModel *pModel = m_pBody->GetParts(9);	// 腰パーツを取得
+	CModel *pModel = m_pBody->GetParts(9);	// 左手パーツを取得
 
 	// 武器の設定
 	m_pWeaponL = CModel::Create(m_apFileName[WEAPON_GUNL]);
 	m_pWeaponL->SetPosition(SetWepPos[WEAPON_GUNL]);
 	m_pWeaponL->SetParent(pModel->GetMtxWorld());
 
-	pModel = m_pBody->GetParts(5);	// 腰パーツを取得
+	pModel = m_pBody->GetParts(5);	// 右手パーツを取得
 
 	// 武器の設定
 	m_pWeaponR = CModel::Create(m_apFileName[WEAPON_GUNR]);
 	m_pWeaponR->SetPosition(SetWepPos[WEAPON_GUNR]);
 	m_pWeaponR->SetParent(pModel->GetMtxWorld());
 
+	// ゲージの設定
+	m_pSlowGage = CObject2D::Create(7);
+
+	if (m_pSlowGage != NULL)
+	{
+		m_pSlowGage->SetPosition(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.95f, 0.0f));
+		m_pSlowGage->SetSize(0, SLOWGAGE_HEIGHT);
+		m_pSlowGage->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\gage000.jpg"));
+	}
+
 	// 種類設定
 	m_WepType = ATK_GUN;
+	m_WepTypeOld = m_WepType;
 
 	// 武器番号取得
 	for (int nCnt = 0; nCnt < WEAPON_MAX; nCnt++)
@@ -239,9 +260,9 @@ HRESULT CPlayer::Init(const char *pBodyName, const char *pLegName)
 
 	// ロックオンの生成
 	m_pLockon = CLockOn::Create(m_pBody->GetMtxWorld());
-	m_pLockon->SetDistance(SHOT_LENGTH, SHOT_RANGE);
 	m_pLockon->SetLock(true);
 
+	// 軌跡の生成
 	m_pOrbit = CMeshOrbit::Create(&m_Info.mtxWorld, D3DXVECTOR3(0.0f, 20.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 
 	return S_OK;
@@ -289,6 +310,11 @@ void CPlayer::Uninit(void)
 		m_pWeaponR = NULL;
 	}
 
+	if (m_pSlowGage != NULL)
+	{
+		m_pSlowGage = NULL;
+	}
+
 	// 廃棄
 	Release();
 }
@@ -300,13 +326,14 @@ void CPlayer::Update(void)
 {
 	// 前回の座標を取得
 	m_Info.posOld = GetPosition();
+	int nSlowTimerOld = m_nSlowTime;	// 変更前のスロー可能時間
 
 	// 胴体更新
 	if (m_pBody != NULL)
 	{// 使用されている場合
 		m_pBody->Update();
 	}
-	
+
 	// 下半身更新
 	if (m_pLeg != NULL)
 	{// 使用されている場合
@@ -332,13 +359,28 @@ void CPlayer::Update(void)
 
 	// 追従処理
 	pCamera->Pursue(GetPosition(), GetRotation());
-	
+
 	CManager::GetDebugProc()->Print("向き [%f, %f, %f]", GetRotation().x, GetRotation().y, GetRotation().z);
+
+	// パーティクル
+	Particle();
 
 	if (m_bLock == false)
 	{// ロックオンしない
 		pCamera->SetRot(GetRotation());
 	}
+
+	if (m_pSlowGage == NULL || m_nSlowTime == nSlowTimerOld)
+	{// 使用していない、またはスロー時間に変更がない
+		return;
+	}
+
+	// スロー最大時間からの割合を求める
+	float fRate = (float)m_nSlowTime / (float)DEF_SLOWTIME;
+
+	m_pSlowGage->SetSize(DEF_SLOWGAGELENGSH * fRate, SLOWGAGE_HEIGHT);
+	m_pSlowGage->SetTex(-5.0f * fRate, 0.0f, 5.0f * fRate);
+	SetGageColor(fRate);
 }
 
 //===============================================
@@ -487,8 +529,9 @@ void CPlayer::Controller(void)
 	}
 
 	// 武器切り替え
-	if (pInputKey->GetTrigger(DIK_Q) == true || pInputPad->GetTrigger(CInputPad::BUTTON_Y, 0))
+	if ((pInputKey->GetTrigger(DIK_Q) == true || pInputPad->GetTrigger(CInputPad::BUTTON_Y, 0)) && CManager::GetSlow()->Get() == 1.0f)
 	{// Qキー
+		m_WepTypeOld = m_WepType;
 		m_WepType = (ATK)((m_WepType + 1) % ATK_MAX);
 
 		switch (m_WepType)
@@ -504,31 +547,7 @@ void CPlayer::Controller(void)
 			break;
 		}
 
-		if (m_WepType == ATK_GUN)
-		{
-			m_pLockon->SetLock(true);
-		}
-		else
-		{
-			m_pLockon->SetLock(false);
-		}
-	}
-	else if (pInputKey->GetTrigger(DIK_E) == true)
-	{// Eキー
-		m_WepType = (ATK)((m_WepType + ATK_MAX - 1) % ATK_MAX);
-
-		switch (m_WepType)
-		{
-		case ATK_GUN:
-			m_pWeaponL->BindModelFile(m_aWepNum[WEAPON_GUNL]);
-			m_pWeaponL->SetPosition(SetWepPos[WEAPON_GUNL]);
-			break;
-
-		case ATK_SHOWER:
-			m_pWeaponL->BindModelFile(m_aWepNum[WEAPON_SHOWER]);
-			m_pWeaponL->SetPosition(SetWepPos[WEAPON_SHOWER]);
-			break;
-		}
+		CLockOn::MultiDeath();
 
 		if (m_WepType == ATK_GUN)
 		{
@@ -539,6 +558,32 @@ void CPlayer::Controller(void)
 			m_pLockon->SetLock(false);
 		}
 	}
+	//else if (pInputKey->GetTrigger(DIK_E) == true)
+	//{// Eキー
+	//	m_WepType = (ATK)((m_WepType + ATK_MAX - 1) % ATK_MAX);
+
+	//	switch (m_WepType)
+	//	{
+	//	case ATK_GUN:
+	//		m_pWeaponL->BindModelFile(m_aWepNum[WEAPON_GUNL]);
+	//		m_pWeaponL->SetPosition(SetWepPos[WEAPON_GUNL]);
+	//		break;
+
+	//	case ATK_SHOWER:
+	//		m_pWeaponL->BindModelFile(m_aWepNum[WEAPON_SHOWER]);
+	//		m_pWeaponL->SetPosition(SetWepPos[WEAPON_SHOWER]);
+	//		break;
+	//	}
+
+	//	if (m_WepType == ATK_GUN)
+	//	{
+	//		m_pLockon->SetLock(true);
+	//	}
+	//	else
+	//	{
+	//		m_pLockon->SetLock(false);
+	//	}
+	//}
 
 	// ジャンプ
 	Jump();
@@ -602,6 +647,8 @@ void CPlayer::Controller(void)
 		}
 	}
 
+	m_bJump = true;
+
 	if (pos.y < 0.0f)
 	{
 		m_Info.move.y = 0.0f;
@@ -615,7 +662,17 @@ void CPlayer::Controller(void)
 	if (fHeight > pos.y)
 	{// 
 		pos.y = fHeight;
+		//m_Info.move.y = 0.0f;
 		m_bJump = false;
+	}
+
+	if (m_bJump == true)
+	{
+		if (m_bAttack == false)
+		{
+			m_pBody->GetMotion()->BlendSet(BMOTION_JUMP);
+		}
+		m_pLeg->GetMotion()->BlendSet(LMOTION_JUMP);
 	}
 
 	// 影の座標更新
@@ -650,6 +707,11 @@ void CPlayer::Move(void)
 	CInputKeyboard *pInputKey = CManager::GetInputKeyboard();	// キーボードのポインタ
 	CInputPad *pInputPad = CManager::GetInputPad();
 	float fSpeed = MOVE;	// 移動量
+
+	if (m_bAttack == true && m_WepType == ATK_SHOWER)
+	{
+		fSpeed = SHW_MOVE;
+	}
 
 	//プレイヤーの更新
 	if (pInputKey->GetPress(DIK_A) == true || pInputPad->GetStickPress(0, CInputPad::BUTTON_LEFT_X, 0.5f, CInputPad::STICK_MINUS) == true)
@@ -733,46 +795,69 @@ void CPlayer::Slow(void)
 	CInputPad *pInputPad = CManager::GetInputPad();
 
 	// スロータイマー
-	if (m_bSlow == false)
+	if (m_bActiveSlow == false && m_bJump == true && m_nSlowTime == DEF_SLOWTIME)
 	{// 入力可能
-		if (pInputKey->GetPress(DIK_RETURN) == true || pInputMouse->GetPress(CInputMouse::BUTTON_RBUTTON) == true || pInputPad->GetPress(CInputPad::BUTTON_LEFTBUTTON, 0))
-		{// ENTERキーが入力された場合
-			if (m_nSlowTime > 0)
-			{// 残っている場合
-				m_nSlowTime--;
-				CManager::GetSlow()->SetSlow(true);
+		if (pInputKey->GetTrigger(DIK_RETURN) == true || pInputMouse->GetTrigger(CInputMouse::BUTTON_RBUTTON) == true || pInputPad->GetTrigger(CInputPad::BUTTON_LEFTBUTTON, 0))
+		{// スロー対応ボタントリガー入力
+			m_bSlow = m_bSlow ? false : true;
+
+			if (m_bSlow == true)
+			{
+				CManager::GetCamera()->SetOldRot(CManager::GetCamera()->GetRotation());
+				m_bAttack = false;
+
+				if (m_WepType == ATK_GUN)
+				{
+					CFilter::Create(CFilter::TYPE_SLOWGUN);
+					CManager::GetCamera()->SerMode(CCamera::MODE_SLOWGUN);
+				}
+				else
+				{
+					CManager::GetCamera()->SerMode(CCamera::MODE_SLOWSHW);
+				}
 			}
 			else
 			{
-				m_bSlow = true;	// スローにできない状態にする
-				CManager::GetSlow()->SetSlow(false);
+				CManager::GetCamera()->SerMode(CCamera::MODE_NORMAL);
+			}
+		}
+	}
+
+	if (m_bSlow == true)
+	{// ENTERキーが入力された場合
+		if (m_nSlowTime > 0)
+		{// 残っている場合
+			m_nSlowTime--;
+			CManager::GetSlow()->SetSlow(true);
+
+			if (m_WepType == ATK_SHOWER)
+			{
+				SlowShw();
+			}
+			else if (m_WepType == ATK_GUN)
+			{
+				SlowGun();
 			}
 		}
 		else
 		{
-			// 可能時間回復
-			if (m_nSlowTime < SLOW_OK)
-			{// スロー可能の時間より短い
-				m_bSlow = true;
-			}
-			else if (m_nSlowTime < DEF_SLOWTIME)
-			{// 上限まで
-				m_nSlowTime++;
-			}
-
+			CManager::GetCamera()->SerMode(CCamera::MODE_NORMAL);
+			m_bSlow = false;
+			m_bActiveSlow = true;	// スローにできない状態にする
 			CManager::GetSlow()->SetSlow(false);
 		}
 	}
 	else
-	{// できない
-		if (m_nSlowTime < SLOW_OK)
-		{
-			m_nSlowTime++;
+	{
+		CManager::GetCamera()->SerMode(CCamera::MODE_NORMAL);
+
+		// 可能時間回復
+		if (m_nSlowTime == DEF_SLOWTIME)
+		{// 満タンまでたまった
+			m_bActiveSlow = false;
 		}
-		else
-		{
-			m_bSlow = false;	// スロー可能状態にする
-		}
+
+		CManager::GetSlow()->SetSlow(false);
 	}
 }
 
@@ -784,6 +869,7 @@ void CPlayer::SetBodyRot(void)
 	CCamera *pCamera = CManager::GetCamera();		// カメラのポインタ
 	D3DXVECTOR3 CamRot = pCamera->GetRotation();	// カメラの角度
 	CInputPad *pInputPad = CManager::GetInputPad();
+	CInputKeyboard *pInputKey = CManager::GetInputKeyboard();
 
 	if (m_pBody == NULL || m_pLeg == NULL)
 	{// 二段階の階層構造ではない場合
@@ -792,8 +878,8 @@ void CPlayer::SetBodyRot(void)
 
 	D3DXVECTOR3 rot = m_pBody->GetRotation();	// 胴体の向きを取得
 
-	if (pInputPad->GetRightTriggerPress(0) >= 10)
-	{
+	if (pInputPad->GetRightTriggerPress(0) >= 10 || pInputKey->GetPress(DIK_E))
+	{// トリガー入力
 		m_bLock = false;
 	}
 	else
@@ -803,36 +889,22 @@ void CPlayer::SetBodyRot(void)
 
 	if (m_bLock == true)
 	{
-		rot.y = (-CamRot.y + D3DX_PI * 0.5f) - m_Info.rot.y;	// カメラの向いている方向に合わせる
+		float fRotDiff = (-CamRot.y + D3DX_PI * 0.5f) - m_Info.rot.y;	// カメラの向いている方向に合わせる
 
-		if (rot.z < -D3DX_PI)
+		if (fRotDiff < -D3DX_PI)
 		{// z座標角度限界
-			rot.z += D3DX_PI * 2;
+			fRotDiff += D3DX_PI * 2;
 		}
-		else if (rot.z > D3DX_PI)
+		else if (fRotDiff > D3DX_PI)
 		{// z座標角度限界
-			rot.z += -D3DX_PI * 2;
+			fRotDiff += -D3DX_PI * 2;
 		}
 
-		if (rot.x < -D3DX_PI)
-		{// x座標角度限界
-			rot.x += D3DX_PI * 2;
-		}
-		else if (rot.x > D3DX_PI)
-		{// x座標角度限界
-			rot.x += -D3DX_PI * 2;
-		}
+		fRotDiff *= 0.6f;
 
-		if (rot.y < -D3DX_PI)
-		{// x座標角度限界
-			rot.y += D3DX_PI * 2;
-		}
-		else if (rot.y > D3DX_PI)
-		{// x座標角度限界
-			rot.y += -D3DX_PI * 2;
-		}
+		float fRotDest = fRotDiff - rot.y;
 
-		rot.y *= 0.6f;
+		rot.y += fRotDest * 0.1f * CManager::GetSlow()->Get();
 	}
 	else
 	{
@@ -856,17 +928,93 @@ void CPlayer::Attack(void)
 	CBullet *pBullet = NULL;
 	CInputPad *pInputPad = CManager::GetInputPad();
 
+	CManager::GetDebugProc()->Print("攻撃タイマー[%f]\n", m_fAttackTimer);
+	CManager::GetDebugProc()->Print("キー[%d / %d]\n", m_pBody->GetMotion()->GetNowKey(), m_pBody->GetMotion()->GetNowNumKey());
+
+	if (CManager::GetSlow()->Get() != 1.0f)
+	{
+		return;
+	}
+
 	if (pInputKey->GetPress(DIK_L) == true || pInputMouse->GetPress(CInputMouse::BUTTON_LBUTTON) == true || pInputPad->GetPress(CInputPad::BUTTON_RIGHTBUTTON, 0))
 	{//ENTERキーが押されたとき
-		if (m_fAttackTimer <= 0)
-		{
-			D3DXMATRIX mtx;
+
+		if (m_bAttack == false)
+		{// 攻撃していない
 			switch (m_WepType)
 			{
 			case ATK_GUN:
 
-				m_pBody->GetMotion()->Set(BMOTION_TWINATK);
+				if (CManager::GetSlow()->Get() == 1.0f)
+				{
+					m_pBody->GetMotion()->Set(BMOTION_TWINATK);
+				}
 
+				break;
+
+			case ATK_SHOWER:
+				m_pBody->GetMotion()->Set(BMOTION_SHWATK);
+				break;
+			}
+		}
+		else
+		{// 攻撃している
+			if (m_WepTypeOld != m_WepType)
+			{// 攻撃中に武器を持ち替えている
+				m_fAttackTimer += CManager::GetSlow()->Get();	// 攻撃インターバル
+
+				if (m_fAttackTimer < SHOT_INTERVAL)
+				{// インターバル規定値ではない
+					return;
+				}
+
+				m_fAttackTimer = 0;
+				m_nAttackHand = 0;
+			}
+
+			switch (m_WepType)
+			{
+			case ATK_GUN:
+
+				if (CManager::GetSlow()->Get() == 1.0f)
+				{
+					m_pBody->GetMotion()->BlendSet(BMOTION_TWINATK);
+				}
+
+				break;
+
+			case ATK_SHOWER:
+				m_pBody->GetMotion()->BlendSet(BMOTION_SHWATK);
+				break;
+			}
+
+			m_WepTypeOld = m_WepType;
+		}
+
+		if (m_pBody->GetMotion()->GetNowFrame() != 0)
+		{// そのキーの開始フレーム以外の場合
+			return;
+		}
+
+		if (m_pBody->GetMotion()->GetNowKey() % (int)(m_pBody->GetMotion()->GetNowNumKey() * 0.5f) != 0 && m_pBody->GetMotion()->GetNowMotion() != BMOTION_SLOWATK)
+		{// 攻撃タイミングではない
+			return;
+		}
+		else if (m_pBody->GetMotion()->GetNowKey() != 1 && m_pBody->GetMotion()->GetNowMotion() == BMOTION_SLOWATK)
+		{
+			m_bAttack = true;
+			return;
+		}
+
+		D3DXMATRIX mtx;
+		switch (m_WepType)
+		{
+		case ATK_GUN:
+
+			//m_pBody->GetMotion()->Set(BMOTION_TWINATK);
+
+			if (CManager::GetSlow()->Get() == 1.0f)
+			{
 				if (m_nAttackHand == 0)
 				{
 					mtx = *m_pWeaponL->GetMtxWorld();
@@ -878,7 +1026,7 @@ void CPlayer::Attack(void)
 
 				if (m_pLockon->GetLock() == false)
 				{// ロックオンしていない
-					BulletMove = { -cosf(CamRot.y) * 50.0f, 0.0f, -sinf(CamRot.y) * 50.0f };
+					BulletMove = { -cosf(CamRot.y) * GUN_BULMOVE, 0.0f, -sinf(CamRot.y) * GUN_BULMOVE };
 				}
 				else
 				{// ロックオンしている
@@ -889,7 +1037,7 @@ void CPlayer::Attack(void)
 
 					D3DXVec3Normalize(&vec, &vec);	// ベクトルを正規化する
 
-					BulletMove = vec * 50.0f;
+					BulletMove = vec * GUN_BULMOVE;
 				}
 
 
@@ -899,74 +1047,117 @@ void CPlayer::Attack(void)
 
 				if (m_pLockon->GetLock() == true)
 				{// ロックオンしている
-					pBullet->SetHom(&*m_pLockon->GetTag(), 50.0f);
+					pBullet->SetHom(&*m_pLockon->GetTag(), GUN_BULMOVE);
 				}
-
-				m_nAttackHand ^= 1;
-				break;
-			case ATK_SHOWER:
-				m_pBody->GetMotion()->Set(BMOTION_SHWATK);
-				mtx = *m_pWeaponL->GetMtxWorld();
-
-				BulletMove = { -cosf(CamRot.y) * 2.0f, 1.0f, -sinf(CamRot.y) * 2.0f };
-
-				// 弾の発射
-				pBullet = CBullet::Create(D3DXVECTOR3(mtx._41, mtx._42, mtx._43),
-					D3DXVECTOR3(BulletMove.x, BulletMove.y, BulletMove.z), CBullet::TYPE_GRAVITY);
-
-				D3DXVec3Normalize(&BulletMove, &BulletMove);
-
-				if (pBullet != NULL)
-				{
-					pBullet->SetSize(80.0f, 30.0f);
-					pBullet->SetLife(300.0f);
-				}
-
-				for (int nCnt = 0; nCnt < 10; nCnt++)
-				{
-					// 座標の設定
-					D3DXVECTOR3 pos = D3DXVECTOR3(mtx._41, mtx._42, mtx._43) + m_Info.move;
-					D3DXVECTOR3 move;
-
-					//移動量の設定
-					move.x = -cosf(CamRot.y + -D3DX_PI * 0.1f + D3DX_PI * 0.2f * ((rand() % 10) * 0.1f)) * 5.0f;
-					move.y = rand() % 30 * 0.1f;
-					move.z = -sinf(CamRot.y + -D3DX_PI * 0.1f + D3DX_PI * 0.2f * ((rand() % 10) * 0.1f)) * 5.0f;
-
-					pBullet = CBullet::Create(pos,
-						move, CBullet::TYPE_SHOWER);
-					pBullet->SetInerMove(D3DXVECTOR3(m_Info.move.x, 0.0f, m_Info.move.z));
-					pBullet->SetLife(300.0f);
-				}
-
-				CParticle::Create(D3DXVECTOR3(mtx._41, mtx._42, mtx._43), CamRot, CEffect::TYPE_SHWBULLET);
-
-				break;
 			}
-
-			m_bAttack = true;
-			m_fAttackTimer += CManager::GetSlow()->Get();
-		}
-		else
-		{
-			m_fAttackTimer += CManager::GetSlow()->Get();
-			if (m_fAttackTimer > m_aWepTimer[m_WepType])
+			else
 			{
-				m_fAttackTimer = 0.0f;
+				CLockOn *pLock = CLockOn::GetTop();
+
+				while (pLock != NULL)
+				{// 使用されている間繰り返し
+					CLockOn *pBulNext = pLock->GetNext();	// 次を保持
+
+					if (pLock->GetDeath() == false && pLock->GetType() == CLockOn::TYPE_MULTI)
+					{
+						if (pLock->GetTag() != NULL)
+						{// 同じ標的の場合
+
+							if (m_nAttackHand == 0)
+							{
+								mtx = *m_pWeaponL->GetMtxWorld();
+							}
+							else
+							{
+								mtx = *m_pWeaponR->GetMtxWorld();
+							}
+
+							D3DXVECTOR3 vec;
+							vec.x = pLock->GetPosition().x - mtx._41;
+							vec.y = pLock->GetPosition().y - mtx._42;
+							vec.z = pLock->GetPosition().z - mtx._43;
+
+
+							D3DXVec3Normalize(&vec, &vec);	// ベクトルを正規化する
+
+							BulletMove = vec * 50.0f;
+
+							// 弾の発射
+							pBullet = CBullet::Create(D3DXVECTOR3(mtx._41, mtx._42, mtx._43),
+								D3DXVECTOR3(BulletMove.x, BulletMove.y, BulletMove.z), CBullet::TYPE_NONE);
+
+							pBullet->SetHom(&*pLock->GetTag(), 50.0f);
+						}
+					}
+
+					m_nAttackHand ^= 1;
+
+					pLock = pBulNext;	// 次に移動
+				}
 			}
+
+			m_nAttackHand ^= 1;
+
+			break;
+		case ATK_SHOWER:
+			m_pBody->GetMotion()->Set(BMOTION_SHWATK);
+			mtx = *m_pWeaponL->GetMtxWorld();
+
+			BulletMove = { -cosf(CamRot.y) * 2.0f, 1.0f, -sinf(CamRot.y) * 2.0f };
+
+			// 弾の発射
+			pBullet = CBullet::Create(D3DXVECTOR3(mtx._41, mtx._42, mtx._43),
+				D3DXVECTOR3(BulletMove.x, BulletMove.y, BulletMove.z), CBullet::TYPE_GRAVITY);
+
+			D3DXVec3Normalize(&BulletMove, &BulletMove);
+
+			if (pBullet != NULL)
+			{
+				pBullet->SetSize(80.0f, 30.0f);
+				pBullet->SetLife(300.0f);
+			}
+
+			for (int nCnt = 0; nCnt < 10; nCnt++)
+			{
+				// 座標の設定
+				D3DXVECTOR3 pos = D3DXVECTOR3(mtx._41 + m_Info.move.x, mtx._42, mtx._43 + m_Info.move.z);
+				D3DXVECTOR3 move;
+
+				//移動量の設定
+				move.x = -cosf(CamRot.y + -D3DX_PI * 0.09f + D3DX_PI * 0.18f * ((rand() % 10) * 0.1f)) * 5.0f;
+				move.y = rand() % 30 * 0.1f;
+				move.z = -sinf(CamRot.y + -D3DX_PI * 0.09f + D3DX_PI * 0.18f * ((rand() % 10) * 0.1f)) * 5.0f;
+
+				pBullet = CBullet::Create(pos,
+					move, CBullet::TYPE_SHOWER);
+				pBullet->SetInerMove(D3DXVECTOR3(m_Info.move.x, 0.0f, m_Info.move.z));
+				pBullet->SetLife(300.0f);
+			}
+
+			CParticle::Create(D3DXVECTOR3(mtx._41, mtx._42, mtx._43), CamRot, CEffect::TYPE_SHWBULLET);
+
+			break;
 		}
+
+		m_bAttack = true;
 	}
 	else
-	{
+	{// 入力していない
 		if (m_bAttack == true)
 		{
-			m_fAttackTimer += CManager::GetSlow()->Get();
-			if (m_fAttackTimer > m_aWepTimer[m_WepType])
-			{
-				m_fAttackTimer = 0.0f;
-				m_bAttack = false;
-				m_nAttackHand = 0;
+			if (m_pBody->GetMotion()->GetNowFrame() != 0)
+			{// そのキーの開始フレーム以外の場合
+				return;
 			}
+
+			if (m_pBody->GetMotion()->GetNowKey() % (int)(m_pBody->GetMotion()->GetNowNumKey() * 0.5f) != 0)
+			{// 攻撃タイミングではない
+				return;
+			}
+
+			m_bAttack = false;
+			m_nAttackHand = 0;
+			m_fAttackTimer = 0;
 		}
 	}
 }
@@ -993,6 +1184,226 @@ void CPlayer::Jump(void)
 			m_pLeg->GetMotion()->BlendSet(LMOTION_JUMP);
 			m_Info.move.x += (0.0f - m_Info.move.x) * 0.25f;	//x座標
 			m_Info.move.z += (0.0f - m_Info.move.z) * 0.25f;	//x座標
+		}
+	}
+}
+
+//===============================================
+// スロー中シャワー挙動
+//===============================================
+void CPlayer::SlowShw(void)
+{
+	CCamera *pCamera = CManager::GetCamera();		// カメラのポインタ
+	D3DXVECTOR3 CamRot = pCamera->GetRotation();	// カメラの角度
+
+	CInputKeyboard *pInputKey = CManager::GetInputKeyboard();	// キーボードのポインタ
+	CInputMouse *pInputMouse = CManager::GetInputMouse();
+	D3DXVECTOR3 BulletMove = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	CInputPad *pInputPad = CManager::GetInputPad();
+	CBullet *pBullet = NULL;
+
+	if (pInputKey->GetPress(DIK_L) == true || pInputMouse->GetPress(CInputMouse::BUTTON_LBUTTON) == true || pInputPad->GetPress(CInputPad::BUTTON_RIGHTBUTTON, 0))
+	{//ENTERキーが押されたとき
+
+		m_pBody->GetMotion()->Set(BMOTION_SLOWSHW);
+		m_bAttack = true;
+
+		if (m_pBody->GetMotion()->GetNowFrame() != 0)
+		{// そのキーの開始フレーム以外の場合
+			return;
+		}
+
+		D3DXMATRIX mtx;
+		mtx = *m_pWeaponL->GetMtxWorld();
+
+		BulletMove = { -cosf(CamRot.y) * 2.0f, 1.0f, -sinf(CamRot.y) * 2.0f };
+
+		// 弾の発射
+		pBullet = CBullet::Create(D3DXVECTOR3(mtx._41, mtx._42, mtx._43),
+			D3DXVECTOR3(BulletMove.x, BulletMove.y, BulletMove.z), CBullet::TYPE_GRAVITY);
+
+		pBullet->SetSize(300.0f, 50.0f);
+		pBullet->SetLife(300.0f);
+
+		BulletMove = { -cosf(CamRot.y) * 4.0f, 1.0f, -sinf(CamRot.y) * 4.0f };
+
+		// 弾の発射
+		pBullet = CBullet::Create(D3DXVECTOR3(mtx._41, mtx._42, mtx._43),
+			D3DXVECTOR3(BulletMove.x, BulletMove.y, BulletMove.z), CBullet::TYPE_GRAVITY);
+
+		pBullet->SetSize(300.0f, 50.0f);
+		pBullet->SetLife(300.0f);
+
+		for (int nCnt = 0; nCnt < 10; nCnt++)
+		{
+			// 座標の設定
+			D3DXVECTOR3 pos = D3DXVECTOR3(mtx._41 + m_Info.move.x, mtx._42, mtx._43 + m_Info.move.z);
+			D3DXVECTOR3 move;
+
+			//移動量の設定
+			move.x = -cosf(CamRot.y + -D3DX_PI * 0.18f + D3DX_PI * 0.36f * ((rand() % 10) * 0.1f)) * 7.0f;
+			move.y = rand() % 30 * 0.1f;
+			move.z = -sinf(CamRot.y + -D3DX_PI * 0.18f + D3DX_PI * 0.36f * ((rand() % 10) * 0.1f)) * 7.0f;
+
+			pBullet = CBullet::Create(pos,
+				move, CBullet::TYPE_SHOWER);
+			//pBullet->SetInerMove(D3DXVECTOR3(m_Info.move.x, 0.0f, m_Info.move.z));
+			pBullet->SetLife(300.0f);
+		}
+	}
+	else
+	{
+		m_bAttack = false;
+	}
+}
+
+//===============================================
+// スロー中二丁挙動
+//===============================================
+void CPlayer::SlowGun(void)
+{
+	if (m_nSlowTime <= 30 * 1)
+	{
+		m_pBody->GetMotion()->Set(BMOTION_SLOWATK);
+
+		m_bAttack = true;
+
+		if (m_pBody->GetMotion()->GetNowFrame() != 0)
+		{// そのキーの開始フレーム以外の場合
+			return;
+		}
+
+		if (m_pBody->GetMotion()->GetNowKey() != 1 && (m_pBody->GetMotion()->GetNowMotion() == BMOTION_SLOWATK || m_pBody->GetMotion()->GetNowMotion() == BMOTION_SLOWSHW))
+		{
+			m_bAttack = true;
+			return;
+		}
+
+		CLockOn *pLock = CLockOn::GetTop();
+
+		while (pLock != NULL)
+		{// 使用されている間繰り返し
+			CLockOn *pBulNext = pLock->GetNext();	// 次を保持
+			D3DXVECTOR3 BulletMove = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+			D3DXMATRIX mtx;
+			CBullet *pBullet;
+
+			if (pLock->GetDeath() == false && pLock->GetType() == CLockOn::TYPE_MULTI)
+			{
+				if (pLock->GetTag() != NULL)
+				{// 同じ標的の場合
+
+					if (m_WepType == ATK_GUN)
+					{
+						if (m_nAttackHand == 0)
+						{
+							mtx = *m_pWeaponL->GetMtxWorld();
+						}
+						else
+						{
+							mtx = *m_pWeaponR->GetMtxWorld();
+						}
+
+						D3DXVECTOR3 vec;
+						vec.x = pLock->GetPosition().x - mtx._41;
+						vec.y = pLock->GetPosition().y - mtx._42;
+						vec.z = pLock->GetPosition().z - mtx._43;
+
+						D3DXVec3Normalize(&vec, &vec);	// ベクトルを正規化する
+
+						BulletMove = vec * GUN_BULMOVE;
+
+						// 弾の発射
+						pBullet = CBullet::Create(D3DXVECTOR3(mtx._41, mtx._42, mtx._43),
+							D3DXVECTOR3(BulletMove.x, BulletMove.y, BulletMove.z), CBullet::TYPE_NONE);
+
+						pBullet->SetHom(&*pLock->GetTag(), GUN_BULMOVE);
+					}
+				}
+			}
+			m_nAttackHand ^= 1;
+
+			pLock = pBulNext;	// 次に移動
+		}
+
+		m_bSlow = false;
+		m_nSlowTime = 0;
+	}
+}
+
+//===============================================
+// スロー中二丁挙動
+//===============================================
+void CPlayer::AddSlowTime(int nAddTime)
+{
+	int nSlowTimerOld = m_nSlowTime;	// 変更前のスロー可能時間
+	m_nSlowTime += nAddTime;
+
+	if (m_nSlowTime > DEF_SLOWTIME)
+	{// 限界値を超えた
+		m_nSlowTime = DEF_SLOWTIME;
+	}
+
+	if (m_pSlowGage == NULL || m_nSlowTime == nSlowTimerOld)
+	{// 使用していない、またはスロー時間に変更がない
+		return;
+	}
+
+	// スロー最大時間からの割合を求める
+	float fRate = (float)m_nSlowTime / (float)DEF_SLOWTIME;
+
+	m_pSlowGage->SetSize(DEF_SLOWGAGELENGSH * fRate, SLOWGAGE_HEIGHT);
+	m_pSlowGage->SetTex(-5.0f * fRate, 0.0f, 5.0f * fRate);
+	SetGageColor(fRate);
+}
+
+//===============================================
+// ゲージカラー変更
+//===============================================
+void CPlayer::SetGageColor(float fRate)
+{
+	if (m_pSlowGage == NULL)
+	{
+		return;
+	}
+
+	if (fRate >= 1.0f)
+	{
+		m_pSlowGage->SetCol(D3DXCOLOR(1.0f, 1.0f, 0.6f, 1.0f));
+	}
+	else if (fRate <= 0.1f)
+	{
+		m_pSlowGage->SetCol(D3DXCOLOR(0.1f, 1.0f, 0.1f, 1.0f));
+	}
+	else
+	{
+		m_pSlowGage->SetCol(D3DXCOLOR(1.0f * fRate, 1.0f, 1.0f * fRate, 1.0f));
+	}
+}
+
+//===============================================
+// パーティクル
+//===============================================
+void CPlayer::Particle(void)
+{
+	if (m_pLeg != NULL)
+	{
+		CMotion *pMotion = m_pLeg->GetMotion();
+
+		if (pMotion->GetNowMotion() == BMOTION_WALK)
+		{
+			if (pMotion->GetNowFrame() == 0 && (pMotion->GetNowKey() == 0 || pMotion->GetNowKey() == 2))
+			{// 地面を蹴った
+				CParticle::Create(m_Info.pos, m_Info.move, CEffect::TYPE_DUST);
+			}
+		}
+		else if (pMotion->GetNowMotion() == BMOTION_JUMP)
+		{
+			if (pMotion->GetNowFrame() == 0 && pMotion->GetOldMotion() != pMotion->GetNowMotion() && m_Info.move.y >= 0.0f)
+			{// 地面を蹴った
+				CParticle::Create(D3DXVECTOR3(m_Info.pos.x, m_Info.posOld.y, m_Info.pos.z), m_Info.move, CEffect::TYPE_DUST);
+				CParticle::Create(m_Info.pos, m_Info.move, CEffect::TYPE_SWAP);
+			}
 		}
 	}
 }

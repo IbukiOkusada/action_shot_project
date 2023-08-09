@@ -603,3 +603,25 @@ void CObject2D::SetPlayerVtx(void)
 	//頂点バッファをアンロックする
 	m_pVtxBuff->Unlock();
 }
+
+void CObject2D::SetTex(const float fTexU, const float fTexV, const float fWidth, const float fHeight)
+{
+	VERTEX_2D *pVtx;
+
+	//頂点バッファをロックし頂点情報へのポインタを取得
+	m_pVtxBuff->Lock(
+		0,
+		0,
+		(void**)&pVtx,
+		0
+	);
+
+	// テクスチャ座標の設定
+	pVtx[0].tex = D3DXVECTOR2(fTexU, fTexV);
+	pVtx[1].tex = D3DXVECTOR2(fTexU + fWidth, fTexV);
+	pVtx[2].tex = D3DXVECTOR2(fTexU, fTexV + fHeight);
+	pVtx[3].tex = D3DXVECTOR2(fTexU + fWidth, fTexV + fHeight);
+
+	//頂点バッファをアンロックする
+	m_pVtxBuff->Unlock();
+}

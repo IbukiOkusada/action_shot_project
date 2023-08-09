@@ -86,7 +86,57 @@ void CObjectBillboard::Draw(void)
 {
 	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();		//デバイスへのポインタを取得
 	CTexture *pTexture = CManager::GetTexture();	// テクスチャへのポインタ
-	D3DXMATRIX mtxTrans;	//計算用マトリックス
+	D3DXMATRIX mtxRot, mtxTrans;	//計算用マトリックス
+	D3DXMATRIX mtxView;		//ビューマトリックス取得用
+
+	//ワールドマトリックスの初期化
+	D3DXMatrixIdentity(&m_mtxWorld);
+
+	//ビューマトリックスを取得
+	pDevice->GetTransform(D3DTS_VIEW, &mtxView);
+
+	//ポリゴンをカメラに対して正面に向ける
+	D3DXMatrixInverse(&m_mtxWorld, NULL, &mtxView);
+	m_mtxWorld._41 = 0.0f;
+	m_mtxWorld._42 = 0.0f;
+	m_mtxWorld._43 = 0.0f;
+
+	//位置を反映
+	D3DXMatrixTranslation(&mtxTrans, m_pos.x, m_pos.y, m_pos.z);
+	D3DXMatrixMultiply(&m_mtxWorld, &m_mtxWorld, &mtxTrans);
+
+	//ワールドマトリックスの設定
+	pDevice->SetTransform(D3DTS_WORLD, &m_mtxWorld);
+
+	//頂点バッファをデータストリームに設定
+	pDevice->SetStreamSource(
+		0,
+		m_pVtxBuff,
+		0,
+		sizeof(VERTEX_3D));
+
+	//頂点フォーマットの設定
+	pDevice->SetFVF(FVF_VERTEX_3D);
+
+	//テクスチャの設定
+	pDevice->SetTexture(0, pTexture->SetAddress(m_nIdexTexture));
+
+	//ポリゴンの描画
+	pDevice->DrawPrimitive(
+		D3DPT_TRIANGLESTRIP,	//プリミティブの種類
+		0,
+		2	//頂点情報構造体のサイズ
+	);
+}
+
+//==========================================================
+// 向きを反映させた描画処理
+//==========================================================
+void CObjectBillboard::RotFusionDraw(void)
+{
+	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();		//デバイスへのポインタを取得
+	CTexture *pTexture = CManager::GetTexture();	// テクスチャへのポインタ
+	D3DXMATRIX mtxRot, mtxTrans;	//計算用マトリックス
 	D3DXMATRIX mtxView;		//ビューマトリックス取得用
 
 	//ワールドマトリックスの初期化
@@ -232,6 +282,7 @@ void CObjectBillboard::SetVtx(const int nPatternAnim, const int nTexWidth, const
 void CObjectBillboard::SetVtx(D3DXCOLOR col)
 {
 	VERTEX_3D *pVtx;
+	m_col = col;
 
 	//頂点バッファをロックし頂点情報へのポインタを取得
 	m_pVtxBuff->Lock(
@@ -276,10 +327,10 @@ void CObjectBillboard::SetSize(float fWidth, float fHeight)
 		0);
 
 	//頂点座標の設定
-	pVtx[0].pos = D3DXVECTOR3(-m_fWidth, +m_fHeight, 0.0f);
-	pVtx[1].pos = D3DXVECTOR3(+m_fWidth, +m_fHeight, 0.0f);
-	pVtx[2].pos = D3DXVECTOR3(-m_fWidth, -m_fHeight, 0.0f);
-	pVtx[3].pos = D3DXVECTOR3(+m_fWidth, -m_fHeight, 0.0f);
+	pVtx[0].pos = D3DXVECTOR3(sinf(m_rot.z + (-D3DX_PI * 0.25f)) * m_fWidth, cosf(m_rot.z + (-D3DX_PI * 0.25f)) * m_fHeight, 0.0f);
+	pVtx[1].pos = D3DXVECTOR3(sinf(m_rot.z + (D3DX_PI * 0.25f)) * m_fWidth, cosf(m_rot.z + (D3DX_PI * 0.25f)) * m_fHeight, 0.0f);
+	pVtx[2].pos = D3DXVECTOR3(sinf(m_rot.z + (-D3DX_PI * 0.75f)) * m_fWidth, cosf(m_rot.z + (-D3DX_PI * 0.75f)) * m_fHeight, 0.0f);
+	pVtx[3].pos = D3DXVECTOR3(sinf(m_rot.z + (D3DX_PI * 0.75f)) * m_fWidth, cosf(m_rot.z + (D3DX_PI * 0.75f)) * m_fHeight, 0.0f);
 
 	//頂点バッファをアンロックする
 	m_pVtxBuff->Unlock();
@@ -291,6 +342,7 @@ void CObjectBillboard::SetSize(float fWidth, float fHeight)
 void CObjectBillboard::SetCol(D3DXCOLOR col)
 {
 	VERTEX_3D *pVtx;
+	m_col = col;
 
 	//頂点バッファをロックし頂点情報へのポインタを取得
 	m_pVtxBuff->Lock(

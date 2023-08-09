@@ -9,16 +9,17 @@
 #include "fade.h"
 #include "texture.h"
 #include "manager.h"
+#include "camera.h"
 
 //マクロ定義
-#define BUTTONWIDTH		(120.0f)						//ポーズ画面ボタン幅
-#define BUTTONHEIGHT	(40.0f)							//ポーズ画面ボタン高さ
-#define BUTTONX			(640.0f)						//ポーズ画面X座標
-#define BUTTONY			(280.0f)						//ポーズ画面Y座標
-#define BUTTONSPACE		(110.0f)						//ポーズ画面縦スペース
-#define MOVECOLA		(-0.02f)						//毎フレーム変わるボタンの透明度
-#define BGSIZE			(200.0f)						//サイズ
-#define BGHEIGHT		(80.0f)							//縦幅
+#define BUTTONWIDTH		(120.0f)		//ポーズ画面ボタン幅
+#define BUTTONHEIGHT	(40.0f)			//ポーズ画面ボタン高さ
+#define BUTTONX			(640.0f)		//ポーズ画面X座標
+#define BUTTONY			(280.0f)		//ポーズ画面Y座標
+#define BUTTONSPACE		(110.0f)		//ポーズ画面縦スペース
+#define MOVECOLA		(-0.02f)		//毎フレーム変わるボタンの透明度
+#define BGSIZE			(200.0f)		//サイズ
+#define BGHEIGHT		(80.0f)			//縦幅
 
 //===============================================
 // テクスチャファイル名
@@ -121,8 +122,8 @@ void CPause::Update(void)
 	CInputPad *pInputPad = CManager::GetInputPad();
 	CFade *pFade = CManager::GetFade();
 
-	if (m_bSelect == true)
-	{//押された状態の場合
+	if (m_bSelect == true || CManager::GetFade()->GetState() != CFade::STATE_NONE)
+	{// 押された状態の場合
 		return;
 	}
 
@@ -130,32 +131,34 @@ void CPause::Update(void)
 	{// 上移動キーが入力された
 		m_bState = m_bState ? false : true;
 
-		CObject::TYPE type = CObject::TYPE_NONE;
+		//CObject::TYPE type = CObject::TYPE_NONE;
 
-		if (m_bState == false)
-		{
-			type = CObject::TYPE_PAUSE;
-		}
+		//if (m_bState == false)
+		//{
+		//	type = CObject::TYPE_PAUSE;
+		//}
 
-		if (m_pBg != NULL)
-		{
-			m_pBg->SetType(type);
-		}
+		//if (m_pBg != NULL)
+		//{
+		//	m_pBg->SetType(type);
+		//}
 
-		// 選択肢
-		for (int nCnt = 0; nCnt < MENU_MAX; nCnt++)
-		{
-			if (m_aMenu[nCnt].pObject2D != NULL)
-			{// 生成された
-				m_aMenu[nCnt].pObject2D->SetType(type);
-			}
-		}
+		//// 選択肢
+		//for (int nCnt = 0; nCnt < MENU_MAX; nCnt++)
+		//{
+		//	if (m_aMenu[nCnt].pObject2D != NULL)
+		//	{// 生成された
+		//		m_aMenu[nCnt].pObject2D->SetType(type);
+		//	}
+		//}
 	}
 
 	if (m_bState == false)
 	{
 		return;
 	}
+
+	CManager::GetCamera()->MouseCamera();
 
 	m_aMenu[m_SelectMenu].col.a += m_fMoveCol_a;
 

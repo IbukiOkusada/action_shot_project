@@ -135,9 +135,6 @@ void CBullet::Update(void)
 {
 	D3DXVECTOR3 pos = GetPosition();
 
-	// 座標更新
-	Controller();
-
 	// 頂点情報更新
 	//SetVtx();
 
@@ -145,7 +142,11 @@ void CBullet::Update(void)
 
 	if (m_fLife > 0.0f)
 	{//  寿命がある場合
+		// 座標更新
+		Controller();
 		m_nChangeTimer--;
+
+		//uCManager::GetDebugProc()->Print("座標[%f, %f, %f]\n", GetPosition().x, GetPosition().y, GetPosition().z);
 
 		//弾との当たり判定
 		if (Collision(pos, CObject::TYPE_ENEMY) == true)
@@ -288,7 +289,7 @@ void CBullet::Controller(void)
 
 		if (m_pTarget->pObj != NULL)
 		{
-			if (m_pTarget->pObj->GetDeath() == false)
+			if (m_pTarget->pObj->GetDeath() == false && m_pTarget->pObj->GetType() == CObject::TYPE_ENEMY)
 			{
 				if (m_pTarget->pObj->GetMtx() != NULL)
 				{
@@ -297,7 +298,11 @@ void CBullet::Controller(void)
 					float fRotDest = atan2f(  m_pTarget->pObj->GetMtx()->_41 - pos.x, m_pTarget->pObj->GetMtx()->_43 - pos.z);	//目標までの角度
 					float fRotDestXY = atan2f(m_pTarget->pObj->GetMtx()->_42 - pos.y, m_pTarget->pObj->GetMtx()->_41 - pos.x);
 					float fRotDestZY = atan2f(m_pTarget->pObj->GetMtx()->_42 - pos.y, m_pTarget->pObj->GetMtx()->_43 - pos.z);
-					m_move.y *= m_pTarget->fSpeed;
+					if (m_nType == TYPE_NONE)
+					{
+						m_move.y *= m_pTarget->fSpeed;
+					}
+
 					m_move.x *= m_pTarget->fSpeed;
 					m_move.z *= m_pTarget->fSpeed;
 				}
@@ -406,15 +411,16 @@ bool CBullet::Collision(D3DXVECTOR3 pos, CObject::TYPE ObjType)
 						{							
 							if (m_nType == TYPE_NONE)
 							{
-								pObjX->Hit(200);
+								pObjX->Hit(800);
 							}
 							else
 							{
-								pObjX->Hit(50);
+								pObjX->Hit(60);
+								//CGame::GetScore()->Add(5);
 							}
 
 							// 標的確認
-							Check(pObj);
+							Check(pObjX);
 
 							// 自分自身の終了処理
 							if (m_nType == TYPE_NONE)
@@ -463,16 +469,13 @@ void CBullet::Check(CObject *pObject, CBullet *pBullet)
 	{// 使用されている間繰り返し
 		CBullet *pBulNext = pBul->m_pNext;	// 次を保持
 
-		if (pBul != pBullet)
-		{
-			if (pBul->m_pTarget != NULL)
-			{// ロックオンしている
-				if (pBul->m_pTarget->pObj == pObject)
-				{// 同じ標的の場合
-					pBul->m_pTarget->pObj = NULL;
-					delete pBul->m_pTarget;
-					pBul->m_pTarget = NULL;
-				}
+		if (pBul->m_pTarget != NULL)
+		{// ロックオンしている
+			if (pBul->m_pTarget->pObj == pObject)
+			{// 同じ標的の場合
+				pBul->m_pTarget->pObj = NULL;
+				delete pBul->m_pTarget;
+				pBul->m_pTarget = NULL;
 			}
 		}
 

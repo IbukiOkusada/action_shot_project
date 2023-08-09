@@ -23,7 +23,7 @@ int CMeshOrbit::m_nNumAll = 0;
 //==========================================================
 // コンストラクタ
 //==========================================================
-CMeshOrbit::CMeshOrbit() : CObjectMesh(6)
+CMeshOrbit::CMeshOrbit() : CObjectMesh(5)
 {
 	m_pMtxParent = NULL;
 	m_fTimer = 0;
@@ -53,6 +53,7 @@ HRESULT CMeshOrbit::Init(void)
 {
 	// 開始点をリセット
 	m_rot.z = (float)(rand() % 629 - 314) * 0.01f;
+
 	return S_OK;
 }
 

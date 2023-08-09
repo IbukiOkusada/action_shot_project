@@ -9,6 +9,8 @@
 
 #include "manager.h"
 
+class CScore;
+
 //===============================================
 // タイトルクラスの定義(派生クラス)
 //===============================================
@@ -26,7 +28,14 @@ public:
 	void Update(void);
 	void Draw(void);
 
+	// メンバ関数(取得)
+	static CScore *GetScore() { return m_pScore; }
+	static void SetScore(int nValue) { m_nScore = nValue; }
+
 private:
+
+	static CScore *m_pScore;
+	static int m_nScore;
 };
 
 #endif

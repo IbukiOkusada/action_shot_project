@@ -10,22 +10,28 @@
 #include "renderer.h"
 #include "editor.h"
 #include "debugproc.h"
+#include "slow.h"
+#include "message.h"
+#include "texture.h"
+#include "game.h"
+#include "pause.h"
 
 //==========================================================
 // マクロ定義
 //==========================================================
 #define CAMERA_MOVESPEED	(1.0f)			// 移動量
 #define CAMERA_LENGTHMOVE	(1.0f)			// カメラ距離移動量
-#define ROTATE_SPEED	(0.02f)			// カメラの回転速度
-#define PAD_ROTATE			(0.03f)
-#define CAMERA_MAXLENGTH	(400.0f)		// カメラ最大距離
-#define CAMERA_MINLENGTH	(100.0f)		// カメラ最小距離
-#define MAX_CAMERA_ROTZ (D3DX_PI * 0.9f)	// カメラ最大角度
-#define MIN_CAMERA_ROTZ (D3DX_PI * 0.1f)	// カメラ最大角度
+#define ROTATE_SPEED		(0.03f)			// カメラの回転速度
+#define PAD_ROTATE			(0.02f)
+#define CAMERA_MAXLENGTH	(700.0f)		// カメラ最大距離
+#define CAMERA_MINLENGTH	(300.0f)		// カメラ最小距離
 #define MOUSE_MOVESPEED		(0.2f)			// マウス移動速度
 #define MOUSE_ROTATESPEED_X	(0.004f)		// マウス回転速度x軸
 #define MOUSE_ROTATESPEED_Z	(0.005f)		// マウス回転速度z軸
 #define MOUSE_WHEELSPEED	(0.1f)			// マウスホイール回転速度
+#define MAX_SLOWROT			(0.15f)
+#define MESSAGERAND			(120)
+#define SLOW_CAMERAROT		(0.7f)
 
 //==========================================================
 // コンストラクタ
@@ -54,6 +60,7 @@ HRESULT CCamera::Init(void)
 	m_fLength = sqrtf((m_posV.x - m_posR.x) * (m_posV.x - m_posR.x) + (m_posV.z - m_posR.z) * (m_posV.z - m_posR.z));
 	m_rot = D3DXVECTOR3(0.0f, atan2f(m_posR.x - m_posV.x, m_posR.z - m_posV.z), 1.29f);
 	m_vecU = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+	m_mode = MODE_NORMAL;
 
 	//視点設定
 	SetV();
@@ -89,8 +96,23 @@ void CCamera::Update(void)
 	//注視点の移動
 	//MoveR();
 
-	//視点の移動
-	MoveV();
+	if (m_mode != MODE_SLOWSHW)
+	{
+		if (CGame::GetPause() != NULL)
+		{
+			//視点の移動
+			MoveV();
+		}
+		else
+		{
+			//視点の移動
+			MoveV();
+		}
+	}
+	else
+	{
+		SlowShw();
+	}
 
 	// カメラのデバッグ表示
 	CManager::GetDebugProc()->Print(" カメラ操作  [Z, C, マウス操作]\n", m_posV.x, m_posV.y, m_posV.z);
@@ -214,11 +236,17 @@ void CCamera::MoveV(void)
 {
 	CInputKeyboard *pKey = CManager::GetInputKeyboard();
 	CInputPad *pInputPad = CManager::GetInputPad();	// キーボードのポインタ
+	float fMultiSlow = 1.0f;
 
-													//x軸の移動
+	if (CManager::GetSlow()->Get() != 1.0f)
+	{
+		fMultiSlow = SLOW_CAMERAROT;
+	}
+
+	//x軸の移動
 	if (pInputPad->GetStickPress(0, CInputPad::BUTTON_RIGHT_X, 0.0f, CInputPad::STICK_PLUS) == true)
 	{//Qキー入力
-		m_rot.y += -D3DX_PI * ROTATE_SPEED * pInputPad->GetStickAdd(0, CInputPad::BUTTON_RIGHT_X, 0.0f, CInputPad::STICK_PLUS);
+		m_rot.y += -D3DX_PI * ROTATE_SPEED * pInputPad->GetStickAdd(0, CInputPad::BUTTON_RIGHT_X, 0.0f, CInputPad::STICK_PLUS) * fMultiSlow;
 		if (m_rot.y < -D3DX_PI)
 		{//角度がΠを超えた場合
 			m_rot.y += D3DX_PI * 2;
@@ -226,11 +254,7 @@ void CCamera::MoveV(void)
 	}
 	else if (pInputPad->GetStickPress(0, CInputPad::BUTTON_RIGHT_X, 0.0f, CInputPad::STICK_MINUS) == true)
 	{//Eキー入力
-		m_rot.y += -D3DX_PI * ROTATE_SPEED * pInputPad->GetStickAdd(0, CInputPad::BUTTON_RIGHT_X, 0.0f, CInputPad::STICK_MINUS);
-		if (m_rot.y > D3DX_PI)
-		{//角度がΠを超えた場合
-			m_rot.y += -D3DX_PI * 2;
-		}
+		m_rot.y += -D3DX_PI * ROTATE_SPEED * pInputPad->GetStickAdd(0, CInputPad::BUTTON_RIGHT_X, 0.0f, CInputPad::STICK_MINUS) * fMultiSlow;
 	}
 
 	//x軸の移動
@@ -255,7 +279,7 @@ void CCamera::MoveV(void)
 	if (pInputPad->GetStickPress(0, CInputPad::BUTTON_RIGHT_Y, 0.1f, CInputPad::STICK_PLUS) == true)
 	{//Yキー入力
 		//角度の変更
-		m_rot.z += PAD_ROTATE * pInputPad->GetStickAdd(0, CInputPad::BUTTON_RIGHT_Y, 0.5f, CInputPad::STICK_PLUS);
+		m_rot.z += PAD_ROTATE * pInputPad->GetStickAdd(0, CInputPad::BUTTON_RIGHT_Y, 0.5f, CInputPad::STICK_PLUS) * fMultiSlow;
 		if (m_rot.z < MIN_CAMERA_ROTZ)
 		{//角度が限界を超えた場合
 			m_rot.z = MIN_CAMERA_ROTZ;
@@ -265,7 +289,7 @@ void CCamera::MoveV(void)
 	else if (pInputPad->GetStickPress(0, CInputPad::BUTTON_RIGHT_Y, 0.1f, CInputPad::STICK_MINUS) == true)
 	{//Nキー入力
 		//角度の変更
-		m_rot.z += PAD_ROTATE * 2 * pInputPad->GetStickAdd(0, CInputPad::BUTTON_RIGHT_Y, 0.5f, CInputPad::STICK_MINUS);
+		m_rot.z += PAD_ROTATE * 2 * pInputPad->GetStickAdd(0, CInputPad::BUTTON_RIGHT_Y, 0.5f, CInputPad::STICK_MINUS) * fMultiSlow;
 
 		if (m_rot.z > MAX_CAMERA_ROTZ)
 		{//角度が限界を超えた場合
@@ -294,7 +318,6 @@ void CCamera::MoveV(void)
 		{//角度が限界を超えた場合
 			m_rot.z = MAX_CAMERA_ROTZ;
 		}
-
 	}
 
 	////注視点からの距離の操作
@@ -317,6 +340,19 @@ void CCamera::MoveV(void)
 	//		m_fLength = CAMERA_MAXLENGTH;
 	//	}
 	//}
+
+	// 距離の変更
+	m_fLength -= 30.0f;
+
+	if (m_fLength < CAMERA_MINLENGTH)
+	{//距離が最小を超えた場合
+		m_fLength = CAMERA_MINLENGTH;
+	}
+
+	if (m_mode == MODE_SLOWGUN)
+	{
+		Slow();
+	}
 
 	//視点設定
 	SetV();
@@ -520,36 +556,39 @@ void CCamera::Pursue(const D3DXVECTOR3 pos, const D3DXVECTOR3 rot)
 	m_posV.y += VDiff.y * 0.1f;
 	m_posV.z += VDiff.z * 0.15f;
 
-	float fRotDiff;
-	float fRotDest;
+	if (CManager::GetSlow()->Get() == 1.0f)
+	{
+		float fRotDiff;
+		float fRotDest;
 
-	fRotDest = 1.4f;	//目的の向きを取得
+		fRotDest = 1.4f;	//目的の向きを取得
 
-	fRotDiff = fRotDest - m_rot.z;
+		fRotDiff = fRotDest - m_rot.z;
 
-	if (fRotDiff > D3DX_PI || fRotDiff < -D3DX_PI)
-	{//-3.14～3.14の範囲外の場合
-		if (fRotDiff > D3DX_PI)
-		{
-			fRotDiff += (-D3DX_PI * 2);
+		if (fRotDiff > D3DX_PI || fRotDiff < -D3DX_PI)
+		{//-3.14～3.14の範囲外の場合
+			if (fRotDiff > D3DX_PI)
+			{
+				fRotDiff += (-D3DX_PI * 2);
+			}
+			else if (fRotDiff < -D3DX_PI)
+			{
+				fRotDiff += (D3DX_PI * 2);
+			}
 		}
-		else if (fRotDiff < -D3DX_PI)
-		{
-			fRotDiff += (D3DX_PI * 2);
-		}
-	}
 
-	m_rot.z += fRotDiff * 0.06f;
+		m_rot.z += fRotDiff * 0.06f;
 
-	if (m_rot.z > D3DX_PI || m_rot.z < -D3DX_PI)
-	{//-3.14～3.14の範囲外の場合
-		if (m_rot.z > D3DX_PI)
-		{
-			m_rot.z += (-D3DX_PI * 2);
-		}
-		else if (m_rot.z  < -D3DX_PI)
-		{
-			m_rot.z += (D3DX_PI * 2);
+		if (m_rot.z > D3DX_PI || m_rot.z < -D3DX_PI)
+		{//-3.14～3.14の範囲外の場合
+			if (m_rot.z > D3DX_PI)
+			{
+				m_rot.z += (-D3DX_PI * 2);
+			}
+			else if (m_rot.z < -D3DX_PI)
+			{
+				m_rot.z += (D3DX_PI * 2);
+			}
 		}
 	}
 }
@@ -700,5 +739,166 @@ void CCamera::SetRot(const D3DXVECTOR3 rot)
 	}
 
 	//視点の設定
+	SetV();
+}
+
+//==========================================================
+// スロー時の角度矯正
+//==========================================================
+void CCamera::Slow(void)
+{
+	float fLeftRot = m_rot.y - (m_SlowOldRot.y + D3DX_PI * MAX_SLOWROT);
+	float fRightRot = m_rot.y - (m_SlowOldRot.y + -D3DX_PI * MAX_SLOWROT);
+
+	if (fLeftRot < -D3DX_PI)
+	{//角度がΠを超えた場合
+		fLeftRot += D3DX_PI * 2;
+	}
+	if (fLeftRot > D3DX_PI)
+	{//角度がΠを超えた場合
+		fLeftRot += -D3DX_PI * 2;
+	}
+
+	if (fRightRot < -D3DX_PI)
+	{//角度がΠを超えた場合
+		fRightRot += D3DX_PI * 2;
+	}
+	if (fRightRot > D3DX_PI)
+	{//角度がΠを超えた場合
+		fRightRot += -D3DX_PI * 2;
+	}
+
+	if (fLeftRot > 0.0f)
+	{
+		m_rot.y = (m_SlowOldRot.y + D3DX_PI * MAX_SLOWROT);
+	}
+
+	if (fRightRot < 0.0f)
+	{
+		m_rot.y = (m_SlowOldRot.y + -D3DX_PI * MAX_SLOWROT);
+	}
+}
+
+//==========================================================
+// スローシャワー時のカメラ操作
+//==========================================================
+void CCamera::SlowShw(void)
+{
+	CInputKeyboard *pKey = CManager::GetInputKeyboard();
+	CInputPad *pInputPad = CManager::GetInputPad();	// キーボードのポインタ
+	float fMultiSlow = SLOW_CAMERAROT;
+
+	// 差分を求める
+	float fLeftRot = m_rot.y - (m_SlowOldRot.y + D3DX_PI * 0.3f);
+	float fRightRot = m_rot.y - (m_SlowOldRot.y + -D3DX_PI * 0.3f);
+
+	if (fLeftRot < -D3DX_PI)
+	{//角度がΠを超えた場合
+		fLeftRot += D3DX_PI * 2;
+	}
+	if (fLeftRot > D3DX_PI)
+	{//角度がΠを超えた場合
+		fLeftRot += -D3DX_PI * 2;
+	}
+
+	if (fRightRot < -D3DX_PI)
+	{//角度がΠを超えた場合
+		fRightRot += D3DX_PI * 2;
+	}
+	if (fRightRot > D3DX_PI)
+	{//角度がΠを超えた場合
+		fRightRot += -D3DX_PI * 2;
+	}
+
+	CManager::GetDebugProc()->Print("%f, %f\n", fLeftRot, fRightRot);
+
+	//x軸の移動
+	if (pInputPad->GetStickPress(0, CInputPad::BUTTON_RIGHT_X, 0.0f, CInputPad::STICK_PLUS) == true)
+	{//Qキー入力
+		m_rot.y += -D3DX_PI * ROTATE_SPEED * pInputPad->GetStickAdd(0, CInputPad::BUTTON_RIGHT_X, 0.0f, CInputPad::STICK_PLUS) * fMultiSlow;
+		if (m_rot.y < -D3DX_PI)
+		{//角度がΠを超えた場合
+			m_rot.y += D3DX_PI * 2;
+		}
+	}
+	else if (pInputPad->GetStickPress(0, CInputPad::BUTTON_RIGHT_X, 0.0f, CInputPad::STICK_MINUS) == true)
+	{//Eキー入力
+		m_rot.y += -D3DX_PI * ROTATE_SPEED * pInputPad->GetStickAdd(0, CInputPad::BUTTON_RIGHT_X, 0.0f, CInputPad::STICK_MINUS) * fMultiSlow;
+
+		if (m_rot.y > D3DX_PI)
+		{//角度がΠを超えた場合
+			m_rot.y += -D3DX_PI * 2;
+		}
+	}
+	else
+	{
+		if (m_SlowOldRot.y != m_rot.y)
+		{
+			if (fLeftRot <= 0.0f)
+			{
+				if (fLeftRot >= -0.2f)
+				{
+					CMessage *pMessage = CMessage::Create(D3DXVECTOR3(300.0f, 150.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, (rand() % MESSAGERAND - (MESSAGERAND * 0.5f)) * 0.01f));
+					pMessage->BindTexture(CManager::GetTexture()->Regist(CManager::GetTexture()->GetFileName(CTexture::TYPE_PERFECT)));
+				}
+				else if (fLeftRot >= -0.4f)
+				{
+					CMessage *pMessage = CMessage::Create(D3DXVECTOR3(300.0f, 150.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, (rand() % MESSAGERAND - (MESSAGERAND * 0.5f)) * 0.01f));
+					pMessage->BindTexture(CManager::GetTexture()->Regist(CManager::GetTexture()->GetFileName(CTexture::TYPE_GOOD)));
+				}
+			}
+			else if (fLeftRot > 0.0f)
+			{
+				if (fLeftRot <= 0.2f)
+				{
+					CMessage *pMessage = CMessage::Create(D3DXVECTOR3(300.0f, 150.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, (rand() % MESSAGERAND - (MESSAGERAND * 0.5f)) * 0.01f));
+					pMessage->BindTexture(CManager::GetTexture()->Regist(CManager::GetTexture()->GetFileName(CTexture::TYPE_PERFECT)));
+				}
+				else if (fLeftRot <= 0.4f)
+				{
+					CMessage *pMessage = CMessage::Create(D3DXVECTOR3(300.0f, 150.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, (rand() % MESSAGERAND - (MESSAGERAND * 0.5f)) * 0.01f));
+					pMessage->BindTexture(CManager::GetTexture()->Regist(CManager::GetTexture()->GetFileName(CTexture::TYPE_GOOD)));
+				}
+			}
+
+			if (fRightRot >= 0.0f)
+			{
+				if (fRightRot <= 0.2f)
+				{
+					CMessage *pMessage = CMessage::Create(D3DXVECTOR3(300.0f, 150.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, (rand() % MESSAGERAND - (MESSAGERAND * 0.5f)) * 0.01f));
+					pMessage->BindTexture(CManager::GetTexture()->Regist(CManager::GetTexture()->GetFileName(CTexture::TYPE_PERFECT)));
+				}
+				else if (fRightRot <= 0.4f)
+				{
+					CMessage *pMessage = CMessage::Create(D3DXVECTOR3(300.0f, 150.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, (rand() % MESSAGERAND - (MESSAGERAND * 0.5f)) * 0.01f));
+					pMessage->BindTexture(CManager::GetTexture()->Regist(CManager::GetTexture()->GetFileName(CTexture::TYPE_GOOD)));
+				}
+			}
+			else if (fRightRot < 0.0f)
+			{
+				if (fRightRot >= -0.2f)
+				{
+					CMessage *pMessage = CMessage::Create(D3DXVECTOR3(300.0f, 150.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, (rand() % MESSAGERAND - (MESSAGERAND * 0.5f)) * 0.01f));
+					pMessage->BindTexture(CManager::GetTexture()->Regist(CManager::GetTexture()->GetFileName(CTexture::TYPE_PERFECT)));
+				}
+				else if (fRightRot >= -0.4f)
+				{
+					CMessage *pMessage = CMessage::Create(D3DXVECTOR3(300.0f, 150.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, (rand() % MESSAGERAND - (MESSAGERAND * 0.5f)) * 0.01f));
+					pMessage->BindTexture(CManager::GetTexture()->Regist(CManager::GetTexture()->GetFileName(CTexture::TYPE_GOOD)));
+				}
+			}
+		}
+
+		m_SlowOldRot = m_rot;
+	}
+
+	// 距離の変更
+	m_fLength += 30.0f;
+
+	if (m_fLength > CAMERA_MAXLENGTH)
+	{//距離が最大を超えた場合
+		m_fLength = CAMERA_MAXLENGTH;
+	}
+
 	SetV();
 }

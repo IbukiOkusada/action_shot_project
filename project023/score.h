@@ -34,6 +34,7 @@ public:	// ここから関数(誰でもアクセス可能)
 	// メンバ関数
 	void Add(int nValue);
 	void Set(int nValue);
+	void SetColor(D3DXCOLOR col);
 
 	// メンバ関数(取得)
 	int GetNum(void) { return m_nNum; }

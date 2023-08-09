@@ -20,24 +20,25 @@
 #include "result.h"
 #include "fade.h"
 #include "object.h"
+#include "ranking.h"
 
 //===============================================
 // 静的メンバ変数
 //===============================================
-CRenderer *CManager::m_pRenderer = NULL;		// レンダラーのポインタ
+CRenderer *CManager::m_pRenderer = NULL;			// レンダラーのポインタ
 CInputKeyboard *CManager::m_pInputKeyboard = NULL;	// 入力デバイス(キーボード)へのポインタ
-CInputMouse *CManager::m_pInputMouse = NULL;	// 入力デバイス(マウス)のポインタ
+CInputMouse *CManager::m_pInputMouse = NULL;		// 入力デバイス(マウス)のポインタ
 CInputPad *CManager::m_pInputPad = NULL;
-CDebugProc *CManager::m_pDebugProc = NULL;		// デバッグ表示のポインタ
-CSound *CManager::m_pSound = NULL;		// サウンドのポインタ
-CCamera *CManager::m_pCamera = NULL;	// カメラのポインタ
-CLight *CManager::m_pLight = NULL;		// ライトのポインタ
-CTexture *CManager::m_pTexture = NULL;	// テクスチャのポインタ
-CXFile *CManager::m_pModelFile = NULL;	// Xファイル情報のポインタ
-CEditor *CManager::m_pEditor = NULL;	// エディターへのポインタ
-CSlow *CManager::m_pSlow = NULL;		// スロー状態へのポインタ
-CScene *CManager::m_pScene = NULL;		// シーンのポインタ
-CFade *CManager::m_pFade = NULL;		// フェードへのポインタ
+CDebugProc *CManager::m_pDebugProc = NULL;			// デバッグ表示のポインタ
+CSound *CManager::m_pSound = NULL;					// サウンドのポインタ
+CCamera *CManager::m_pCamera = NULL;				// カメラのポインタ
+CLight *CManager::m_pLight = NULL;					// ライトのポインタ
+CTexture *CManager::m_pTexture = NULL;				// テクスチャのポインタ
+CXFile *CManager::m_pModelFile = NULL;				// Xファイル情報のポインタ
+CEditor *CManager::m_pEditor = NULL;				// エディターへのポインタ
+CSlow *CManager::m_pSlow = NULL;					// スロー状態へのポインタ
+CScene *CManager::m_pScene = NULL;					// シーンのポインタ
+CFade *CManager::m_pFade = NULL;					// フェードへのポインタ
 
 //===================================================
 // コンストラクタ
@@ -612,6 +613,10 @@ CScene *CScene::Create(MODE mode)
 
 	case MODE_RESULT:
 		pScene = new CResult;
+		break;
+
+	case MODE_RANKING:
+		pScene = new CRanking;
 		break;
 	}
 

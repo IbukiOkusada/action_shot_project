@@ -47,7 +47,7 @@ private:	// 自分だけがアクセス可能
 	CNumber *m_apNumber[NUM_PLACE];			// 数字のポインタ
 	D3DXVECTOR3 m_pos;	// 座標
 	int m_nNum;	// 現在の値
-	int m_nAnimTimer;	// 1秒カウント
+	float m_fAnimTimer;	// 1秒カウント
 	int m_nIdxTexture;	// テクスチャ番号
 	
 };
