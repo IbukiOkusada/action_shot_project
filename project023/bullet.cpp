@@ -22,7 +22,9 @@
 #include "meshorbit.h"
 #include "meshfield.h"
 #include "wet.h"
+#include "character.h"
 #include "game.h"
+#include "model.h"
 
 //===============================================
 // マクロ定義
@@ -291,13 +293,15 @@ void CBullet::Controller(void)
 		{
 			if (m_pTarget->pObj->GetDeath() == false && m_pTarget->pObj->GetType() == CObject::TYPE_ENEMY)
 			{
-				if (m_pTarget->pObj->GetMtx() != NULL)
+				CEnemy *pEnemy = pObj->GetEnemy();
+				if (pEnemy != NULL)
 				{
-					m_move = D3DXVECTOR3(m_pTarget->pObj->GetMtx()->_41 - pos.x, m_pTarget->pObj->GetMtx()->_42 - pos.y, m_pTarget->pObj->GetMtx()->_43 - pos.z);
+					D3DXMATRIX mtxWorld = *pEnemy->GetBody()->GetParts(0)->GetMtxWorld();
+					m_move = D3DXVECTOR3(mtxWorld._41 - pos.x, mtxWorld._42 - pos.y, mtxWorld._43 - pos.z);
 					D3DXVec3Normalize(&m_move, &m_move);
-					float fRotDest = atan2f(  m_pTarget->pObj->GetMtx()->_41 - pos.x, m_pTarget->pObj->GetMtx()->_43 - pos.z);	//目標までの角度
-					float fRotDestXY = atan2f(m_pTarget->pObj->GetMtx()->_42 - pos.y, m_pTarget->pObj->GetMtx()->_41 - pos.x);
-					float fRotDestZY = atan2f(m_pTarget->pObj->GetMtx()->_42 - pos.y, m_pTarget->pObj->GetMtx()->_43 - pos.z);
+					float fRotDest = atan2f(  mtxWorld._41 - pos.x, mtxWorld._43 - pos.z);	//目標までの角度
+					float fRotDestXY = atan2f(mtxWorld._42 - pos.y, mtxWorld._41 - pos.x);
+					float fRotDestZY = atan2f(mtxWorld._42 - pos.y, mtxWorld._43 - pos.z);
 					if (m_nType == TYPE_NONE)
 					{
 						m_move.y *= m_pTarget->fSpeed;
@@ -305,6 +309,24 @@ void CBullet::Controller(void)
 
 					m_move.x *= m_pTarget->fSpeed;
 					m_move.z *= m_pTarget->fSpeed;
+				}
+				else
+				{
+					if (m_pTarget->pObj->GetMtx() != NULL)
+					{
+						m_move = D3DXVECTOR3(m_pTarget->pObj->GetMtx()->_41 - pos.x, m_pTarget->pObj->GetMtx()->_42 - pos.y, m_pTarget->pObj->GetMtx()->_43 - pos.z);
+						D3DXVec3Normalize(&m_move, &m_move);
+						float fRotDest = atan2f(m_pTarget->pObj->GetMtx()->_41 - pos.x, m_pTarget->pObj->GetMtx()->_43 - pos.z);	//目標までの角度
+						float fRotDestXY = atan2f(m_pTarget->pObj->GetMtx()->_42 - pos.y, m_pTarget->pObj->GetMtx()->_41 - pos.x);
+						float fRotDestZY = atan2f(m_pTarget->pObj->GetMtx()->_42 - pos.y, m_pTarget->pObj->GetMtx()->_43 - pos.z);
+						if (m_nType == TYPE_NONE)
+						{
+							m_move.y *= m_pTarget->fSpeed;
+						}
+
+						m_move.x *= m_pTarget->fSpeed;
+						m_move.z *= m_pTarget->fSpeed;
+					}
 				}
 			}
 			else
@@ -453,8 +475,12 @@ void CBullet::SetHom(CObject *pObj, float fSpeed)
 
 	if (m_pTarget != NULL)
 	{
-		m_pTarget->pObj = pObj;
-		m_pTarget->fSpeed = fSpeed;
+		CEnemy *pEnemy = pObj->GetEnemy();
+		if (pEnemy != NULL)
+		{
+			m_pTarget->pObj = pObj;
+			m_pTarget->fSpeed = fSpeed;
+		}
 	}
 }
 

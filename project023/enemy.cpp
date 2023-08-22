@@ -1,6 +1,6 @@
 //===============================================
 //
-// プレイヤーの処理 [player.cpp]
+// 敵の処理 [enemy.cpp]
 // Author : Ibuki Okusada
 //
 //===============================================
@@ -24,17 +24,18 @@
 #include "lockon.h"
 #include "game.h"
 #include "player.h"
+#include "meshcylinder.h"
 
 //===============================================
 // マクロ定義
 //===============================================
-#define MOVE		(2.0f)		// 移動量
-#define PLAYER_GRAVITY	(-0.7f)	// プレイヤー重力
-#define PLAYER_JUMP	(15.0f)		// プレイヤージャンプ力
-#define STATE_CNT	(300)		// 状態管理カウント
-#define DAMINTERVAL	(5)		// ダメージインターバル
-#define MAX_LIFE	(600)		// 体力
-#define HOTINTERVAL	(10)
+#define MOVE			(2.0f)	// 移動量
+#define STATE_CNT		(300)	// 状態管理カウント
+#define DAMINTERVAL		(5)		// ダメージインターバル
+#define MAX_LIFE		(600)	// 体力
+#define HOTINTERVAL		(10)	// 熱中症状態インターバル
+#define LEAVECNT		(120)	// 退場タイマー
+#define LEAVEMOVE		(3.0f)	// 退場時の移動量
 
 //===============================================
 // 静的メンバ変数宣言
@@ -61,9 +62,8 @@ CEnemy::CEnemy(int nPriOrity)
 	m_fRotMove = 0.0f;
 	m_fRotDiff = 0.0f;
 	m_fRotDest = 0.0f;
-	pShadow = NULL;
+	m_pShadow = NULL;
 	m_pBody = NULL;
-	m_pBillState = NULL;
 	m_fStateCnt = 0;
 	m_state = STATE_NORMAL;
 	m_fLife = 0.0f;
@@ -112,10 +112,6 @@ HRESULT CEnemy::Init(const char *pName)
 	m_fMoveCnt = (float)(rand() % 1000);
 	m_fLife = 200.0f;
 
-	m_pBillState = CObjectBillboard::Create(m_pBody->GetParts(2)->GetPosition(), 6);
-	m_pBillState->BindTexture(CTexture::TYPE_ENEMYSTATE);
-	m_pBillState->SetSize(10.0f, 10.0f);
-
 	return S_OK;
 }
 
@@ -133,17 +129,10 @@ void CEnemy::Uninit(void)
 	}
 
 	// 影の終了
-	if (pShadow != NULL)
+	if (m_pShadow != NULL)
 	{
-		pShadow->Uninit();
-		pShadow = NULL;
-	}
-
-	// ビルボードの終了
-	if (m_pBillState != NULL)
-	{
-		m_pBillState->Uninit();
-		m_pBillState = NULL;
+		m_pShadow->Uninit();
+		m_pShadow = NULL;
 	}
 
 	// ロックオンの終了
@@ -178,71 +167,39 @@ void CEnemy::Update(void)
 	// プレイヤー操作
 	Controller();
 
-	if (pShadow != NULL)
+	if (m_pShadow != NULL)
 	{
-		pShadow->SetPosition(D3DXVECTOR3(m_pBody->GetParts(0)->GetMtxWorld()->_41, m_Info.pos.y, m_pBody->GetParts(0)->GetMtxWorld()->_43));
+		m_pShadow->SetPosition(D3DXVECTOR3(m_pBody->GetParts(0)->GetMtxWorld()->_41, m_Info.pos.y, m_pBody->GetParts(0)->GetMtxWorld()->_43));
 	}
 
-	// ビルボードの座標操作
-	if (m_pBillState != NULL)
+	// 状態ごとに更新
+	switch (m_state)
 	{
-		m_pBillState->SetPosition(D3DXVECTOR3(m_pBody->GetParts(3)->GetMtxWorld()->_41, 
-			m_pBody->GetParts(3)->GetMtxWorld()->_42 + 20.0f, m_pBody->GetParts(3)->GetMtxWorld()->_43));
+	case STATE_NORMAL:
+
+		UpdateNormal();
+		break;
+
+	case STATE_HOT:
+
+		UpdateNormal();
+		break;
+
+	case STATE_DOWN:
+
+		UpdateNormal();
+		break;
+
+	case STATE_DEFCOOL:
+
+		UpdateCool();
+		break;
+
+	case STATE_COOL:
+
+		UpdateCool();
+		break;
 	}
-
-	if (m_fStateCnt < STATE_CNT)
-	{
-		m_fStateCnt += CManager::GetSlow()->Get();
-
-		if (m_fStateCnt >= STATE_CNT)
-		{
-			m_pBillState->BindTexture(CTexture::TYPE_ENEMYSTATEADD);
-		}
-
-		if (GetPosition().x > 2900.0f || GetPosition().x < -2900.0f ||
-			GetPosition().z > 2900.0f || GetPosition().z < -2900.0f)
-		{
-			m_fStateCnt = 0;
-			m_pBillState->BindTexture(CTexture::TYPE_ENEMYSTATEADD);
-		}
-	}
-
-	// ダメージインターバル
-	if (m_Interval.fDamage > 0)
-	{
-		m_Interval.fDamage -= CManager::GetSlow()->Get();
-	}
-
-	if (m_state != STATE_DEFCOOL)
-	{
-		// 体温上昇インターバル
-		m_Interval.fHot += CManager::GetSlow()->Get();
-
-		if (m_Interval.fHot >= HOTINTERVAL)
-		{
-			m_Interval.fHot = 0;
-			m_fLife++;
-
-			if (m_fLife > MAX_LIFE)
-			{
-				m_fLife = MAX_LIFE;
-			}
-		}
-
-		// 状態更新
-		SetState();
-	}
-
-	// パーティクルインターバル
-	m_Interval.fParticle += CManager::GetSlow()->Get();
-
-	if (m_Interval.fParticle >= m_aParticleCounter[m_state])
-	{
-		SetParticle();
-		m_Interval.fParticle = 0.0f;
-	}
-
-	//CManager::GetDebugProc()->Print("体力 [ %f ] : ダメージインターバル [ %f ] : 体温上昇インターバル [ %f ] : 状態 [ %d ]\n", m_fLife, m_fDamInterval, m_fHotInterval, m_state);
 }
 
 
@@ -308,9 +265,7 @@ CEnemy *CEnemy::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 move, const
 		pEnemy->SetType(TYPE_ENEMY);
 
 		// 影の設定
-		pEnemy->pShadow = CShadow::Create(pos, 30.0f, 30.0f);
-
-		pEnemy->m_pBillState->SetPosition(pEnemy->GetPosition());
+		pEnemy->m_pShadow = CShadow::Create(pos, 30.0f, 30.0f);
 
 		// ビルボードの設定
 		//pEnemy->m_pBillState = CObjectBillboard::Create();
@@ -365,12 +320,9 @@ void CEnemy::Hit(float fDamage)
 		}
 
 		CGame::GetScore()->Add((int)(fLifeOld - m_fLife));
-		CParticle::Create(D3DXVECTOR3(m_pBody->GetParts(3)->GetMtxWorld()->_41,
-			m_pBody->GetParts(3)->GetMtxWorld()->_42,
-			m_pBody->GetParts(3)->GetMtxWorld()->_43), CEffect::TYPE_EXPLOSION);
 
 		if (m_state != STATE_DEFCOOL)
-		{
+		{// 受けない状態以外
 			// 状態設定
 			SetState();
 
@@ -387,12 +339,37 @@ void CEnemy::SetState(void)
 	// 残り体力によって状態を設定
 	if (m_fLife <= 0)
 	{// 0以下
-		//m_state = STATE_COOL;
-		Uninit();
+		m_state = STATE_COOL;
+		m_fStateCnt = LEAVECNT;
+		m_fMoveCnt = LEAVECNT;
+
+		CParticle::Create(D3DXVECTOR3(GetMtx()->_41,
+			GetMtx()->_42,
+			GetMtx()->_43), CEffect::TYPE_EXPLOSION);
+
+		CMeshCylinder *pMesh;
+
+		pMesh = CMeshSmake::Create(GetPosition(), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 37.0f, 6.0f, 3, 10, 10);
+
+		pMesh->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\smake001.jpg"));
+
+		pMesh = CMeshSmake::Create(GetPosition(), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 35.0f, 7.0f, 3, 10, 10);
+
+		pMesh->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\smake000.jpg"));
 
 		if (CGame::GetPlayer() != NULL)
 		{
 			CGame::GetPlayer()->AddSlowTime();
+			
+			// 向きを変更する
+			D3DXVECTOR3 rot = GetRotation();
+			rot.y = (float)(rand() % 628 - 314) * 0.01f;
+
+			// 向きに合わせた移動量に変更
+			m_Info.move.x = -sinf(rot.y) * LEAVEMOVE;
+			m_Info.move.z = -cosf(rot.y) * LEAVEMOVE;
+
+			SetRotation(rot);
 		}
 	}
 	else if (m_fLife < 200 * STATE_HOT)
@@ -490,8 +467,91 @@ void CEnemy::SetCol(void)
 			}
 			else
 			{
-				m_pBody->GetParts(nCnt)->SetChangeCol(false);
+				if (m_state == STATE_COOL)
+				{// 退場中
+					// 透明度を変更
+					col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+					col.a = (float)(m_fStateCnt / LEAVECNT);
+					
+					m_pBody->GetParts(nCnt)->SetChangeCol(true, col);
+					m_pShadow->SetCol(col);
+				}
+				else
+				{
+					m_pBody->GetParts(nCnt)->SetChangeCol(false);
+				}
 			}
 		}
+	}
+}
+
+//===============================================
+// 通常時の更新処理
+//===============================================
+void CEnemy::UpdateNormal(void)
+{
+	if (m_fStateCnt < STATE_CNT)
+	{
+		m_fStateCnt += CManager::GetSlow()->Get();
+
+		if (GetPosition().x > 2900.0f || GetPosition().x < -2900.0f ||
+			GetPosition().z > 2900.0f || GetPosition().z < -2900.0f)
+		{
+			m_fStateCnt = 0;
+		}
+	}
+
+	// ダメージインターバル
+	if (m_Interval.fDamage > 0)
+	{
+		m_Interval.fDamage -= CManager::GetSlow()->Get();
+	}
+
+	if (m_state != STATE_DEFCOOL)
+	{
+		// 体温上昇インターバル
+		m_Interval.fHot += CManager::GetSlow()->Get();
+
+		if (m_Interval.fHot >= HOTINTERVAL)
+		{
+			m_Interval.fHot = 0;
+			m_fLife++;
+
+			if (m_fLife > MAX_LIFE)
+			{
+				m_fLife = MAX_LIFE;
+			}
+		}
+
+		// 状態更新
+		SetState();
+	}
+
+	// パーティクルインターバル
+	m_Interval.fParticle += CManager::GetSlow()->Get();
+
+	if (m_Interval.fParticle >= m_aParticleCounter[m_state])
+	{
+		SetParticle();
+		m_Interval.fParticle = 0.0f;
+	}
+}
+
+//===============================================
+// 涼しいときの更新処理
+//===============================================
+void CEnemy::UpdateCool(void)
+{
+	m_fStateCnt -= CManager::GetSlow()->Get();
+
+	if (GetPosition().x > 2900.0f || GetPosition().x < -2900.0f ||
+		GetPosition().z > 2900.0f || GetPosition().z < -2900.0f)
+	{
+		m_fStateCnt = 0;
+	}
+
+	if (m_fStateCnt <= 0.0f)
+	{// 遷移タイマー規定値
+		Uninit();
 	}
 }

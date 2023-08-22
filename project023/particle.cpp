@@ -103,26 +103,26 @@ void CParticle::Set(D3DXVECTOR3 Defpos, D3DXVECTOR3 Defmove, CEffect::TYPE type)
 
 	case CEffect::TYPE_EXPLOSION:	// ”š”­
 
-		for (int nCnt = 0; nCnt < 2; nCnt++)
+		for (int nCnt = 0; nCnt < 10; nCnt++)
 		{
 			// À•W‚ÌÝ’è
 			pos = Defpos;
 
 			//ˆÚ“®—Ê‚ÌÝ’è
-			move.x = sinf((float)(rand() % 629 - 314) / 100.0f) * ((float)(rand() % 100)) / 50.0f;
-			move.y = ((float)(rand() % 100)) / 10.0f;
-			move.z = cosf((float)(rand() % 629 - 314) / 100.0f) * ((float)(rand() % 100)) / 50.0f;
+			move.x = sinf((float)(rand() % 629 - 314)  * 0.01f) * ((float)(rand() % 100)) * 0.01f;
+			move.y = ((float)(rand() % 100)) * 0.001f;
+			move.z = cosf((float)(rand() % 629 - 314)  * 0.01f) * ((float)(rand() % 100)) * 0.01f;
 
 			//F‚ÌÝ’è
-			col = D3DXCOLOR(0.4f, (float)(rand() % 6) / 10.0f + 0.4f, 1.0f, 1.0f);
+			col = D3DXCOLOR(0.1f, 0.1f, 0.1f, 1.0f);
 
 			//”¼Œa‚ÌÝ’è
-			fRadius = 7.0f;
+			fRadius = 20.0f;
 
 			//Žõ–½‚ÌÝ’è
-			fLife = 75.0f;
+			fLife = 80.0f;
 
-			CEffect::Create(Defpos, move, col, fRadius, fLife, type);
+			CEffect::Create(Defpos, move + Defmove * 0.5f, col, fRadius, fLife, type);
 		}
 
 		break;

@@ -8,6 +8,7 @@
 #include "texture.h"
 #include "manager.h"
 #include "renderer.h"
+#include "slow.h"
 
 // マクロ定義
 #define TEXTUREFILE_DATA	"data\\TEXTURE\\city000.png"		//テクスチャデータ
@@ -15,7 +16,7 @@
 //==========================================================
 // コンストラクタ
 //==========================================================
-CMeshCylinder::CMeshCylinder()
+CMeshCylinder::CMeshCylinder() : CObjectMesh(5)
 {
 
 }
@@ -50,7 +51,7 @@ void CMeshCylinder::Uninit(void)
 //==========================================================
 void CMeshCylinder::Update(void)
 {
-
+	
 }
 
 //==========================================================
@@ -177,3 +178,200 @@ void CMeshCylinder::SetSize(float fLength, float fHeight)
 	SetVtxInfo();
 }
 
+//==========================================================
+// コンストラクタ
+//==========================================================
+CMeshSmake::CMeshSmake()
+{
+	m_col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	m_tex = D3DXVECTOR2(0.0f, 0.0f);
+}
+
+//==========================================================
+// デストラクタ
+//==========================================================
+CMeshSmake::~CMeshSmake()
+{
+
+}
+
+//==========================================================
+// 初期化処理
+//==========================================================
+HRESULT CMeshSmake::Init(void)
+{
+	CMeshCylinder::Init();
+
+	return S_OK;
+}
+
+//==========================================================
+// 終了処理
+//==========================================================
+void CMeshSmake::Uninit(void)
+{
+	// 頂点バッファの廃棄
+	CMeshCylinder::Uninit();
+}
+
+//==========================================================
+// 更新処理
+//==========================================================
+void CMeshSmake::Update(void)
+{
+	CMeshCylinder::Update();
+
+	m_col.a -= 0.025f * CManager::GetSlow()->Get();
+
+	SetCol(m_col);
+	SetHeight(m_fHeight + 0.085f);
+	m_tex.x += 0.01f;
+
+	if (m_tex.x > 1.0f)
+	{
+		m_tex.x -= 1.0f;
+	}
+
+	if (m_col.a <= 0.0f)
+	{
+		Uninit();
+	}
+}
+
+//==========================================================
+// 描画処理
+//==========================================================
+void CMeshSmake::Draw(void)
+{
+	LPDIRECT3DDEVICE9 pDevice;		//デバイスへのポインタ
+
+	//デバイスの取得
+	pDevice = CManager::GetRenderer()->GetDevice();
+
+	//アルファテストを有効にする
+	pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
+	pDevice->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATER);
+	pDevice->SetRenderState(D3DRS_ALPHAREF, 0);
+
+	//αブレンディングを加算合成に設定
+	pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
+	pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+
+	pDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
+
+	// 描画
+	CMeshCylinder::Draw();
+
+	//アルファテストを無効にする
+	pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
+	pDevice->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_ALWAYS);
+	pDevice->SetRenderState(D3DRS_ALPHAREF, 255);
+
+	//αブレンディングを元に戻す
+	pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
+	pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+	pDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+}
+
+//==========================================================
+// 生成
+//==========================================================
+CMeshSmake *CMeshSmake::Create(const D3DXVECTOR3 pos, const D3DXVECTOR3 rot,
+	float fLength, float fHeight, const int nPriority, const int nWidth, const int nHeight)
+{
+	CMeshSmake *pMeshWall = NULL;	// メッシュフィールドのポインタ
+	CTexture *pTexture = CManager::GetTexture();	// テクスチャへのポインタ
+
+													// メモリの確保
+	pMeshWall = new CMeshSmake;
+
+	if (pMeshWall != NULL)
+	{// 確保できた場合
+
+	 // 初期化
+		pMeshWall->Init();
+
+		// 座標設定
+		pMeshWall->SetPosition(pos);
+
+		// 向き設定
+		pMeshWall->SetRotation(rot);
+
+		// 頂点生成
+		pMeshWall->CObjectMesh::Create(nWidth, nHeight);
+
+		// 一頂点辺りの角度を求める
+		pMeshWall->m_fRot = (D3DX_PI * 2) / nWidth;
+
+		// サイズ設定
+		pMeshWall->SetSize(fLength, fHeight);
+
+		// テクスチャ設定
+		pMeshWall->BindTexture(pTexture->Regist(TEXTUREFILE_DATA));
+	}
+
+	return pMeshWall;
+}
+
+//==========================================================
+// 幅設定
+//==========================================================
+void CMeshSmake::SetSize(float fLength, float fHeight)
+{
+	// サイズ設定
+	m_fLength = fLength;
+	m_fHeight = fHeight;
+
+	// 頂点情報設定
+	SetVtxInfo();
+}
+
+//==========================================================
+// 色設定
+//==========================================================
+void CMeshSmake::SetCol(D3DXCOLOR col)
+{
+	int nVertex = GetVertex();			// 頂点数を取得
+	int nNumWidth = GetNumWidth();		// 幅枚数を取得
+	int nNumHeight = GetNumHeight();	// 高さ枚数を取得
+	D3DXVECTOR3 pos = GetPosition();	// 座標
+	D3DXVECTOR3 vecDir;	//設定変更用ベクトル
+
+	//頂点座標の設定(左奥から右手前に向かって頂点情報を設定する
+	for (int nCntVtx = 0; nCntVtx < nVertex; nCntVtx++)
+	{
+		//色
+		m_pVtx[nCntVtx].col = col;
+	}
+
+	// 頂点設定
+	SetVtx();
+}
+
+//==========================================================
+// 高さ設定
+//==========================================================
+void CMeshSmake::SetHeight(float fHeight)
+{
+	int nVertex = GetVertex();			// 頂点数を取得
+	int nNumWidth = GetNumWidth();		// 幅枚数を取得
+	int nNumHeight = GetNumHeight();	// 高さ枚数を取得
+	D3DXVECTOR3 pos = GetPosition();	// 座標
+	D3DXVECTOR3 vecDir;	//設定変更用ベクトル
+
+	m_fHeight = fHeight;
+
+	//頂点座標の設定(左奥から右手前に向かって頂点情報を設定する
+	for (int nCntVtx = 0; nCntVtx < nVertex; nCntVtx++)
+	{
+		//頂点座標
+		m_pVtx[nCntVtx].pos.y = ((m_fHeight * 2) * nNumHeight) + ((nCntVtx / (nNumWidth + 1) * (-m_fHeight * 2)));
+		m_pVtx[nCntVtx].tex = D3DXVECTOR2((5.0f / nNumWidth) * (nCntVtx % (nNumWidth + 1)) + m_tex.x, (1.0f / nNumHeight) * (nCntVtx / (nNumWidth + 1)));
+	}
+
+	// 頂点設定
+	SetVtx();
+}

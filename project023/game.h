@@ -59,6 +59,7 @@ private:
 	static CSlow *m_pSlow;				// スローのポインタ
 	static CMeshField *m_pMeshField;	// メッシュフィールドのポインタ
 	static CPause *m_pPause;			// ポーズのポインタ
+	static CCamera *m_pMapCamera;		// ミニマップ用カメラ
 };
 
 #endif

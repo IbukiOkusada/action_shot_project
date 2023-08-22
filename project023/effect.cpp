@@ -151,7 +151,7 @@ void CEffect::Update(void)
 			break;
 		case TYPE_EXPLOSION:
 			m_Info.col.a -= 0.01f * CManager::GetSlow()->Get();
-			m_Info.move.y += -0.05f * CManager::GetSlow()->Get();
+			m_Info.move.y += 0.01f * CManager::GetSlow()->Get();
 			break; 
 
 		case TYPE_SHWBULLET:

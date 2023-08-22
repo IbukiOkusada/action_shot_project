@@ -21,9 +21,9 @@
 #define MULTISTART_SIZE	(1000.0f)	// 表示開始サイズ
 #define MULTIMINUS_SIZE	(120.0f)	// サイズ変更
 #define MULTIADD_COLA	(0.1f)		// 色
-#define DEF_SIZE		(20.0f)		// デフォルトサイズ
-#define START_SIZE		(700.0f)	// 表示開始サイズ
-#define MINUS_SIZE		(60.0f)		// サイズ変更
+#define DEF_SIZE		(35.0f)		// デフォルトサイズ
+#define START_SIZE		(300.0f)	// 表示開始サイズ
+#define MINUS_SIZE		(30.0f)		// サイズ変更
 #define ADD_COLA		(0.1f)		// 色
 #define SHOT_LENGTH		(3000.0f)
 
@@ -151,14 +151,14 @@ void CLockOn::Update(void)
 	D3DXCOLOR col = GetCol();
 	D3DXVECTOR3 rot = GetRotation();
 
-	if (fSize > MINUS_SIZE)
+	if (fSize > DEF_SIZE)
 	{// 既定のサイズより大きい
 		fSize -= MINUS_SIZE;
 		col.a += ADD_COLA;
 
 		if (fSize < DEF_SIZE)
 		{
-			fSize = MINUS_SIZE;
+			fSize = DEF_SIZE;
 			col.a = 1.0f;
 		}
 
@@ -294,6 +294,13 @@ void CLockOn::LockOn(void)
 			if (pEnemy == NULL)
 			{
 				pObj = pObjectNext;	// 次のオブジェクトに移動
+				continue;
+			}
+
+			if(pEnemy->GetState() == CEnemy::STATE_COOL)
+			{
+				pObj = pObjectNext;	// 次のオブジェクトに移動
+				pEnemy = NULL;
 				continue;
 			}
 

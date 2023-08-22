@@ -40,7 +40,7 @@ public:	// 誰でもアクセス可能
 	void Pursue(const D3DXVECTOR3 pos, const D3DXVECTOR3 rot);
 	void Setting(const D3DXVECTOR3 pos, const D3DXVECTOR3 rot);
 	void SetRot(const D3DXVECTOR3 rot);
-	void SerMode(MODE mode) { m_mode = mode; }
+	void SetMode(MODE mode) { m_mode = mode; }
 	void SetOldRot(D3DXVECTOR3 rot) { m_SlowOldRot = rot; }
 	void MoveV(void);
 	void MouseCamera(void);

@@ -29,6 +29,7 @@ public:	// 誰でもアクセス可能な定義
 		STATE_HOT,			// 暑い
 		STATE_DOWN,			// 熱中症
 		STATE_COOL,			// 涼しい
+		STATE_LEAVE,		// 退場中
 		STATE_DEFCOOL,		// 最初から涼しい
 		STATE_MAX
 	};
@@ -89,6 +90,8 @@ private:	// 自分だけがアクセス可能
 	void Controller(void);
 	void SetParticle(void);
 	void SetCol(void);
+	void UpdateNormal(void);
+	void UpdateCool(void);
 
 	// メンバ変数
 	static const int m_aParticleCounter[STATE_MAX];
@@ -100,12 +103,11 @@ private:	// 自分だけがアクセス可能
 	float m_fRotMove;		// 現在の角度
 	float m_fRotDiff;		// 目的の角度
 	float m_fRotDest;		// 角度計算
-	CShadow *pShadow;		// 影
+	CShadow *m_pShadow;		// 影
 	float m_fLife;			// 体力
 	Interval m_Interval;	// インターバル
 	STATE m_state;			// 状態管理
 	CObject *m_pLockOn;		// ロックオン
-	CObjectBillboard *m_pBillState;	// 状態表示用ビルボード
 };
 
 #endif

@@ -64,7 +64,7 @@ private:	// 自分だけがアクセス可能
 	static CLockOn *m_pCur;	// 最後尾のオブジェクトへのポインタ
 	CLockOn *m_pPrev;		// 前のオブジェクトへのポインタ
 	CLockOn *m_pNext;		// 次のオブジェクトへのポインタ
-	CEnemy *m_pObj;		// ロックオンするモデル
+	CEnemy *m_pObj;			// ロックオンするモデル
 	D3DXMATRIX *m_pMtx;		// 親のマトリックス
 	bool m_bLock;			// ロックオンしているかどうか
 	bool m_bUse;			// 使用するかどうか

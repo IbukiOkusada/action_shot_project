@@ -43,6 +43,7 @@ CSlow *CGame::m_pSlow = NULL;		// スロー状態へのポインタ
 CMeshField *CGame::m_pMeshField = NULL;
 CFileLoad *CGame::m_pFileLoad = NULL;
 CPause *CGame::m_pPause = NULL;
+CCamera *CGame::m_pMapCamera = NULL;
 
 //===============================================
 // コンストラクタ
@@ -101,7 +102,7 @@ HRESULT CGame::Init(void)
 		m_pPause = CPause::Create();
 	}
 
-	CManager::GetCamera()->SerMode(CCamera::MODE_NORMAL);
+	CManager::GetCamera()->SetMode(CCamera::MODE_NORMAL);
 
 	return S_OK;
 }
@@ -142,6 +143,14 @@ void CGame::Uninit(void)
 		m_pPause->Uninit();
 		delete m_pPause;	// メモリの開放
 		m_pPause = NULL;	// 使用していない状態にする
+	}
+
+	// ミニマップカメラ
+	if (m_pMapCamera != NULL)
+	{
+		m_pMapCamera->Uninit();
+		delete m_pMapCamera;
+		m_pMapCamera = NULL;
 	}
 
 	m_pScore = NULL;		// スコアのポインタ

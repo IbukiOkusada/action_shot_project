@@ -809,16 +809,16 @@ void CPlayer::Slow(void)
 				if (m_WepType == ATK_GUN)
 				{
 					CFilter::Create(CFilter::TYPE_SLOWGUN);
-					CManager::GetCamera()->SerMode(CCamera::MODE_SLOWGUN);
+					CManager::GetCamera()->SetMode(CCamera::MODE_SLOWGUN);
 				}
 				else
 				{
-					CManager::GetCamera()->SerMode(CCamera::MODE_SLOWSHW);
+					CManager::GetCamera()->SetMode(CCamera::MODE_SLOWSHW);
 				}
 			}
 			else
 			{
-				CManager::GetCamera()->SerMode(CCamera::MODE_NORMAL);
+				CManager::GetCamera()->SetMode(CCamera::MODE_NORMAL);
 			}
 		}
 	}
@@ -841,7 +841,7 @@ void CPlayer::Slow(void)
 		}
 		else
 		{
-			CManager::GetCamera()->SerMode(CCamera::MODE_NORMAL);
+			CManager::GetCamera()->SetMode(CCamera::MODE_NORMAL);
 			m_bSlow = false;
 			m_bActiveSlow = true;	// ƒXƒ[‚É‚Å‚«‚È‚¢ó‘Ô‚É‚·‚é
 			CManager::GetSlow()->SetSlow(false);
@@ -849,7 +849,7 @@ void CPlayer::Slow(void)
 	}
 	else
 	{
-		CManager::GetCamera()->SerMode(CCamera::MODE_NORMAL);
+		CManager::GetCamera()->SetMode(CCamera::MODE_NORMAL);
 
 		// ‰Â”\ŽžŠÔ‰ñ•œ
 		if (m_nSlowTime == DEF_SLOWTIME)
