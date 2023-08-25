@@ -36,6 +36,7 @@
 #define HOTINTERVAL		(10)	// 熱中症状態インターバル
 #define LEAVECNT		(120)	// 退場タイマー
 #define LEAVEMOVE		(3.0f)	// 退場時の移動量
+#define COOLDOWNCNT		(160)	// 退場前待機カウント
 
 //===============================================
 // 静的メンバ変数宣言
@@ -199,6 +200,11 @@ void CEnemy::Update(void)
 
 		UpdateCool();
 		break;
+
+	case STATE_COOLDOWN:
+
+		UpdateCoolDown();
+		break;
 	}
 }
 
@@ -301,6 +307,7 @@ void CEnemy::Controller(void)
 	float fHeight = CGame::GetMeshField()->GetHeight(m_Info.pos, nor);
 	m_Info.pos.y = fHeight;
 
+
 	SetCol();
 }
 
@@ -339,38 +346,23 @@ void CEnemy::SetState(void)
 	// 残り体力によって状態を設定
 	if (m_fLife <= 0)
 	{// 0以下
-		m_state = STATE_COOL;
-		m_fStateCnt = LEAVECNT;
-		m_fMoveCnt = LEAVECNT;
+		m_state = STATE_COOLDOWN;
+		m_fStateCnt = COOLDOWNCNT;
+		m_fMoveCnt = 0.0f;
 
 		CParticle::Create(D3DXVECTOR3(GetMtx()->_41,
 			GetMtx()->_42,
 			GetMtx()->_43), CEffect::TYPE_EXPLOSION);
 
-		CMeshCylinder *pMesh;
+		CMeshSmake *pMesh;
 
-		pMesh = CMeshSmake::Create(GetPosition(), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 37.0f, 6.0f, 3, 10, 10);
+		pMesh = CMeshSmake::Create(GetPosition(), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 37.0f, 2.0f, 3, 10, 10);
 
 		pMesh->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\smake001.jpg"));
 
-		pMesh = CMeshSmake::Create(GetPosition(), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 35.0f, 7.0f, 3, 10, 10);
+		pMesh = CMeshSmake::Create(GetPosition(), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 35.0f, 3.0f, 3, 10, 10);
 
 		pMesh->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\smake000.jpg"));
-
-		if (CGame::GetPlayer() != NULL)
-		{
-			CGame::GetPlayer()->AddSlowTime();
-			
-			// 向きを変更する
-			D3DXVECTOR3 rot = GetRotation();
-			rot.y = (float)(rand() % 628 - 314) * 0.01f;
-
-			// 向きに合わせた移動量に変更
-			m_Info.move.x = -sinf(rot.y) * LEAVEMOVE;
-			m_Info.move.z = -cosf(rot.y) * LEAVEMOVE;
-
-			SetRotation(rot);
-		}
 	}
 	else if (m_fLife < 200 * STATE_HOT)
 	{//あともう少し
@@ -553,5 +545,37 @@ void CEnemy::UpdateCool(void)
 	if (m_fStateCnt <= 0.0f)
 	{// 遷移タイマー規定値
 		Uninit();
+	}
+}
+
+//===============================================
+// 涼しくなった直後の更新処理
+//===============================================
+void CEnemy::UpdateCoolDown(void)
+{
+	m_fStateCnt -= CManager::GetSlow()->Get();
+
+	Controller();
+
+	if (m_fStateCnt <= 0.0f)
+	{
+		m_state = STATE_COOL;
+		m_fStateCnt = LEAVECNT;
+		m_fMoveCnt = LEAVECNT;
+
+		if (CGame::GetPlayer() != NULL)
+		{
+			CGame::GetPlayer()->AddSlowTime();
+
+			// 向きを変更する
+			D3DXVECTOR3 rot = GetRotation();
+			rot.y = (float)(rand() % 628 - 314) * 0.01f;
+
+			// 向きに合わせた移動量に変更
+			m_Info.move.x = -sinf(rot.y) * LEAVEMOVE;
+			m_Info.move.z = -cosf(rot.y) * LEAVEMOVE;
+
+			SetRotation(rot);
+		}
 	}
 }

@@ -29,15 +29,17 @@ public:		// 誰でもアクセス可能
 	static CMeshCylinder *Create(const D3DXVECTOR3 pos, const D3DXVECTOR3 rot, float fLength,
 		float fHeight, const int nPriority = 3, const int nWidth = 1, const int nHeight = 1);
 
-private:	// 自分だけがアクセス可能
-
-	// メンバ関数
-	void SetSize(float fLength, float fHeight);
+protected:
 
 	// メンバ関数
 	float m_fHeight;	// 高さ
 	float m_fLength;	//距離
 	float m_fRot;		//一頂点の角度
+
+private:	// 自分だけがアクセス可能
+
+	// メンバ関数
+	void SetSize(float fLength, float fHeight);
 
 };
 
@@ -67,9 +69,6 @@ private:	// 自分だけがアクセス可能
 	void SetHeight(float fHeight);
 
 	// メンバ関数
-	float m_fHeight;	// 高さ
-	float m_fLength;	// 距離
-	float m_fRot;		//一頂点の角度
 	D3DXCOLOR m_col;	// 色
 	D3DXVECTOR2 m_tex;	// テクスチャ座標
 

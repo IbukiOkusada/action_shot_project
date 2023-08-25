@@ -21,7 +21,6 @@ class CLight;
 class CTexture;
 class CXFile;
 class CFileLoad;
-class CEditor;
 class CSlow;
 class CFade;
 
@@ -85,7 +84,6 @@ public:	// 誰でもアクセス可能
 	static CLight *GetLight(void);
 	static CTexture *GetTexture(void);
 	static CXFile *GetModelFile(void);
-	static CEditor *GetEditor(void);
 	static CSlow *GetSlow(void);
 	static CFade *GetFade(void);
 	static void SetMode(CScene::MODE mode);
@@ -107,7 +105,6 @@ private:	// 自分だけがアクセス可能
 	static CTexture *m_pTexture;	// テクスチャのポインタ
 	static CXFile *m_pModelFile;	// Xファイルのポインタ
 	static CSound *m_pSound;		// サウンドのポインタ
-	static CEditor *m_pEditor;		// エディターのポインタ
 	static CSlow *m_pSlow;			// スローのポインタ
 	static CScene *m_pScene;		// シーンのポインタ
 	static CFade *m_pFade;			// フェードのポインタ

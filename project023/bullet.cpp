@@ -30,6 +30,8 @@
 // マクロ定義
 //===============================================
 #define LIFE	(120.0f)		// 寿命
+#define GRAVITY	(-0.07f)		// 重力
+#define EXPLOGRAVITY	(-0.35f)	// 爆発重力
 
 // 静的メンバ変数
 CBullet *CBullet::m_pTop = NULL;	// 先頭のオブジェクトへのポインタ
@@ -148,24 +150,17 @@ void CBullet::Update(void)
 		Controller();
 		m_nChangeTimer--;
 
-		//uCManager::GetDebugProc()->Print("座標[%f, %f, %f]\n", GetPosition().x, GetPosition().y, GetPosition().z);
-
 		//弾との当たり判定
 		if (Collision(pos, CObject::TYPE_ENEMY) == true)
 		{// 当たった場合
 			//スコアの加算
 			CManager::GetSound()->Play(CSound::LABEL_SE_BREAK);
 
-			// 死亡確認
-			//DeathCheck();
 			return;	// 終了しているため返す
 		}
 	}
 	else
 	{// 寿命切れ
-
-		// 爆発の生成
-		//CExplos ion::Create(GetPosition());
 
 		// 終了処理
 		Uninit();
@@ -242,7 +237,15 @@ CBullet *CBullet::Create(D3DXVECTOR3 pos, D3DXVECTOR3 move, TYPE type)
 			pBullet->m_pOrbit2->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\water002.jpg"));
 			pBullet->m_pOrbit->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\water001.jpg"));
 		}
-		//pBullet->m_pOrbit->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\water000.jpg"));
+		else if (type == TYPE_EXPLOSION)
+		{
+			pBullet->m_pOrbit = CMeshOrbit::Create(pBullet->GetMtx(), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR3(0.0f, -1.0f, 0.0f), CMeshOrbit::TYPE_BULLET);
+			pBullet->m_pOrbit2 = CMeshOrbit::Create(pBullet->GetMtx(), D3DXVECTOR3(0.0f, 1.0f, 0.0f), D3DXVECTOR3(0.0f, -1.0f, 0.0f), CMeshOrbit::TYPE_BULLET);
+			pBullet->m_pOrbit2->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\water000.jpg"));
+			pBullet->m_pOrbit->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\water001.jpg"));
+			pBullet->m_pOrbit->SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
+			pBullet->m_pOrbit2->SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
+		}
 	}
 	else
 	{// 生成に失敗した場合
@@ -264,11 +267,15 @@ void CBullet::Controller(void)
 
 	if (m_nType == TYPE_GRAVITY)
 	{
-		m_move.y += -0.07f * CManager::GetSlow()->Get();
+		m_move.y += GRAVITY * CManager::GetSlow()->Get();
 	}
 	else if (m_nType == TYPE_SHOWER)
 	{
-		m_move.y += -0.07f * CManager::GetSlow()->Get();
+		m_move.y += GRAVITY * CManager::GetSlow()->Get();
+	}
+	else if (m_nType == TYPE_EXPLOSION)
+	{
+		m_move.y += EXPLOGRAVITY * CManager::GetSlow()->Get();
 	}
 	else
 	{
@@ -388,8 +395,6 @@ void CBullet::Controller(void)
 //===============================================
 bool CBullet::Collision(D3DXVECTOR3 pos, CObject::TYPE ObjType)
 {
-	CXFile *pFile = CManager::GetModelFile();
-
 	for (int nCntPri = 0; nCntPri < NUM_PRIORITY; nCntPri++)
 	{
 		CObject *pObj = CObject::GetTop(nCntPri);	// 先頭を取得
@@ -429,7 +434,7 @@ bool CBullet::Collision(D3DXVECTOR3 pos, CObject::TYPE ObjType)
 					{// 敵と重なった場合
 
 						// オブジェクトの終了処理
-						if (pObjX->GetState() != CEnemy::STATE_COOL)
+						if (pObjX->GetState() != CEnemy::STATE_COOL && pObjX->GetState() != CEnemy::STATE_COOLDOWN)
 						{							
 							if (m_nType == TYPE_NONE)
 							{
@@ -455,7 +460,6 @@ bool CBullet::Collision(D3DXVECTOR3 pos, CObject::TYPE ObjType)
 					}
 				}
 			}
-
 			pObj = pObjectNext;	// 次のオブジェクトに移動
 		}
 	}
@@ -534,7 +538,7 @@ void CBullet::DeathCheck(void)
 		{// 自身が最後尾
 			if (m_pPrev != NULL)
 			{// 次が存在している
-				m_pCur = m_pPrev;	// 前を最後尾にする
+				m_pCur = m_pPrev;			// 前を最後尾にする
 				m_pPrev->m_pNext = NULL;	// 前の次のポインタを覚えていないようにする
 			}
 			else

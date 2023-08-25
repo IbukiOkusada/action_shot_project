@@ -193,9 +193,22 @@ void CEffect::Update(void)
 			m_Info.move.y -= m_Info.move.y * 0.05f * CManager::GetSlow()->Get();
 
 			break;
+		case CEffect::TYPE_BALEXPLOSION:	// ”š”­
+
+			m_Info.col.a -= 0.01f * CManager::GetSlow()->Get();
+			m_Info.fRadius -= 1.2f * CManager::GetSlow()->Get();
+
+			break;
+
+		case CEffect::TYPE_SMAKE:	// ”š”­
+
+			m_Info.col.a -= 0.035f * CManager::GetSlow()->Get();
+			m_Info.move.y -= m_Info.move.y * 0.005f * CManager::GetSlow()->Get();
+
+			break;
 		}
 
-		if (m_Info.col.a < 0.0f)
+		if (m_Info.col.a < 0.0f || m_Info.fRadius < 0.0f)
 		{// ’l‚ª‚Ð‚Á‚­‚è•Ô‚Á‚½
 			Uninit();
 		}

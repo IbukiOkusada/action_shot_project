@@ -33,9 +33,11 @@ public:	// 誰でもアクセス可能な定義
 		TYPE_ENEMYSTATE,	// 敵の状態
 		TYPE_ENEMYSTATEADD,	// 敵の状態悪
 		TYPE_SLOWLOCK,		// スロー中ロックオン
-		TYPE_PERFECT,
-		TYPE_GOOD,
-		TYPE_SLOWGUNFIL,
+		TYPE_PERFECT,		// パーフェクト文字
+		TYPE_GOOD,			// グッド文字
+		TYPE_SLOWGUNFIL,	// スロー時のフィルター
+		TYPE_BALLOONPINK,	// ピンクの水風船
+		TYPE_BALLOONBLUE,	// 水色の風船
 		TYPE_MAX
 	}TYPE;
 

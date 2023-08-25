@@ -28,6 +28,8 @@ const char *CTexture::m_apDefFileName[TYPE_MAX] =
 	"data\\TEXTURE\\message000.png",
 	"data\\TEXTURE\\message001.png",
 	"data\\TEXTURE\\filter000.png",
+	"data\\TEXTURE\\balloon000.jpg",
+	"data\\TEXTURE\\balloon001.jpg",
 };
 
 //===============================================

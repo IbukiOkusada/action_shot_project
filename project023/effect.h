@@ -30,6 +30,8 @@ public:	// 誰でもアクセス可能な定義
 		TYPE_HEAT,		// 熱中症状態
 		TYPE_JUMP,		// ジャンプ
 		TYPE_SWAP,		// 軌跡っぽいの
+		TYPE_BALEXPLOSION,	// 風船爆発
+		TYPE_SMAKE,		// 煙
 		TYPE_MAX
 	}TYPE;
 

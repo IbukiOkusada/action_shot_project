@@ -29,6 +29,7 @@
 #include "game.h"
 #include "filter.h"
 #include "object2D.h"
+#include "meshballoon.h"
 
 //===============================================
 // マクロ定義
@@ -45,6 +46,10 @@
 #define GUN_BULMOVE	(50.0f)
 #define DEF_SLOWGAGELENGSH	(SCREEN_WIDTH * 0.4f)	// スローゲージマックスサイズ
 #define SLOWGAGE_HEIGHT	(SCREEN_HEIGHT * 0.01f)
+#define GAGE_TEXNAME	"data\\TEXTURE\\gage000.jpg"	// ゲージファイル名
+#define NOCHARGE_CNT	(20)		// チャージまでのカウント数
+#define BALLOON_MOVE	(25.0f)		// 風船移動量
+#define BALLOON_WEIGHT	(150.0f)	// 最大重量
 
 //===============================================
 // 武器ごとの設定
@@ -73,6 +78,14 @@ const char *CPlayer::m_apFileName[WEAPON_MAX] =
 	"data\\MODEL\\sample\\watergunL.x",
 	"data\\MODEL\\sample\\watergunR.x",
 	"data\\MODEL\\sample\\watershower.x",
+};
+
+//===============================================
+// 風船初期設定
+//===============================================
+const CMeshBalloon::SET CPlayer::m_SetBalloon =
+{
+	D3DXVECTOR3(0.0f, 20.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 20.0f, 10.0f, 5, 10, 10,
 };
 
 //===============================================
@@ -107,6 +120,7 @@ CPlayer::CPlayer(const D3DXVECTOR3 pos)
 	m_pWeaponL = NULL;
 	m_pWeaponR = NULL;
 	m_pSlowGage = NULL;
+	m_pBalloon = NULL;
 }
 
 //===============================================
@@ -133,7 +147,7 @@ CPlayer::CPlayer(int nPriOrity)
 	m_bAttack = false;
 	m_fAttackTimer = 0;
 	m_nAttackHand = 0;
-
+	m_fChargeCnt = 0;
 
 	for (int nCnt = 0; nCnt < WEAPON_MAX; nCnt++)
 	{
@@ -245,7 +259,7 @@ HRESULT CPlayer::Init(const char *pBodyName, const char *pLegName)
 	{
 		m_pSlowGage->SetPosition(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.95f, 0.0f));
 		m_pSlowGage->SetSize(0, SLOWGAGE_HEIGHT);
-		m_pSlowGage->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\gage000.jpg"));
+		m_pSlowGage->BindTexture(CManager::GetTexture()->Regist(GAGE_TEXNAME));
 	}
 
 	// 種類設定
@@ -501,6 +515,11 @@ void CPlayer::Controller(void)
 	m_fRotMove = rot.y;	//現在の向きを取得
 	m_bMove = false;	// 移動状態リセット
 
+	if (pInputPad->GetTrigger(CInputPad::BUTTON_UP,0))
+	{
+		AddSlowTime(1000);
+	}
+
 	// 移動
 	if (m_bJump == false)
 	{// ジャンプしていない場合
@@ -558,32 +577,6 @@ void CPlayer::Controller(void)
 			m_pLockon->SetLock(false);
 		}
 	}
-	//else if (pInputKey->GetTrigger(DIK_E) == true)
-	//{// Eキー
-	//	m_WepType = (ATK)((m_WepType + ATK_MAX - 1) % ATK_MAX);
-
-	//	switch (m_WepType)
-	//	{
-	//	case ATK_GUN:
-	//		m_pWeaponL->BindModelFile(m_aWepNum[WEAPON_GUNL]);
-	//		m_pWeaponL->SetPosition(SetWepPos[WEAPON_GUNL]);
-	//		break;
-
-	//	case ATK_SHOWER:
-	//		m_pWeaponL->BindModelFile(m_aWepNum[WEAPON_SHOWER]);
-	//		m_pWeaponL->SetPosition(SetWepPos[WEAPON_SHOWER]);
-	//		break;
-	//	}
-
-	//	if (m_WepType == ATK_GUN)
-	//	{
-	//		m_pLockon->SetLock(true);
-	//	}
-	//	else
-	//	{
-	//		m_pLockon->SetLock(false);
-	//	}
-	//}
 
 	// ジャンプ
 	Jump();
@@ -689,8 +682,8 @@ void CPlayer::Controller(void)
 	pos = GetPosition();
 
 	//デバッグ表示
-	CManager::GetDebugProc()->Print("\n移動[W,A,S,D] : ジャンプ[SPACE] : 発射[L, マウス左クリック]\n"
-		"スロー[ENTER長押し, マウス右クリック長押し] : 武器切り替え[Q, E]\n");
+	CManager::GetDebugProc()->Print("\n移動[W,A,S,D] : ジャンプ[SPACE] : 発射[L, マウス左クリック(長押し可)]\n"
+		"スロー[ゲージを貯めてENTER, マウス右クリック] : 武器切り替え[Q]\n");
 	CManager::GetDebugProc()->Print("プレイヤーの座標[ %f, %f, %f ]\n", pos.x, pos.y, pos.z);
 	CManager::GetDebugProc()->Print("プレイヤーの向き[ %f, %f, %f ]\n", rot.x, rot.y, rot.z);
 	CManager::GetDebugProc()->Print("プレイヤーの移動量[ %f, %f, %f ]\n", m_Info.move.x, m_Info.move.y, m_Info.move.z);
@@ -849,6 +842,14 @@ void CPlayer::Slow(void)
 	}
 	else
 	{
+		if (m_pBalloon != NULL)
+		{
+			D3DXVECTOR3 pos = D3DXVECTOR3(m_pBalloon->GetMtx()->_41, m_pBalloon->GetMtx()->_42, m_pBalloon->GetMtx()->_43);
+			m_pBalloon->SetPosition(pos);
+			m_pBalloon->SetParent(NULL);
+			m_pBalloon = NULL;
+		}
+
 		CManager::GetCamera()->SetMode(CCamera::MODE_NORMAL);
 
 		// 可能時間回復
@@ -1207,52 +1208,96 @@ void CPlayer::SlowShw(void)
 
 		m_pBody->GetMotion()->Set(BMOTION_SLOWSHW);
 		m_bAttack = true;
+		m_fChargeCnt += 1.0f;
 
-		if (m_pBody->GetMotion()->GetNowFrame() != 0)
-		{// そのキーの開始フレーム以外の場合
-			return;
-		}
+		if (m_fChargeCnt > NOCHARGE_CNT)
+		{// チャージ中
+			if (m_pBalloon == NULL)
+			{// チャージ開始していない場合
+				m_pBalloon = CMeshBalloon::Create(m_SetBalloon.pos, m_SetBalloon.rot, m_SetBalloon.fLength, m_SetBalloon.fHeight,
+				m_SetBalloon.nPriority, m_SetBalloon.nWidth, m_SetBalloon.nHeight);
 
-		D3DXMATRIX mtx;
-		mtx = *m_pWeaponL->GetMtxWorld();
+				m_pBalloon->SetParent(m_pWeaponL->GetMtxWorld());
 
-		BulletMove = { -cosf(CamRot.y) * 2.0f, 1.0f, -sinf(CamRot.y) * 2.0f };
+				// テクスチャのランダム変更
+				int nRand = rand() % CMeshBalloon::TYPE_MAX;
 
-		// 弾の発射
-		pBullet = CBullet::Create(D3DXVECTOR3(mtx._41, mtx._42, mtx._43),
-			D3DXVECTOR3(BulletMove.x, BulletMove.y, BulletMove.z), CBullet::TYPE_GRAVITY);
+				switch (nRand)
+				{
+				case CMeshBalloon::TYPE_PINK:
 
-		pBullet->SetSize(300.0f, 50.0f);
-		pBullet->SetLife(300.0f);
+					m_pBalloon->BindTexture(CTexture::TYPE_BALLOONPINK);
+					break;
 
-		BulletMove = { -cosf(CamRot.y) * 4.0f, 1.0f, -sinf(CamRot.y) * 4.0f };
+				case CMeshBalloon::TYPE_BLUE:
 
-		// 弾の発射
-		pBullet = CBullet::Create(D3DXVECTOR3(mtx._41, mtx._42, mtx._43),
-			D3DXVECTOR3(BulletMove.x, BulletMove.y, BulletMove.z), CBullet::TYPE_GRAVITY);
+					m_pBalloon->BindTexture(CTexture::TYPE_BALLOONBLUE);
+					break;
+				}
+				
+			}
 
-		pBullet->SetSize(300.0f, 50.0f);
-		pBullet->SetLife(300.0f);
-
-		for (int nCnt = 0; nCnt < 10; nCnt++)
-		{
-			// 座標の設定
-			D3DXVECTOR3 pos = D3DXVECTOR3(mtx._41 + m_Info.move.x, mtx._42, mtx._43 + m_Info.move.z);
-			D3DXVECTOR3 move;
-
-			//移動量の設定
-			move.x = -cosf(CamRot.y + -D3DX_PI * 0.18f + D3DX_PI * 0.36f * ((rand() % 10) * 0.1f)) * 7.0f;
-			move.y = rand() % 30 * 0.1f;
-			move.z = -sinf(CamRot.y + -D3DX_PI * 0.18f + D3DX_PI * 0.36f * ((rand() % 10) * 0.1f)) * 7.0f;
-
-			pBullet = CBullet::Create(pos,
-				move, CBullet::TYPE_SHOWER);
-			//pBullet->SetInerMove(D3DXVECTOR3(m_Info.move.x, 0.0f, m_Info.move.z));
-			pBullet->SetLife(300.0f);
+			if (m_pBalloon != NULL)
+			{
+				D3DXVECTOR3 pos = m_pBalloon->GetPosition();
+				m_pBalloon->AddLength(0.5f);
+				pos.x += -0.5f;
+				m_pBalloon->SetPosition(pos);
+			}
 		}
 	}
 	else
-	{
+	{// 攻撃ボタンを押してない、または離した
+		if (m_fChargeCnt > 0.0f && m_fChargeCnt <= NOCHARGE_CNT)
+		{// チャージせず撃つ場合
+			D3DXMATRIX mtx;
+			mtx = *m_pWeaponL->GetMtxWorld();
+
+			BulletMove = { -cosf(CamRot.y) * 2.0f, 1.0f, -sinf(CamRot.y) * 2.0f };
+
+			// 弾の発射
+			pBullet = CBullet::Create(D3DXVECTOR3(mtx._41, mtx._42, mtx._43),
+				D3DXVECTOR3(BulletMove.x, BulletMove.y, BulletMove.z), CBullet::TYPE_GRAVITY);
+
+			pBullet->SetSize(300.0f, 50.0f);
+			pBullet->SetLife(300.0f);
+
+			BulletMove = { -cosf(CamRot.y) * 4.0f, 1.0f, -sinf(CamRot.y) * 4.0f };
+
+			// 弾の発射
+			pBullet = CBullet::Create(D3DXVECTOR3(mtx._41, mtx._42, mtx._43),
+				D3DXVECTOR3(BulletMove.x, BulletMove.y, BulletMove.z), CBullet::TYPE_GRAVITY);
+
+			pBullet->SetSize(300.0f, 50.0f);
+			pBullet->SetLife(300.0f);
+
+			for (int nCnt = 0; nCnt < 10; nCnt++)
+			{
+				// 座標の設定
+				D3DXVECTOR3 pos = D3DXVECTOR3(mtx._41 + m_Info.move.x, mtx._42, mtx._43 + m_Info.move.z);
+				D3DXVECTOR3 move;
+
+				//移動量の設定
+				move.x = -cosf(CamRot.y + -D3DX_PI * 0.18f + D3DX_PI * 0.36f * ((rand() % 10) * 0.1f)) * 7.0f;
+				move.y = rand() % 30 * 0.1f;
+				move.z = -sinf(CamRot.y + -D3DX_PI * 0.18f + D3DX_PI * 0.36f * ((rand() % 10) * 0.1f)) * 7.0f;
+
+				pBullet = CBullet::Create(pos,
+					move, CBullet::TYPE_SHOWER);
+				//pBullet->SetInerMove(D3DXVECTOR3(m_Info.move.x, 0.0f, m_Info.move.z));
+				pBullet->SetLife(300.0f);
+			}
+		}
+		else
+		{
+			// 風船発射
+			if (m_pBalloon != NULL)
+			{
+				ShotBalloon();
+			}
+		}
+
+		m_fChargeCnt = 0.0f;
 		m_bAttack = false;
 	}
 }
@@ -1332,7 +1377,7 @@ void CPlayer::SlowGun(void)
 }
 
 //===============================================
-// スロー中二丁挙動
+// スロー時間増加
 //===============================================
 void CPlayer::AddSlowTime(int nAddTime)
 {
@@ -1406,4 +1451,23 @@ void CPlayer::Particle(void)
 			}
 		}
 	}
+}
+
+//===============================================
+// 風船発射処理
+//===============================================
+void CPlayer::ShotBalloon(void)
+{
+	CCamera *pCamera = CManager::GetCamera();		// カメラのポインタ
+	D3DXVECTOR3 CamRot = pCamera->GetRotation();	// カメラの角度
+	D3DXVECTOR3 Move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	float fMultiMove = 1.0f - (float)(m_pBalloon->GetLength() / BALLOON_WEIGHT);
+	Move = { -cosf(CamRot.y) * BALLOON_MOVE * fMultiMove, 0.0f, -sinf(CamRot.y) * BALLOON_MOVE * fMultiMove };
+
+	D3DXVECTOR3 pos = D3DXVECTOR3(m_pBalloon->GetMtx()->_41, m_pBalloon->GetMtx()->_42, m_pBalloon->GetMtx()->_43);
+	m_pBalloon->SetPosition(pos);
+	m_pBalloon->SetMove(Move);
+	m_pBalloon->SetParent(NULL);
+	m_pBalloon = NULL;
+
 }

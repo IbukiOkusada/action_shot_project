@@ -26,11 +26,13 @@
 #include "pause.h"
 #include "result.h"
 #include "lockon.h"
+#include "meshballoon.h"
+#include "editor.h"
 
 //===============================================
 // マクロ定義
 //===============================================
-#define START_TIME	(120)	// 制限時間
+#define START_TIME	(300)	// 制限時間
 #define START_SCORE	(0)		// 開始スコア
 
 //===============================================
@@ -40,10 +42,11 @@ CScore *CGame::m_pScore = NULL;		// スコアのポインタ
 CTime *CGame::m_pTime = NULL;		// タイムのポインタ
 CPlayer *CGame::m_pPlayer = NULL;	// プレイヤーのポインタ
 CSlow *CGame::m_pSlow = NULL;		// スロー状態へのポインタ
-CMeshField *CGame::m_pMeshField = NULL;
-CFileLoad *CGame::m_pFileLoad = NULL;
-CPause *CGame::m_pPause = NULL;
-CCamera *CGame::m_pMapCamera = NULL;
+CMeshField *CGame::m_pMeshField = NULL;	// メッシュフィールドのポインタ
+CFileLoad *CGame::m_pFileLoad = NULL;	// ファイル読み込みのポインタ
+CPause *CGame::m_pPause = NULL;		// ポーズのポインタ
+CCamera *CGame::m_pMapCamera = NULL;	// マップカメラのポインタ
+CEditor *CGame::m_pEditor = NULL;	// エディターへのポインタ
 
 //===============================================
 // コンストラクタ
@@ -78,6 +81,18 @@ HRESULT CGame::Init(void)
 		}
 	}
 
+	//// エディットの生成
+	//if (m_pEditor == NULL)
+	//{// 使用していない場合
+	//	m_pEditor = new CEditor;
+
+	//	// 初期化
+	//	if (m_pEditor != NULL)
+	//	{
+	//		m_pEditor->Init();
+	//	}
+	//}
+
 	// オブジェクト生成
 	CMeshDome::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 20000.0f, 10.0f, 3, 10, 10);
 	CMeshCylinder::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 17000.0f, 100.0f, 3, 10, 10);
@@ -87,6 +102,8 @@ HRESULT CGame::Init(void)
 	p->SetType(CObject::TYPE_ENEMYSPAWN);
 	m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 0.0f, 3500.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f),
 		"data\\TXT\\motion_body.txt", "data\\TXT\\motion_leg.txt", 1);
+
+	//CMeshBalloon::Create(D3DXVECTOR3(1000.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 10.0f, 10.0f, 3, 20, 20);
 
 	// スコアの生成
 	m_pScore = CScore::Create(D3DXVECTOR3(800.0f, 50.0f, 0.0f));
@@ -145,6 +162,15 @@ void CGame::Uninit(void)
 		m_pPause = NULL;	// 使用していない状態にする
 	}
 
+	// エディター情報の廃棄
+	if (m_pEditor != NULL)
+	{// 使用している場合
+		
+		m_pEditor->Uninit();
+		delete m_pEditor;	// メモリの開放
+		m_pEditor = NULL;	// 使用していない状態にする
+	}
+
 	// ミニマップカメラ
 	if (m_pMapCamera != NULL)
 	{
@@ -197,6 +223,16 @@ void CGame::Update(void)
 	{
 		CLockOn::MultiDeath();
 	}
+
+#ifdef _DEBUG
+
+	// エディターの更新処理
+	if (m_pEditor != NULL)
+	{
+		m_pEditor->Update();
+	}
+
+#endif
 }
 
 //===============================================
@@ -267,6 +303,14 @@ CFileLoad *CGame::GetFileLoad(void)
 CPause *CGame::GetPause(void)
 {
 	return m_pPause;
+}
+
+//===================================================
+// エディター情報の取得
+//===================================================
+CEditor *CGame::GetEditor(void)
+{
+	return m_pEditor;
 }
 
 //===================================================

@@ -297,7 +297,7 @@ void CLockOn::LockOn(void)
 				continue;
 			}
 
-			if(pEnemy->GetState() == CEnemy::STATE_COOL)
+			if(pEnemy->GetState() == CEnemy::STATE_COOL || pEnemy->GetState() == CEnemy::STATE_COOLDOWN)
 			{
 				pObj = pObjectNext;	// 次のオブジェクトに移動
 				pEnemy = NULL;

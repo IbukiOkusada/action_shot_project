@@ -75,7 +75,6 @@ void CModel::Draw(void)
 	D3DXMATRIX mtxRot, mtxTrans;	//計算用マトリックス
 	CXFile *pModelFile = CManager::GetModelFile();	// Xファイル情報のポインタ
 	D3DMATERIAL9 matDef;			//現在のマテリアル保存用
-	D3DMATERIAL9 LightUpmat;
 	D3DXMATERIAL *pMat;				//マテリアルデータへのポインタ
 	D3DXMATRIX mtxParent;			// 親のマトリックス情報
 	CSlow *pSlow = CManager::GetSlow();

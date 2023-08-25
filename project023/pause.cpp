@@ -131,26 +131,26 @@ void CPause::Update(void)
 	{// 上移動キーが入力された
 		m_bState = m_bState ? false : true;
 
-		//CObject::TYPE type = CObject::TYPE_NONE;
+		CObject::TYPE type = CObject::TYPE_NONE;
 
-		//if (m_bState == false)
-		//{
-		//	type = CObject::TYPE_PAUSE;
-		//}
+		if (m_bState == false)
+		{
+			type = CObject::TYPE_PAUSE;
+		}
 
-		//if (m_pBg != NULL)
-		//{
-		//	m_pBg->SetType(type);
-		//}
+		if (m_pBg != NULL)
+		{
+			m_pBg->SetType(type);
+		}
 
-		//// 選択肢
-		//for (int nCnt = 0; nCnt < MENU_MAX; nCnt++)
-		//{
-		//	if (m_aMenu[nCnt].pObject2D != NULL)
-		//	{// 生成された
-		//		m_aMenu[nCnt].pObject2D->SetType(type);
-		//	}
-		//}
+		// 選択肢
+		for (int nCnt = 0; nCnt < MENU_MAX; nCnt++)
+		{
+			if (m_aMenu[nCnt].pObject2D != NULL)
+			{// 生成された
+				m_aMenu[nCnt].pObject2D->SetType(type);
+			}
+		}
 	}
 
 	if (m_bState == false)

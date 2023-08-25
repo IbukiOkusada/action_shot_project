@@ -221,15 +221,19 @@ void CMeshSmake::Update(void)
 {
 	CMeshCylinder::Update();
 
-	m_col.a -= 0.025f * CManager::GetSlow()->Get();
+	m_col.a -= 0.005f * CManager::GetSlow()->Get();
 
 	SetCol(m_col);
-	SetHeight(m_fHeight + 0.085f);
-	m_tex.x += 0.01f;
+	SetHeight(m_fHeight + 0.07f);
+	m_tex.x += 0.005f;
 
 	if (m_tex.x > 1.0f)
 	{
 		m_tex.x -= 1.0f;
+	}
+	else if (m_tex.x < 0.0f)
+	{
+		m_tex.x += 1.0f;
 	}
 
 	if (m_col.a <= 0.0f)
@@ -285,13 +289,13 @@ CMeshSmake *CMeshSmake::Create(const D3DXVECTOR3 pos, const D3DXVECTOR3 rot,
 	CMeshSmake *pMeshWall = NULL;	// メッシュフィールドのポインタ
 	CTexture *pTexture = CManager::GetTexture();	// テクスチャへのポインタ
 
-													// メモリの確保
+	// メモリの確保
 	pMeshWall = new CMeshSmake;
 
 	if (pMeshWall != NULL)
 	{// 確保できた場合
 
-	 // 初期化
+		// 初期化
 		pMeshWall->Init();
 
 		// 座標設定

@@ -48,6 +48,7 @@ public:
 	static void SetMesh(CMeshField *pMesh) { m_pMeshField = pMesh; }
 	static CFileLoad *GetFileLoad(void);
 	static CPause *GetPause(void);
+	static CEditor *GetEditor(void);
 	void DataReset(void);
 
 private:
@@ -59,6 +60,7 @@ private:
 	static CSlow *m_pSlow;				// スローのポインタ
 	static CMeshField *m_pMeshField;	// メッシュフィールドのポインタ
 	static CPause *m_pPause;			// ポーズのポインタ
+	static CEditor *m_pEditor;			// エディターのポインタ
 	static CCamera *m_pMapCamera;		// ミニマップ用カメラ
 };
 

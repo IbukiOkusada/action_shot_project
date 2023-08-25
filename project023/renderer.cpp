@@ -163,7 +163,6 @@ void CRenderer::Update(void)
 void CRenderer::Draw(void)
 {
 	CDebugProc *pDebugProc = CManager::GetDebugProc();
-	CEditor *pEditor = CManager::GetEditor();
 
 	// 画面クリア
 	m_pD3DDevice->Clear(
@@ -178,11 +177,11 @@ void CRenderer::Draw(void)
 	if (SUCCEEDED(m_pD3DDevice->BeginScene()))
 	{// 描画が成功した場合
 
-		 // エディットの描画
-		if (pEditor != NULL)
-		{
-			//pEditor->Draw();
-		}
+		//// エディットの描画
+		//if (pEditor != NULL)
+		//{
+		//	//pEditor->Draw();
+		//}
 
 		// オブジェクトの描画
 		CObject::DrawAll();

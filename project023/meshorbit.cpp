@@ -404,6 +404,7 @@ void CMeshOrbit::SetBullet(void)
 
 	SetMtx(*pMtxWorld);
 }
+
 //==========================================================
 // ÇªÇÃÇŸÇ©ê›íË
 //==========================================================
@@ -456,6 +457,16 @@ void CMeshOrbit::SetNone(void)
 	pMtxWorld->_33 = 1.0f;
 
 	//à íuÇîΩâf
-
 	SetMtx(*pMtxWorld);
+}
+
+//==========================================================
+// êFÇÃê›íË
+//==========================================================
+void CMeshOrbit::SetCol(D3DXCOLOR col)
+{
+	for (int nCnt = 0; nCnt < ORBIT_EDGE; nCnt++)
+	{
+		m_aCol[nCnt] = col;
+	}
 }

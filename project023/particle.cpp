@@ -283,7 +283,7 @@ void CParticle::Set(D3DXVECTOR3 Defpos, D3DXVECTOR3 Defmove, CEffect::TYPE type)
 
 		break;
 
-	case CEffect::TYPE_SWAP:	// ジャンプ
+	case CEffect::TYPE_SWAP:	// ジャンプの線
 
 		for (int nCnt = 0; nCnt < 20; nCnt++)
 		{
@@ -303,7 +303,7 @@ void CParticle::Set(D3DXVECTOR3 Defpos, D3DXVECTOR3 Defmove, CEffect::TYPE type)
 			move = Defmove;
 
 			//色の設定
-			col = D3DXCOLOR(0.2f, 0.2f, 0.2f, 1.0f);
+			col = D3DXCOLOR(0.3f, 0.3f, 0.3f, 1.0f);
 
 			//半径の設定
 			fRadius = 5.0f;
@@ -314,6 +314,58 @@ void CParticle::Set(D3DXVECTOR3 Defpos, D3DXVECTOR3 Defmove, CEffect::TYPE type)
 			CEffect *pEffect = CEffect::Create(pos, move, col, fRadius, fLife, type);
 
 			pEffect->SetSize(fRadius, 50.0f);
+		}
+
+		break;
+
+	case CEffect::TYPE_BALEXPLOSION:	// 風船爆発
+
+		for (int nCnt = 0; nCnt < 20; nCnt++)
+		{
+			// 座標の設定
+			pos = Defpos;
+
+			//移動量の設定
+			move.x = sinf((float)(rand() % 629 - 314) * 0.01f) * ((float)(rand() % 100)) * 0.2f;
+			move.y = ((float)(rand() % 100)) * 0.25f;
+			move.z = cosf((float)(rand() % 629 - 314) * 0.01f) * ((float)(rand() % 100)) * 0.2f;
+
+			//色の設定
+			col = D3DXCOLOR(0.4f, 0.4f, rand() % 40 * 0.1f + 0.6f, 1.0f);
+
+			//半径の設定
+			fRadius = 25.0f;
+
+			//寿命の設定
+			fLife = 30.0f;
+
+			CEffect::Create(Defpos, move, col, fRadius, fLife, type);
+		}
+
+		break;
+
+	case CEffect::TYPE_SMAKE:	// 煙
+
+		for (int nCnt = 0; nCnt < 10; nCnt++)
+		{
+			// 座標の設定
+			pos = Defpos;
+
+			//移動量の設定
+			move.x = sinf((float)(rand() % 629 - 314) * 0.01f) * ((float)(rand() % 100)) * 0.04f;
+			move.y = ((float)(rand() % 50)) * 0.1f;
+			move.z = cosf((float)(rand() % 629 - 314) * 0.01f) * ((float)(rand() % 100)) * 0.04f;
+
+			//色の設定
+			col = D3DXCOLOR(0.7f, 0.7f, 0.7f, 1.0f);
+
+			//半径の設定
+			fRadius = 55.0f;
+
+			//寿命の設定
+			fLife = 75.0f;
+
+			CEffect::Create(Defpos + move, move, col, fRadius, fLife, type);
 		}
 
 		break;

@@ -35,7 +35,6 @@ CCamera *CManager::m_pCamera = NULL;				// カメラのポインタ
 CLight *CManager::m_pLight = NULL;					// ライトのポインタ
 CTexture *CManager::m_pTexture = NULL;				// テクスチャのポインタ
 CXFile *CManager::m_pModelFile = NULL;				// Xファイル情報のポインタ
-CEditor *CManager::m_pEditor = NULL;				// エディターへのポインタ
 CSlow *CManager::m_pSlow = NULL;					// スロー状態へのポインタ
 CScene *CManager::m_pScene = NULL;					// シーンのポインタ
 CFade *CManager::m_pFade = NULL;					// フェードへのポインタ
@@ -194,18 +193,6 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 		m_pSlow->Init();
 	}
 
-	//// エディットの生成
-	//if (m_pEditor == NULL)
-	//{// 使用していない場合
-	//	m_pEditor = new CEditor;
-
-	//	// 初期化
-	//	if (m_pEditor != NULL)
-	//	{
-	//		m_pEditor->Init();
-	//	}
-	//}
-
 	// モードの生成
 	SetMode(CScene::MODE_TITLE);
 
@@ -304,17 +291,6 @@ void CManager::Uninit(void)
 		m_pModelFile = NULL;	// 使用していない状態にする
 	}
 
-	// エディター情報の廃棄
-	if (m_pEditor != NULL)
-	{// 使用している場合
-		// 終了処理
-		m_pEditor->Uninit();
-
-		delete m_pEditor;	// メモリの開放
-
-		m_pEditor = NULL;	// 使用していない状態にする
-	}
-
 	if (m_pScene != NULL)
 	{
 		m_pScene->Uninit();
@@ -356,16 +332,6 @@ void CManager::Update(void)
 	{
 		m_pScene->Update();
 	}
-
-#ifdef _DEBUG
-
-	// エディターの更新処理
-	if (m_pEditor != NULL)
-	{
-		//m_pEditor->Update();
-	}
-
-#endif
 }
 
 //===================================================
@@ -457,14 +423,6 @@ CTexture *CManager::GetTexture(void)
 CXFile *CManager::GetModelFile(void)
 {
 	return m_pModelFile;
-}
-
-//===================================================
-// エディター情報の取得
-//===================================================
-CEditor *CManager::GetEditor(void)
-{
-	return m_pEditor;
 }
 
 //===================================================

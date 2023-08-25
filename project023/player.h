@@ -9,6 +9,7 @@
 
 #include "main.h"
 #include "object.h"
+#include "meshballoon.h"
 
 // 前方宣言
 class CShadow;
@@ -118,6 +119,7 @@ private:	// 自分だけがアクセス可能
 	void SlowGun(void);
 	void SetGageColor(float fRate);
 	void Particle(void);
+	void ShotBalloon(void);
 
 	// メンバ変数
 	CWaist *m_pWaist;		// 腰
@@ -127,6 +129,7 @@ private:	// 自分だけがアクセス可能
 	CModel *m_pWeaponR;		// 武器右
 	CObject2D *m_pSlowGage;	// スローゲージ
 	CMeshOrbit *m_pOrbit;	// 軌跡
+	CMeshBalloon *m_pBalloon;	// 風船のポインタ
 	INFO m_Info;			// 自分自身の情報
 	bool m_bJump;			// ジャンプしたかどうか
 	bool m_bAttack;			// 攻撃しているかどうか
@@ -136,6 +139,7 @@ private:	// 自分だけがアクセス可能
 	ATK m_WepTypeOld;		// 変更前の武器種類
 	bool m_bMove;			// 移動したかどうか
 	int m_nSlowTime;		// スロー可能時間
+	float m_fChargeCnt;		// チャージカウント
 	bool m_bActiveSlow;		// スロー入力できるか否か
 	bool m_bSlow;			// スロー状態か否か
 	bool m_bLock;			// ロックオンしているか否か
@@ -144,10 +148,11 @@ private:	// 自分だけがアクセス可能
 	float m_fRotDest;		// 角度計算
 	CShadow *pShadow;		// 影
 	CLockOn *m_pLockon;		// ロックオン
-	static const D3DXVECTOR3 SetWepPos[WEAPON_MAX];	// 武器設定位置
-	static const int m_aWepTimer[ATK_MAX];			// 攻撃タイマー
 	int m_aWepNum[WEAPON_MAX];						// 武器ファイル読み込み番号
+	static const D3DXVECTOR3 SetWepPos[WEAPON_MAX];	// 武器設定位置
+	static const int m_aWepTimer[ATK_MAX];			// 攻撃タイマー	
 	static const char *m_apFileName[WEAPON_MAX];	// 武器ファイル名
+	static const CMeshBalloon::SET m_SetBalloon;	// 風船初期設定
 };
 
 #endif

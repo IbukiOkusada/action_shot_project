@@ -35,6 +35,7 @@ public:	// 誰でもアクセス可能
 		TYPE_NONE = 0,		// 通常
 		TYPE_GRAVITY,		// 重力
 		TYPE_SHOWER,		// シャワー
+		TYPE_EXPLOSION,		// 爆発
 		TYPE_MAX
 	}TYPE;
 

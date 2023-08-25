@@ -1,7 +1,2 @@
-﻿  meshcylinder.cpp
-c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\meshcylinder.cpp : error C2859: C:\Users\student\Documents\Visual Studio 2015\Projects\C++DirectX\action_shot\project023\Debug\vc140.idb は、このプリコンパイル済みヘッダーが作成されたときに使用されたファイル idb ではありません。プリコンパイル済みヘッダーを再作成してください。
-  game.cpp
-c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\game.cpp : error C2859: C:\Users\student\Documents\Visual Studio 2015\Projects\C++DirectX\action_shot\project023\Debug\vc140.idb は、このプリコンパイル済みヘッダーが作成されたときに使用されたファイル idb ではありません。プリコンパイル済みヘッダーを再作成してください。
-  enemy.cpp
-c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\enemy.cpp : error C2859: C:\Users\student\Documents\Visual Studio 2015\Projects\C++DirectX\action_shot\project023\Debug\vc140.idb は、このプリコンパイル済みヘッダーが作成されたときに使用されたファイル idb ではありません。プリコンパイル済みヘッダーを再作成してください。
-  コードを生成中...
+﻿  project013.vcxproj -> C:\Users\student\Documents\Visual Studio 2015\Projects\C++DirectX\action_shot\project023\Debug\project013.exe
+  project013.vcxproj -> C:\Users\student\Documents\Visual Studio 2015\Projects\C++DirectX\action_shot\project023\Debug\project013.pdb (Full PDB)

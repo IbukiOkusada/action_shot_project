@@ -18,6 +18,7 @@
 #include "renderer.h"
 #include "texture.h"
 #include "meshfield.h"
+#include "game.h"
 
 //==========================================================
 //ƒ}ƒNƒ’è‹`
@@ -64,7 +65,7 @@ CEditor::~CEditor()
 //==========================================================
 void CEditor::Init(void)
 {
-	//m_Object.nIdxModel = CManager::GetModelFile()->Regist(CManager::GetFileLoad()->GetModelFileName(m_nIdx));
+	m_Object.nIdxModel = CManager::GetModelFile()->Regist(CGame::GetFileLoad()->GetModelFileName(m_nIdx));
 }
 
 //==========================================================
