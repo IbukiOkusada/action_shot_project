@@ -13,7 +13,7 @@
 class CScore;
 class CTime;
 class CPlayer;
-class CCamera;
+class CMultiCamera;
 class CLight;
 class CFileLoad;
 class CEditor;
@@ -49,6 +49,7 @@ public:
 	static CFileLoad *GetFileLoad(void);
 	static CPause *GetPause(void);
 	static CEditor *GetEditor(void);
+	static CMultiCamera *GetMapCamera(void) { return m_pMapCamera; }
 	void DataReset(void);
 
 private:
@@ -61,7 +62,7 @@ private:
 	static CMeshField *m_pMeshField;	// メッシュフィールドのポインタ
 	static CPause *m_pPause;			// ポーズのポインタ
 	static CEditor *m_pEditor;			// エディターのポインタ
-	static CCamera *m_pMapCamera;		// ミニマップ用カメラ
+	static CMultiCamera *m_pMapCamera;		// ミニマップ用カメラ
 };
 
 #endif

@@ -25,6 +25,7 @@
 #include "game.h"
 #include "player.h"
 #include "meshcylinder.h"
+#include "target.h"
 
 //===============================================
 // マクロ定義
@@ -32,7 +33,8 @@
 #define MOVE			(2.0f)	// 移動量
 #define STATE_CNT		(300)	// 状態管理カウント
 #define DAMINTERVAL		(5)		// ダメージインターバル
-#define MAX_LIFE		(600)	// 体力
+#define MAX_LIFE		(240)	// 体力
+#define STATE_LINE		(80)
 #define HOTINTERVAL		(10)	// 熱中症状態インターバル
 #define LEAVECNT		(120)	// 退場タイマー
 #define LEAVEMOVE		(3.0f)	// 退場時の移動量
@@ -111,7 +113,7 @@ HRESULT CEnemy::Init(const char *pName)
 	}
 
 	m_fMoveCnt = (float)(rand() % 1000);
-	m_fLife = 200.0f;
+	m_fLife = rand() % STATE_LINE;
 
 	return S_OK;
 }
@@ -186,9 +188,9 @@ void CEnemy::Update(void)
 		UpdateNormal();
 		break;
 
-	case STATE_DOWN:
+	case STATE_HEAT:
 
-		UpdateNormal();
+		UpdateHeat();
 		break;
 
 	case STATE_DEFCOOL:
@@ -204,6 +206,11 @@ void CEnemy::Update(void)
 	case STATE_COOLDOWN:
 
 		UpdateCoolDown();
+		break;
+
+	case STATE_DOWN:
+
+		UpdateDown();
 		break;
 	}
 }
@@ -318,15 +325,12 @@ void CEnemy::Hit(float fDamage)
 {
 	if (m_Interval.fDamage <= 0)
 	{
-		float fLifeOld = m_fLife;
 		m_fLife -= fDamage;
 
 		if (m_fLife < 0)
 		{
 			m_fLife = 0;
 		}
-
-		CGame::GetScore()->Add((int)(fLifeOld - m_fLife));
 
 		if (m_state != STATE_DEFCOOL)
 		{// 受けない状態以外
@@ -364,21 +368,17 @@ void CEnemy::SetState(void)
 
 		pMesh->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\smake000.jpg"));
 	}
-	else if (m_fLife < 200 * STATE_HOT)
+	else if (m_fLife < STATE_LINE * STATE_HOT)
 	{//あともう少し
 		m_state = STATE_NORMAL;
 	}
-	else if (m_fLife >= 200 * STATE_HOT && m_fLife < 200 * STATE_DOWN)
+	else if (m_fLife >= STATE_LINE * STATE_HOT && m_fLife < STATE_LINE * STATE_HEAT)
 	{// まだ残っている
 		m_state = STATE_HOT;
 	}
-	else if (m_fLife >= 200 * STATE_DOWN)
+	else if (m_fLife >= STATE_LINE * STATE_HEAT && m_state == STATE_HOT)
 	{// ほとんど残っている
-		m_state = STATE_DOWN;
-		if (m_fLife == 200 * STATE_DOWN)
-		{
-			CGame::GetScore()->Add(-50);
-		}
+		m_state = STATE_HEAT;
 	}
 }
 
@@ -396,11 +396,14 @@ void CEnemy::SetParticle(void)
 	//デバイスの取得
 	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();
 
-	pDevice->GetTransform(D3DTS_PROJECTION, &mtxProjection);
-	pDevice->GetTransform(D3DTS_VIEW, &mtxView);
-	pDevice->GetViewport(&Viewport);
+	pDevice->GetTransform(D3DTS_PROJECTION, &mtxProjection);	// プロジェクションマトリックスを取得
+	pDevice->GetTransform(D3DTS_VIEW, &mtxView);				// ビューマトリックスを取得
+	pDevice->GetViewport(&Viewport);							// ビューポートを取得
+
 	//ワールドマトリックスの初期化
 	D3DXMatrixIdentity(&mtxWorld);
+
+	// ワールド座標からスクリーン座標に変換する
 	D3DXVec3Project(&ScreenPos, &GetPosition(), &Viewport, &mtxProjection, &mtxView, &mtxWorld);
 
 	if (ScreenPos.x < 0.0f || ScreenPos.x > SCREEN_WIDTH || 
@@ -425,16 +428,11 @@ void CEnemy::SetParticle(void)
 			CEffect::TYPE_SWEAT);
 		break;
 
-	case STATE_DOWN:
+	case STATE_HEAT:
 		CParticle::Create(D3DXVECTOR3(m_pBody->GetParts(3)->GetMtxWorld()->_41,
 			m_pBody->GetParts(3)->GetMtxWorld()->_42 + 12.0f,
 			m_pBody->GetParts(3)->GetMtxWorld()->_43),
 			CEffect::TYPE_HEAT);
-
-		/*CParticle::Create(D3DXVECTOR3(m_pBody->GetParts(3)->GetMtxWorld()->_41,
-			m_pBody->GetParts(3)->GetMtxWorld()->_42,
-			m_pBody->GetParts(3)->GetMtxWorld()->_43),
-			CEffect::TYPE_SWEAT);*/
 		break;
 	}
 }
@@ -453,8 +451,14 @@ void CEnemy::SetCol(void)
 	{
 		if (m_pBody->GetParts(nCnt) != NULL)
 		{
-			if (m_fLife >= 200)
+			if (m_fLife >= STATE_LINE)
 			{
+				if (m_state == STATE_DOWN)
+				{
+					col.a = (float)(m_fStateCnt / LEAVECNT);
+					m_pShadow->SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, col.a));
+				}
+
 				m_pBody->GetParts(nCnt)->SetChangeCol(true, col);
 			}
 			else
@@ -489,7 +493,7 @@ void CEnemy::UpdateNormal(void)
 		if (GetPosition().x > 2900.0f || GetPosition().x < -2900.0f ||
 			GetPosition().z > 2900.0f || GetPosition().z < -2900.0f)
 		{
-			m_fStateCnt = 0;
+			m_fMoveCnt = 0;
 		}
 	}
 
@@ -499,25 +503,8 @@ void CEnemy::UpdateNormal(void)
 		m_Interval.fDamage -= CManager::GetSlow()->Get();
 	}
 
-	if (m_state != STATE_DEFCOOL)
-	{
-		// 体温上昇インターバル
-		m_Interval.fHot += CManager::GetSlow()->Get();
-
-		if (m_Interval.fHot >= HOTINTERVAL)
-		{
-			m_Interval.fHot = 0;
-			m_fLife++;
-
-			if (m_fLife > MAX_LIFE)
-			{
-				m_fLife = MAX_LIFE;
-			}
-		}
-
-		// 状態更新
-		SetState();
-	}
+	// 体温設定
+	SetBodyTemp();
 
 	// パーティクルインターバル
 	m_Interval.fParticle += CManager::GetSlow()->Get();
@@ -539,7 +526,7 @@ void CEnemy::UpdateCool(void)
 	if (GetPosition().x > 2900.0f || GetPosition().x < -2900.0f ||
 		GetPosition().z > 2900.0f || GetPosition().z < -2900.0f)
 	{
-		m_fStateCnt = 0;
+		m_fMoveCnt = 0;
 	}
 
 	if (m_fStateCnt <= 0.0f)
@@ -559,9 +546,10 @@ void CEnemy::UpdateCoolDown(void)
 
 	if (m_fStateCnt <= 0.0f)
 	{
-		m_state = STATE_COOL;
+		m_state = STATE_NORMAL;
 		m_fStateCnt = LEAVECNT;
 		m_fMoveCnt = LEAVECNT;
+		m_fLife = 0.1f;
 
 		if (CGame::GetPlayer() != NULL)
 		{
@@ -577,5 +565,74 @@ void CEnemy::UpdateCoolDown(void)
 
 			SetRotation(rot);
 		}
+	}
+}
+
+//===============================================
+// 熱中症状態の更新処理
+//===============================================
+void CEnemy::UpdateHeat(void)
+{
+	// 体温設定
+	SetBodyTemp();
+
+	if (m_fLife >= MAX_LIFE)
+	{// 限界まで来た場合
+		m_state = STATE_DOWN;
+		m_fStateCnt = LEAVECNT;
+	}
+
+	// パーティクルインターバル
+	m_Interval.fParticle += CManager::GetSlow()->Get();
+
+	if (m_Interval.fParticle >= m_aParticleCounter[m_state])
+	{
+		SetParticle();
+		m_Interval.fParticle = 0.0f;
+	}
+}
+
+//===============================================
+// ダウン時の更新処理
+//===============================================
+void CEnemy::UpdateDown(void)
+{
+	m_fStateCnt -= CManager::GetSlow()->Get();
+
+	if (GetPosition().x > 2900.0f || GetPosition().x < -2900.0f ||
+		GetPosition().z > 2900.0f || GetPosition().z < -2900.0f)
+	{
+		m_fMoveCnt = 0;
+	}
+
+	if (m_fStateCnt <= 0.0f)
+	{// 遷移タイマー規定値
+		Uninit();
+	}
+}
+
+//===============================================
+// 体温設定
+//===============================================
+void CEnemy::SetBodyTemp(void)
+{
+	if (m_state != STATE_DEFCOOL)
+	{
+		// 体温上昇インターバル
+		m_Interval.fHot += CManager::GetSlow()->Get();
+
+		if (m_Interval.fHot >= HOTINTERVAL)
+		{
+			m_Interval.fHot = 0;
+			m_fLife += CManager::GetSlow()->Get();
+
+			if (m_fLife > MAX_LIFE)
+			{
+				m_fLife = MAX_LIFE;
+			}
+		}
+
+		// 状態更新
+		SetState();
 	}
 }

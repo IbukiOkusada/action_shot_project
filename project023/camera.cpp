@@ -902,3 +902,120 @@ void CCamera::SlowShw(void)
 
 	SetV();
 }
+
+
+//==========================================================
+// 向きを設定
+//==========================================================
+void CCamera::SetRotation(D3DXVECTOR3 rot)
+{
+	m_rot = rot;
+
+	if (m_rot.y > D3DX_PI)
+	{//角度がΠを超えた場合
+		m_rot.y = D3DX_PI;
+		m_rot.y *= -1.0f;
+	}
+	else if (m_rot.y < -D3DX_PI)
+	{//角度がΠを超えた場合
+		m_rot.y = -D3DX_PI;
+		m_rot.y *= -1.0f;
+	}
+	//if (m_rot.z < MIN_CAMERA_ROTZ)
+	//{//角度が限界を超えた場合
+	//	m_rot.z = MIN_CAMERA_ROTZ;
+	//}
+	//else if (m_rot.z > MAX_CAMERA_ROTZ)
+	//{//角度が限界を超えた場合
+	//	m_rot.z = MAX_CAMERA_ROTZ;
+	//}
+
+	SetV();
+}
+
+//==========================================================
+// コンストラクタ
+//==========================================================
+CMultiCamera::CMultiCamera()
+{
+
+}
+
+//==========================================================
+// デストラクタ
+//==========================================================
+CMultiCamera::~CMultiCamera()
+{
+
+}
+
+//==========================================================
+//カメラの初期化処理
+//==========================================================
+HRESULT CMultiCamera::Init(void)
+{
+	CCamera::Init();
+
+	//プレイヤー追従カメラの画面位置設定
+	m_viewport.X = 0;
+	m_viewport.Y = 0;
+	m_viewport.Width = SCREEN_WIDTH * 0.125f;
+	m_viewport.Height = SCREEN_HEIGHT * 0.22f;
+	m_viewport.MinZ = 0.0f;
+	m_viewport.MaxZ = 1.0f;
+
+	return S_OK;
+}
+
+//==========================================================
+//カメラの終了処理
+//==========================================================
+void CMultiCamera::Uninit(void)
+{
+	CCamera::Uninit();
+}
+
+//==========================================================
+//カメラの更新処理
+//==========================================================
+void CMultiCamera::Update(void)
+{
+	CCamera::Update();
+}
+
+//==========================================================
+//カメラの設定処理
+//==========================================================
+void CMultiCamera::SetCamera(void)
+{
+	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();		//デバイスへのポインタを取得
+	D3DXMATRIX mtxView = GetMtxView(), mtxProjection = GetMtxProjection();
+
+	//ビューポートの設定
+	pDevice->SetViewport(&m_viewport);
+
+	//プロジェクションマトリックスの初期化
+	D3DXMatrixIdentity(&mtxProjection);
+
+	//プロジェクションマトリックスを作成
+	D3DXMatrixPerspectiveFovLH(&mtxProjection,
+		D3DXToRadian(45.0f),
+		(float)m_viewport.Width / (float)m_viewport.Height,
+		10.0f,
+		40000.0f);
+
+	//プロジェクションマトリックスの設定
+	pDevice->SetTransform(D3DTS_PROJECTION, &mtxProjection);
+
+	//ビューマトリックスの初期化
+	D3DXMatrixIdentity(&mtxView);
+
+	//ビューマトリックスの作成
+	D3DXMatrixLookAtLH(&mtxView,
+		&GetPositionV(),
+		&GetPositionR(),
+		&GetVectorU());
+
+	//ビューマトリックスの設定
+	pDevice->SetTransform(D3DTS_VIEW, &mtxView);
+}

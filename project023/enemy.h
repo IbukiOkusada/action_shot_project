@@ -27,7 +27,8 @@ public:	// 誰でもアクセス可能な定義
 	{
 		STATE_NORMAL = 0,	// 通常
 		STATE_HOT,			// 暑い
-		STATE_DOWN,			// 熱中症
+		STATE_HEAT,			// 熱中症
+		STATE_DOWN,			// ダウン
 		STATE_COOL,			// 涼しい
 		STATE_COOLDOWN,		// 涼しくなった直後
 		STATE_DEFCOOL,		// 最初から涼しい
@@ -93,6 +94,9 @@ private:	// 自分だけがアクセス可能
 	void UpdateNormal(void);
 	void UpdateCool(void);
 	void UpdateCoolDown(void);
+	void UpdateDown(void);
+	void UpdateHeat(void);
+	void SetBodyTemp(void);
 
 	// メンバ変数
 	static const int m_aParticleCounter[STATE_MAX];

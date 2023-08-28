@@ -33,10 +33,10 @@ public:	// 誰でもアクセス可能
 	~CCamera();	// デストラクタ
 
 	// メンバ関数
-	HRESULT Init(void);
-	void Uninit(void);
-	void Update(void);
-	void SetCamera(void);
+	virtual HRESULT Init(void);
+	virtual void Uninit(void);
+	virtual void Update(void);
+	virtual void SetCamera(void);
 	void Pursue(const D3DXVECTOR3 pos, const D3DXVECTOR3 rot);
 	void Setting(const D3DXVECTOR3 pos, const D3DXVECTOR3 rot);
 	void SetRot(const D3DXVECTOR3 rot);
@@ -46,10 +46,19 @@ public:	// 誰でもアクセス可能
 	void MouseCamera(void);
 	void MoveVR(void);
 
-	// メンバ関数
+	// メンバ関数(取得)
+	D3DXMATRIX GetMtxView(void) { return m_mtxView; }
+	D3DXMATRIX GetMtxProjection(void) { return m_mtxProjection; }
 	D3DXVECTOR3 GetRotation(void) { return m_rot; }
 	D3DXVECTOR3 GetPositionV(void) { return m_posV; }
 	D3DXVECTOR3 GetPositionR(void) { return m_posR; }
+	D3DXVECTOR3 GetVectorU(void) { return m_vecU; }
+	void SetRotation(D3DXVECTOR3 rot);
+	void SetLength(float fLength) { m_fLength = fLength; }
+
+	// メンバ関数(設定)
+	D3DXMATRIX SetMtxView(D3DXMATRIX mtxView) { m_mtxView = mtxView; }
+	D3DXMATRIX SetMtxProjection(D3DXMATRIX mtxProjection) { m_mtxProjection = mtxProjection; }
 
 private:	// 自分だけがアクセス可能
 
@@ -72,6 +81,28 @@ private:	// 自分だけがアクセス可能
 	MODE m_mode;				// モード
 	float m_fMulScore;			// スコア倍率
 	float m_fLength;			// 視点と注視点の距離
+};
+
+//**********************************************************
+// 複数カメラクラスの定義
+//**********************************************************
+class CMultiCamera : public CCamera
+{
+public:	// 誰でもアクセス可能
+	CMultiCamera();	// コンストラクタ
+	~CMultiCamera();	// デストラクタ
+
+	// メンバ関数
+	HRESULT Init(void);
+	void Uninit(void);
+	void Update(void);
+	void SetCamera(void);
+	void SetViewPort(D3DVIEWPORT9 viewport) { m_viewport = viewport; }
+
+private:	// 自分だけがアクセス可能
+
+	// メンバ変数
+	D3DVIEWPORT9 m_viewport;		//ビューポート
 };
 
 #endif

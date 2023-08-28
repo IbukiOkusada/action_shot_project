@@ -184,7 +184,7 @@ void CRanking::Load(int *pScore)
 		//—v‘f‚ð“ü‚ê‚Ä‚¨‚­
 		for (int nCntRanking = 0; nCntRanking < NUM_RANK; nCntRanking++)
 		{
-			pScore[nCntRanking] = 1000 * (nCntRanking + 1);
+			pScore[nCntRanking] = 5 * (nCntRanking + 1);
 		}
 	}
 }

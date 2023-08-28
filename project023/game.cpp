@@ -32,7 +32,7 @@
 //===============================================
 // マクロ定義
 //===============================================
-#define START_TIME	(300)	// 制限時間
+#define START_TIME	(120)	// 制限時間
 #define START_SCORE	(0)		// 開始スコア
 
 //===============================================
@@ -45,7 +45,7 @@ CSlow *CGame::m_pSlow = NULL;		// スロー状態へのポインタ
 CMeshField *CGame::m_pMeshField = NULL;	// メッシュフィールドのポインタ
 CFileLoad *CGame::m_pFileLoad = NULL;	// ファイル読み込みのポインタ
 CPause *CGame::m_pPause = NULL;		// ポーズのポインタ
-CCamera *CGame::m_pMapCamera = NULL;	// マップカメラのポインタ
+CMultiCamera *CGame::m_pMapCamera = NULL;	// マップカメラのポインタ
 CEditor *CGame::m_pEditor = NULL;	// エディターへのポインタ
 
 //===============================================
@@ -106,12 +106,22 @@ HRESULT CGame::Init(void)
 	//CMeshBalloon::Create(D3DXVECTOR3(1000.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 10.0f, 10.0f, 3, 20, 20);
 
 	// スコアの生成
-	m_pScore = CScore::Create(D3DXVECTOR3(800.0f, 50.0f, 0.0f));
+	m_pScore = CScore::Create(D3DXVECTOR3(400.0f, 50.0f, 0.0f));
 	m_pScore->Set(START_SCORE);
 
 	// タイムの生成
-	m_pTime = CTime::Create(D3DXVECTOR3(500.0f, 50.0f, 0.0f));
+	m_pTime = CTime::Create(D3DXVECTOR3(800.0f, 50.0f, 0.0f));
 	m_pTime->Set(START_TIME);
+
+	CObject2D *pUi = CObject2D::Create(7);
+	pUi->SetPosition(D3DXVECTOR3(560.0f, 65.0f, 0.0f));
+	pUi->SetSize(25, 30);
+	pUi->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\target000.png"));
+
+	pUi = CObject2D::Create(7);
+	pUi->SetPosition(D3DXVECTOR3(80.0f, 80.0f, 0.0f));
+	pUi->SetSize(80, 80);
+	pUi->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\map000.png"));
 
 	// ポーズの生成
 	if (m_pPause == NULL)
@@ -120,6 +130,45 @@ HRESULT CGame::Init(void)
 	}
 
 	CManager::GetCamera()->SetMode(CCamera::MODE_NORMAL);
+
+	while (1)
+	{
+		if (CObject::GetNumEnemAll() < 50)
+		{
+			int nRand = rand() % 201 - 100;
+			float fRot = D3DX_PI * ((float)nRand * 0.01f);
+
+			CEnemy::Create(D3DXVECTOR3(0.0f + rand() % 300 - 150, 0.0f, 0.0f + rand() % 300 - 150), D3DXVECTOR3(0.0f, fRot, 0.0f),
+				D3DXVECTOR3(-sinf(fRot) * 4.0f, 0.0f, -cosf(fRot) * 4.0f), "data\\TXT\\motion_murabito.txt");
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	// ミニマップ用カメラを生成
+	if (m_pMapCamera == NULL)
+	{// 使用していない場合
+		m_pMapCamera = new CMultiCamera;
+
+		// 初期化
+		if (m_pMapCamera != NULL)
+		{
+			D3DVIEWPORT9 viewport;
+			//プレイヤー追従カメラの画面位置設定
+			viewport.X = 0;
+			viewport.Y = 0;
+			viewport.Width = SCREEN_WIDTH * 0.125f;
+			viewport.Height = SCREEN_HEIGHT * 0.22f;
+			viewport.MinZ = 0.1f;
+			viewport.MaxZ = 0.2f;
+			m_pMapCamera->Init();
+			m_pMapCamera->SetLength(10000.0f);
+			m_pMapCamera->SetRotation(D3DXVECTOR3(0.0f, 0.0001f, 0.00001f));
+			m_pMapCamera->SetViewPort(viewport);
+		}
+	}
 
 	return S_OK;
 }
@@ -217,6 +266,12 @@ void CGame::Update(void)
 		{// 時間切れ
 			CManager::GetFade()->Set(CScene::MODE_RESULT);
 		}
+	}
+
+	// 残り人数
+	if (m_pScore != NULL)
+	{
+		m_pScore->Update();
 	}
 
 	if (CManager::GetSlow()->Get() == 1.0f && CManager::GetSlow()->GetOld() != 1.0f)

@@ -8,6 +8,7 @@
 #include "manager.h"
 #include "renderer.h"
 #include "camera.h"
+#include "game.h"
 
 // マクロ定義
 #define DEFAULT_PRIORITY	(3)	// 基本の優先順位
@@ -186,6 +187,31 @@ void CObject::UpdateAll(void)
 void CObject::DrawAll(void)
 {
 	CCamera *pCamera = CManager::GetCamera();
+	CCamera *pMapCamera = CGame::GetMapCamera();
+
+	if (pMapCamera != NULL)
+	{
+		pMapCamera->SetCamera();
+	}
+
+	for (int nCntPri = 0; nCntPri < NUM_PRIORITY; nCntPri++)
+	{
+		CObject *pObject = m_apTop[nCntPri];	// 先頭を取得
+
+		while (pObject != NULL)
+		{// 使用されていない状態まで
+			CObject *pObjectNext = pObject->m_pNext;	// 次のオブジェクトへのポインタを取得
+
+			if (pObject->m_type != TYPE_PAUSE)
+			{// ポーズ画面以外
+
+				// 描画処理
+				pObject->Draw();
+
+			}
+			pObject = pObjectNext;	// 次のオブジェクトに移動
+		}
+	}
 
 	if (pCamera != NULL)
 	{// 使用されている場合
@@ -228,12 +254,11 @@ void CObject::SetType(const TYPE type)
 {
 	if (m_type != type)
 	{
-
 		if (type == TYPE_MODEL && m_type != TYPE_MODEL)
 		{
 			m_nItemNumAll++;
 		}
-		else if (type == TYPE_ENEMY)
+		else if (type == TYPE_ENEMY && m_type != TYPE_ENEMY)
 		{
 			m_nNumEnemyAll++;
 		}
@@ -241,6 +266,10 @@ void CObject::SetType(const TYPE type)
 		if (type != TYPE_MODEL && m_type == TYPE_MODEL)
 		{
 			m_nItemNumAll--;
+		}
+		else if (type != TYPE_ENEMY && m_type == TYPE_ENEMY)
+		{
+			m_nNumEnemyAll--;
 		}
 	}
 

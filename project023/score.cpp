@@ -10,6 +10,8 @@
 #include "number.h"
 #include "texture.h"
 #include "object2D.h"
+#include "fade.h"
+#include "enemy.h"
 
 // É}ÉNÉçíËã`
 #define WIDTH	(30)	// ïù
@@ -94,7 +96,16 @@ void CScore::Uninit(void)
 //===============================================
 void CScore::Update(void)
 {
-	
+	int nNum = CObject::GetNumEnemAll();
+
+	if (nNum <= 0)
+	{
+		CManager::GetFade()->Set(CScene::MODE_RESULT);
+	}
+	else
+	{
+		Set(nNum);
+	}
 }
 
 //===============================================

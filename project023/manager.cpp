@@ -31,7 +31,7 @@ CInputMouse *CManager::m_pInputMouse = NULL;		// 入力デバイス(マウス)のポインタ
 CInputPad *CManager::m_pInputPad = NULL;
 CDebugProc *CManager::m_pDebugProc = NULL;			// デバッグ表示のポインタ
 CSound *CManager::m_pSound = NULL;					// サウンドのポインタ
-CCamera *CManager::m_pCamera = NULL;				// カメラのポインタ
+CMultiCamera *CManager::m_pCamera = NULL;				// カメラのポインタ
 CLight *CManager::m_pLight = NULL;					// ライトのポインタ
 CTexture *CManager::m_pTexture = NULL;				// テクスチャのポインタ
 CXFile *CManager::m_pModelFile = NULL;				// Xファイル情報のポインタ
@@ -147,12 +147,24 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	// カメラの生成
 	if (m_pCamera == NULL)
 	{// 使用していない場合
-		m_pCamera = new CCamera;
+		m_pCamera = new CMultiCamera;
 
 		// 初期化
 		if (m_pCamera != NULL)
 		{
 			m_pCamera->Init();
+
+			D3DVIEWPORT9 viewport;
+
+			//プレイヤー追従カメラの画面位置設定
+			viewport.X = 0;
+			viewport.Y = 0;
+			viewport.Width = SCREEN_WIDTH * 1.0f;
+			viewport.Height = SCREEN_HEIGHT * 1.0f;
+			viewport.MinZ = 0.0f;
+			viewport.MaxZ = 1.0f;
+
+			m_pCamera->SetViewPort(viewport);
 		}
 	}
 

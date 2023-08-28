@@ -23,6 +23,7 @@ class CXFile;
 class CFileLoad;
 class CSlow;
 class CFade;
+class CMultiCamera;
 
 //===============================================
 // シーンクラスの定義
@@ -100,7 +101,7 @@ private:	// 自分だけがアクセス可能
 	static CInputMouse *m_pInputMouse;	// マウスのポインタ
 	static CInputPad *m_pInputPad;	// パッドのポインタ
 	static CDebugProc *m_pDebugProc;	// デバッグ表示のポインタ
-	static CCamera *m_pCamera;		// カメラのポインタ
+	static CMultiCamera *m_pCamera;		// カメラのポインタ
 	static CLight *m_pLight;		// ライトのポインタ
 	static CTexture *m_pTexture;	// テクスチャのポインタ
 	static CXFile *m_pModelFile;	// Xファイルのポインタ

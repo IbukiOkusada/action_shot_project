@@ -57,17 +57,7 @@ void CObjectX::Uninit(void)
 //==========================================================
 void CObjectX::Update(void)
 {
-	if (GetType() == CObject::TYPE_ENEMYSPAWN)
-	{
-		if (GetNumEnemAll() < 50)
-		{
-			int nRand = rand() % 201 - 100;
-			float fRot = D3DX_PI * ((float)nRand * 0.01f);
 
-			CEnemy::Create(D3DXVECTOR3(0.0f + rand() % 300 - 150, 0.0f, 0.0f + rand() % 300 - 150), D3DXVECTOR3(0.0f, fRot, 0.0f),
-				D3DXVECTOR3(-sinf(fRot) * 4.0f, 0.0f, -cosf(fRot) * 4.0f), "data\\TXT\\motion_murabito.txt");
-		}
-	}
 }
 
 //==========================================================
