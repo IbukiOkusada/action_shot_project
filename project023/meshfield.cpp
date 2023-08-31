@@ -10,6 +10,7 @@
 #include "debugproc.h"
 #include "player.h"
 #include "input.h"
+#include "enemy_manager.h"
 
 CMeshField *CMeshField::m_pTop = NULL;	// 先頭のオブジェクトへのポインタ
 CMeshField *CMeshField::m_pCur = NULL;	// 最後尾のオブジェクトへのポインタ
@@ -34,6 +35,8 @@ CMeshField::CMeshField()
 		m_pTop = this;	// 自分自身が先頭になる
 		m_pCur = this;	// 自分自身が最後尾になる
 	}
+
+	m_bHot = false;
 }
 
 //==========================================================
@@ -630,4 +633,41 @@ void CMeshField::UpDownLoad(const char *pFileName)
 
 	// 頂点情報設定
 	SetVtx();
+}
+
+//==========================================================
+// 現在地の暑さ確認
+//==========================================================
+bool CMeshField::GetAreaHot(D3DXVECTOR3 pos)
+{
+	int nCnt = 0;
+
+	// 床の描画
+	CMeshField *pMesh = CMeshField::GetTop();	// 先頭を取得
+	CMeshField *pArea = NULL;;
+
+	while (pMesh != NULL)
+	{// 使用されている間繰り返し
+		CMeshField *pMeshNext = pMesh->GetNext();	// 次を保持
+		D3DXVECTOR3 MeshPos = pMesh->GetPosition();
+
+		if (pos.x > MeshPos.x + pMesh->m_pVtx[0].pos.x && pos.x < MeshPos.x + pMesh->m_pVtx[pMesh->GetVertex() - 1].pos.x &&
+			pos.z < MeshPos.z + pMesh->m_pVtx[0].pos.z && pos.z > MeshPos.z + pMesh->m_pVtx[pMesh->GetVertex() - 1].pos.z)
+		{// 範囲外
+			if (pMesh->GetHot() == true)
+			{
+				return true;
+			}
+		}
+
+		pMesh = pMeshNext;	// 次に移動
+
+		nCnt++;
+
+		if (nCnt >= NUM_AREA)
+		{
+			break;
+		}
+	}
+	return false;
 }

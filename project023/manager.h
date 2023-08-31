@@ -25,6 +25,7 @@ class CSlow;
 class CFade;
 class CMultiCamera;
 class CMapCamera;
+class CTime;
 
 //===============================================
 // シーンクラスの定義
@@ -53,6 +54,7 @@ public:
 	virtual void Update(void);
 	virtual void Draw(void);
 	virtual CMapCamera *GetMapCamera(void) { return NULL; }
+	virtual CTime *GetTime(void) { return NULL; }
 	void SetMode(MODE mode) { m_mode = mode; }
 	MODE GetMode(void) { return m_mode; }
 

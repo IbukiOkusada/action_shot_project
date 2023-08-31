@@ -960,8 +960,8 @@ HRESULT CMultiCamera::Init(void)
 	//プレイヤー追従カメラの画面位置設定
 	m_viewport.X = 0;
 	m_viewport.Y = 0;
-	m_viewport.Width = SCREEN_WIDTH * 0.125f;
-	m_viewport.Height = SCREEN_HEIGHT * 0.22f;
+	m_viewport.Width = (DWORD)(SCREEN_WIDTH * 0.125f);
+	m_viewport.Height = (DWORD)(SCREEN_HEIGHT * 0.22f);
 	m_viewport.MinZ = 0.0f;
 	m_viewport.MaxZ = 1.0f;
 

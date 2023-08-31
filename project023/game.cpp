@@ -29,6 +29,7 @@
 #include "meshballoon.h"
 #include "editor.h"
 #include "thermo.h"
+#include "enemy_manager.h"
 
 //===============================================
 // マクロ定義
@@ -37,13 +38,11 @@
 #define START_SCORE	(0)		// 開始スコア
 #define MAP_SIZE	(100.0f)	// マップサイズ
 #define STARTSET_NUMENEMY	(30)	// 開始時に配置する敵の数
-#define NEXTWAVECNT	(20)	// 2wave目人数増加カウント
 
 //===============================================
 // 静的メンバ変数
 //===============================================
 CScore *CGame::m_pScore = NULL;		// スコアのポインタ
-CTime *CGame::m_pTime = NULL;		// タイムのポインタ
 CPlayer *CGame::m_pPlayer = NULL;	// プレイヤーのポインタ
 CSlow *CGame::m_pSlow = NULL;		// スロー状態へのポインタ
 CMeshField *CGame::m_pMeshField = NULL;	// メッシュフィールドのポインタ
@@ -59,6 +58,8 @@ CGame::CGame()
 	m_pMapCamera = NULL;
 	m_pMapThermo = NULL;
 	m_nMaxEnemy = 0;
+	m_pTime = NULL;
+	m_pEnemyManager = NULL;
 }
 
 //===============================================
@@ -145,23 +146,6 @@ HRESULT CGame::Init(void)
 
 	CManager::GetCamera()->SetMode(CCamera::MODE_NORMAL);
 
-	// 敵の配置
-	while (1)
-	{
-		if (CObject::GetNumEnemAll() < STARTSET_NUMENEMY)
-		{
-			int nRand = rand() % 201 - 100;
-			float fRot = D3DX_PI * ((float)nRand * 0.01f);
-
-			CEnemy::Create(D3DXVECTOR3(0.0f + rand() % 300 - 150, 0.0f, 0.0f + rand() % 300 - 150), D3DXVECTOR3(0.0f, fRot, 0.0f),
-				D3DXVECTOR3(-sinf(fRot) * 4.0f, 0.0f, -cosf(fRot) * 4.0f), "data\\TXT\\motion_murabito.txt");
-		}
-		else
-		{
-			break;
-		}
-	}
-
 	m_nMaxEnemy = CObject::GetNumEnemAll();
 
 	// ミニマップ用カメラを生成
@@ -187,6 +171,14 @@ HRESULT CGame::Init(void)
 		}
 	}
 
+	// エネミーマネージャーを生成
+	if (m_pEnemyManager == NULL)
+	{
+		m_pEnemyManager = new CEnemyManager;
+		m_pEnemyManager->Init();
+		m_pEnemyManager->Spawn(STARTSET_NUMENEMY);
+	}
+
 	return S_OK;
 }
 
@@ -201,6 +193,14 @@ void CGame::Uninit(void)
 
 		delete m_pFileLoad;		// メモリの開放
 		m_pFileLoad = NULL;
+	}
+
+	// エネミーマネージャー
+	if (m_pEnemyManager == NULL)
+	{
+		m_pEnemyManager->Uninit();
+		delete m_pEnemyManager;
+		m_pEnemyManager = NULL;
 	}
 
 	// スコア
@@ -432,30 +432,8 @@ void CGame::DataReset(void)
 //===================================================
 void CGame::EnemySet(void)
 {
-	if(m_pTime == NULL)
+	if (m_pEnemyManager != NULL)
 	{
-		return;
-	}
-
-	if (m_pTime->GetAnim() == 0 && m_pTime->GetNum() % NEXTWAVECNT == 0 && m_pTime->GetNum() < START_TIME)
-	{// 次のウェーブ
-		int NextNumEnemy = (int)(CObject::GetNumEnemAll() * 1.3f);
-
-		// 敵の配置
-		while (1)
-		{
-			if (CObject::GetNumEnemAll() < NextNumEnemy)
-			{
-				int nRand = rand() % 201 - 100;
-				float fRot = D3DX_PI * ((float)nRand * 0.01f);
-
-				CEnemy::Create(D3DXVECTOR3(0.0f + rand() % 300 - 150, 0.0f, 0.0f + rand() % 300 - 150), D3DXVECTOR3(0.0f, fRot, 0.0f),
-					D3DXVECTOR3(-sinf(fRot) * 4.0f, 0.0f, -cosf(fRot) * 4.0f), "data\\TXT\\motion_murabito.txt");
-			}
-			else
-			{
-				break;
-			}
-		}
+		m_pEnemyManager->Update();
 	}
 }

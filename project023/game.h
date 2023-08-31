@@ -22,6 +22,7 @@ class CObject3D;
 class CMeshField;
 class CPause;
 class CThermo;
+class CEnemyManager;
 
 //===============================================
 // ゲームクラスの定義(派生クラス)
@@ -42,7 +43,7 @@ public:
 
 	// メンバ関数(ポインタ)
 	static CScore *GetScore(void);
-	static CTime *GetTime(void);
+	CTime *GetTime(void);
 	static CPlayer *GetPlayer(void);
 	static CSlow *GetSlow(void);
 	static CMeshField *GetMeshField(void);
@@ -58,7 +59,7 @@ private:
 
 	static CFileLoad *m_pFileLoad;		// ファイル読み込みのポインタ
 	static CScore *m_pScore;			// スコアのポインタ
-	static CTime *m_pTime;				// タイムのポインタ
+	CTime *m_pTime;				// タイムのポインタ
 	static CPlayer *m_pPlayer;			// プレイヤーのポインタ
 	static CSlow *m_pSlow;				// スローのポインタ
 	static CMeshField *m_pMeshField;	// メッシュフィールドのポインタ
@@ -66,6 +67,7 @@ private:
 	static CEditor *m_pEditor;			// エディターのポインタ
 	CMapCamera *m_pMapCamera;			// ミニマップ用カメラ
 	CThermo *m_pMapThermo;				// マップ全体の温度表示
+	CEnemyManager *m_pEnemyManager;		// エネミーマネージャーのポインタ
 	int m_nMaxEnemy;					// 現在のエネミー最大数
 };
 

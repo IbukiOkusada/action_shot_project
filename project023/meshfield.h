@@ -30,16 +30,19 @@ public:		// 誰でもアクセス可能
 		const char *pFileName, const int nWidth = 1, const int nHeight = 1, const int nPriority = 3);
 	void Edit(float *pLength, float *pSpeed);
 	void UpDownLoad(const char *pFileName);
+	static bool GetAreaHot(D3DXVECTOR3 pos);
 
 	// メンバ関数(取得)
 	float GetWidth(void) { return m_fWidth; }
 	float GetHeight(void) { return m_fHeight; }
 	static CMeshField *GetTop(void) { return m_pTop; }
 	CMeshField *GetNext(void) { return m_pNext; }
+	bool GetHot(void) { return m_bHot; }
 
 	// メンバ関数(設定)
 	void SetSize(float fWidth, float fHeight);
 	float GetHeight(D3DXVECTOR3 pos, D3DXVECTOR3 &normal);
+	void SetHot(bool bHot) { m_bHot = bHot; }
 
 private:	// 自分だけがアクセス可能
 
@@ -50,6 +53,7 @@ private:	// 自分だけがアクセス可能
 	CMeshField *m_pNext;	// 次のオブジェクトへのポインタ
 	float m_fWidth;			// 幅
 	float m_fHeight;		// 高さ
+	bool m_bHot;			// 暑い状態か否か
 };
 
 #endif

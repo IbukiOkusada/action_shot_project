@@ -34,6 +34,7 @@ public:	// ここから関数(誰でもアクセス可能)
 
 	// メンバ関数(取得)
 	int GetNum(void) { return m_nNum; }
+	int GetStartNum(void) { return m_nSetNum; }
 	float GetAnim(void) { return m_fAnimTimer; }
 
 private:	// 自分だけがアクセス可能
@@ -48,6 +49,7 @@ private:	// 自分だけがアクセス可能
 	CNumber *m_apNumber[NUM_PLACE];			// 数字のポインタ
 	D3DXVECTOR3 m_pos;	// 座標
 	int m_nNum;	// 現在の値
+	int m_nSetNum;	// 設定値
 	float m_fAnimTimer;	// 1秒カウント
 	int m_nIdxTexture;	// テクスチャ番号
 	

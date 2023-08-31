@@ -151,6 +151,7 @@ void CTime::Set(int nValue)
 {
 	// ‘ã“ü
 	m_nNum = nValue;
+	m_nSetNum = nValue;
 
 	// ”’lİ’è
 	SetValue();

@@ -47,10 +47,10 @@
 const int CEnemy::m_aParticleCounter[STATE_MAX] =
 {
 	30,
-	20,
-	20,
-	10,
-	10,
+	30,
+	30,
+	30,
+	30,
 };
 
 //===============================================
@@ -115,7 +115,7 @@ HRESULT CEnemy::Init(const char *pName)
 	}
 
 	m_fMoveCnt = (float)(rand() % 1000);
-	m_fLife = rand() % STATE_LINE;
+	m_fLife = (float)(rand() % STATE_LINE);
 
 	// 温度表示の生成
 	if (m_pThermo == NULL)
@@ -645,8 +645,15 @@ void CEnemy::SetBodyTemp(void)
 
 	if (m_state != STATE_DEFCOOL)
 	{
-		// 体温上昇インターバル
-		m_Interval.fHot += CManager::GetSlow()->Get();
+		if (CMeshField::GetAreaHot(GetPosition()) == true)
+		{
+			// 体温上昇インターバル
+			m_Interval.fHot += CManager::GetSlow()->Get();
+		}
+		else
+		{
+			m_Interval.fHot += 0.2f * CManager::GetSlow()->Get();
+		}
 
 		if (m_Interval.fHot >= HOTINTERVAL)
 		{
