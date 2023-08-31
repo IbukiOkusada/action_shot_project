@@ -23,7 +23,7 @@
 #define SHRINK_CNT	(2)		// 縮むカウント
 #define SHRINK_MOVE	(-3.0f)	// 縮む量
 #define NUM_EXPLOWATER	(20)	// 水しぶき数
-#define SIZEUP_WIDTH	(20)	// 幅
+#define SIZEUP_WIDTH	(0.05f)	// 幅
 #define MIN_SIZE	(60.0f)	// 最低サイズ
 
 //==========================================================
@@ -359,7 +359,7 @@ void CMeshBalloon::UpdateState(void)
 			pBullet->SetLife(300.0f);
 
 			float fMultiRot = 1.0f / NUM_EXPLOWATER;
-			int nAddPar = (m_fLength - MIN_SIZE) / SIZEUP_WIDTH;
+			int nAddPar = (int)((m_fLength - MIN_SIZE) * SIZEUP_WIDTH);
 			int nAddWater = nAddPar * NUM_EXPLOWATER;
 
 			//水しぶきの生成

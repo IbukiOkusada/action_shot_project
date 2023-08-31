@@ -24,6 +24,7 @@ class CFileLoad;
 class CSlow;
 class CFade;
 class CMultiCamera;
+class CMapCamera;
 
 //===============================================
 // シーンクラスの定義
@@ -51,6 +52,7 @@ public:
 	virtual void Uninit(void);
 	virtual void Update(void);
 	virtual void Draw(void);
+	virtual CMapCamera *GetMapCamera(void) { return NULL; }
 	void SetMode(MODE mode) { m_mode = mode; }
 	MODE GetMode(void) { return m_mode; }
 
@@ -89,6 +91,7 @@ public:	// 誰でもアクセス可能
 	static CFade *GetFade(void);
 	static void SetMode(CScene::MODE mode);
 	static CScene::MODE GetMode(void) { return m_pScene->GetMode(); }
+	static CScene *GetScene(void) { return m_pScene; }
 
 private:	// 自分だけがアクセス可能
 

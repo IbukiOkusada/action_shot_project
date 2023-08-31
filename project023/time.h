@@ -34,6 +34,7 @@ public:	// ここから関数(誰でもアクセス可能)
 
 	// メンバ関数(取得)
 	int GetNum(void) { return m_nNum; }
+	float GetAnim(void) { return m_fAnimTimer; }
 
 private:	// 自分だけがアクセス可能
 

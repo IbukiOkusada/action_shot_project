@@ -32,6 +32,8 @@
 #define LIFE	(120.0f)		// 寿命
 #define GRAVITY	(-0.07f)		// 重力
 #define EXPLOGRAVITY	(-0.35f)	// 爆発重力
+#define GUN_DAMAGE	(100.0f)
+#define SHW_DAMAGE	(20.0f)
 
 // 静的メンバ変数
 CBullet *CBullet::m_pTop = NULL;	// 先頭のオブジェクトへのポインタ
@@ -438,11 +440,11 @@ bool CBullet::Collision(D3DXVECTOR3 pos, CObject::TYPE ObjType)
 						{							
 							if (m_nType == TYPE_NONE)
 							{
-								pObjX->Hit(800);
+								pObjX->Hit(GUN_DAMAGE);
 							}
 							else
 							{
-								pObjX->Hit(60);
+								pObjX->Hit(SHW_DAMAGE);
 								//CGame::GetScore()->Add(5);
 							}
 

@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="enemy_manager.cpp" />
     <ClCompile Include="meshballoon.cpp" />
     <ClCompile Include="billboard.cpp" />
     <ClCompile Include="block.cpp" />
@@ -71,6 +72,7 @@
     <ClCompile Include="sound.cpp" />
     <ClCompile Include="target.cpp" />
     <ClCompile Include="texture.cpp" />
+    <ClCompile Include="thermo.cpp" />
     <ClCompile Include="time.cpp" />
     <ClCompile Include="title.cpp" />
     <ClCompile Include="waist.cpp" />
@@ -78,6 +80,7 @@
     <ClCompile Include="Xfile.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="enemy_manager.h" />
     <ClInclude Include="meshballoon.h" />
     <ClInclude Include="billboard.h" />
     <ClInclude Include="block.h" />
@@ -128,6 +131,7 @@
     <ClInclude Include="sound.h" />
     <ClInclude Include="target.h" />
     <ClInclude Include="texture.h" />
+    <ClInclude Include="thermo.h" />
     <ClInclude Include="time.h" />
     <ClInclude Include="title.h" />
     <ClInclude Include="waist.h" />

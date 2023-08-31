@@ -15,6 +15,7 @@
 #include "texture.h"
 #include "game.h"
 #include "pause.h"
+#include "meshfield.h"
 
 //==========================================================
 // マクロ定義
@@ -106,7 +107,7 @@ void CCamera::Update(void)
 		else
 		{
 			//視点の移動
-			MoveV();
+			//MoveV();
 		}
 	}
 	else
@@ -1018,4 +1019,85 @@ void CMultiCamera::SetCamera(void)
 
 	//ビューマトリックスの設定
 	pDevice->SetTransform(D3DTS_VIEW, &mtxView);
+}
+
+//==========================================================
+// コンストラクタ
+//==========================================================
+CMapCamera::CMapCamera()
+{
+
+}
+
+//==========================================================
+// デストラクタ
+//==========================================================
+CMapCamera::~CMapCamera()
+{
+
+}
+
+//==========================================================
+//カメラの初期化処理
+//==========================================================
+HRESULT CMapCamera::Init(void)
+{
+	CMultiCamera::Init();
+
+	return S_OK;
+}
+
+//==========================================================
+//カメラの終了処理
+//==========================================================
+void CMapCamera::Uninit(void)
+{
+	CMultiCamera::Uninit();
+}
+
+//==========================================================
+//カメラの更新処理
+//==========================================================
+void CMapCamera::Update(void)
+{
+	
+}
+
+//==========================================================
+//カメラの設定処理
+//==========================================================
+void CMapCamera::SetCamera(void)
+{
+	CMultiCamera::SetCamera();
+	LPDIRECT3DDEVICE9 pDevice = CManager::GetRenderer()->GetDevice();		//デバイスへのポインタを取得
+
+	// 床の描画
+	CMeshField *pMesh = CMeshField::GetTop();	// 先頭を取得
+
+	while (pMesh != NULL)
+	{// 使用されている間繰り返し
+		CMeshField *pMeshNext = pMesh->GetNext();	// 次を保持
+
+		pMesh->Draw();
+
+		pMesh = pMeshNext;	// 次に移動
+	}
+
+	// 温度表示の描画
+	for (int nCntPri = 0; nCntPri < NUM_PRIORITY; nCntPri++)
+	{
+		CObject *pObject = CObject::GetTop(nCntPri);	// 先頭を取得
+
+		while (pObject != NULL)
+		{// 使用されていない状態まで
+			CObject *pObjectNext = pObject->GetNext();	// 次のオブジェクトへのポインタを取得
+
+			if (pObject->GetType() == CObject::TYPE_MAP)
+			{// マップ表示物のみ
+				// 描画処理
+				pObject->Draw();
+			}
+			pObject = pObjectNext;	// 次のオブジェクトに移動
+		}
+	}
 }

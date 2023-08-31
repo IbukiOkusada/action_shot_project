@@ -40,6 +40,7 @@ public:	// 誰でもアクセス可能
 		TYPE_MODEL,		// モデル
 		TYPE_ENEMYSPAWN,	// エネミー生成モデル
 		TYPE_PAUSE,		// ポーズ画面
+		TYPE_MAP,		// マップ表示
 		TYPE_MAX
 	}TYPE;
 

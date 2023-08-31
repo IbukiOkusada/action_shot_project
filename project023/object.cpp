@@ -187,30 +187,11 @@ void CObject::UpdateAll(void)
 void CObject::DrawAll(void)
 {
 	CCamera *pCamera = CManager::GetCamera();
-	CCamera *pMapCamera = CGame::GetMapCamera();
+	CCamera *pMapCamera = CManager::GetScene()->GetMapCamera();
 
 	if (pMapCamera != NULL)
 	{
 		pMapCamera->SetCamera();
-	}
-
-	for (int nCntPri = 0; nCntPri < NUM_PRIORITY; nCntPri++)
-	{
-		CObject *pObject = m_apTop[nCntPri];	// 先頭を取得
-
-		while (pObject != NULL)
-		{// 使用されていない状態まで
-			CObject *pObjectNext = pObject->m_pNext;	// 次のオブジェクトへのポインタを取得
-
-			if (pObject->m_type != TYPE_PAUSE)
-			{// ポーズ画面以外
-
-				// 描画処理
-				pObject->Draw();
-
-			}
-			pObject = pObjectNext;	// 次のオブジェクトに移動
-		}
 	}
 
 	if (pCamera != NULL)
@@ -226,7 +207,7 @@ void CObject::DrawAll(void)
 		{// 使用されていない状態まで
 			CObject *pObjectNext = pObject->m_pNext;	// 次のオブジェクトへのポインタを取得
 
-			if (pObject->m_type != TYPE_PAUSE)
+			if (pObject->m_type != TYPE_PAUSE && pObject->m_type != TYPE_MAP)
 			{// ポーズ画面以外
 
 				// 描画処理

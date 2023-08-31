@@ -28,12 +28,16 @@
 #include "lockon.h"
 #include "meshballoon.h"
 #include "editor.h"
+#include "thermo.h"
 
 //===============================================
 // マクロ定義
 //===============================================
-#define START_TIME	(120)	// 制限時間
+#define START_TIME	(150)	// 制限時間
 #define START_SCORE	(0)		// 開始スコア
+#define MAP_SIZE	(100.0f)	// マップサイズ
+#define STARTSET_NUMENEMY	(30)	// 開始時に配置する敵の数
+#define NEXTWAVECNT	(20)	// 2wave目人数増加カウント
 
 //===============================================
 // 静的メンバ変数
@@ -45,7 +49,6 @@ CSlow *CGame::m_pSlow = NULL;		// スロー状態へのポインタ
 CMeshField *CGame::m_pMeshField = NULL;	// メッシュフィールドのポインタ
 CFileLoad *CGame::m_pFileLoad = NULL;	// ファイル読み込みのポインタ
 CPause *CGame::m_pPause = NULL;		// ポーズのポインタ
-CMultiCamera *CGame::m_pMapCamera = NULL;	// マップカメラのポインタ
 CEditor *CGame::m_pEditor = NULL;	// エディターへのポインタ
 
 //===============================================
@@ -53,7 +56,9 @@ CEditor *CGame::m_pEditor = NULL;	// エディターへのポインタ
 //===============================================
 CGame::CGame()
 {
-
+	m_pMapCamera = NULL;
+	m_pMapThermo = NULL;
+	m_nMaxEnemy = 0;
 }
 
 //===============================================
@@ -119,9 +124,18 @@ HRESULT CGame::Init(void)
 	pUi->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\target000.png"));
 
 	pUi = CObject2D::Create(7);
-	pUi->SetPosition(D3DXVECTOR3(80.0f, 80.0f, 0.0f));
-	pUi->SetSize(80, 80);
+	pUi->SetPosition(D3DXVECTOR3(MAP_SIZE, MAP_SIZE, 0.0f));
+	pUi->SetSize(MAP_SIZE, MAP_SIZE);
 	pUi->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\map000.png"));
+
+	// マップの生成
+	if (m_pMapThermo == NULL)
+	{
+		m_pMapThermo = CThermo::Create();
+		m_pMapThermo->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\thermo000.jpg"));
+		m_pMapThermo->SetColor(D3DXCOLOR(0.7f, 0.05f, 0.05f, 0.0f));
+		m_pMapThermo->SetpVtx(8000.0f, 8000.0f);
+	}
 
 	// ポーズの生成
 	if (m_pPause == NULL)
@@ -131,9 +145,10 @@ HRESULT CGame::Init(void)
 
 	CManager::GetCamera()->SetMode(CCamera::MODE_NORMAL);
 
+	// 敵の配置
 	while (1)
 	{
-		if (CObject::GetNumEnemAll() < 50)
+		if (CObject::GetNumEnemAll() < STARTSET_NUMENEMY)
 		{
 			int nRand = rand() % 201 - 100;
 			float fRot = D3DX_PI * ((float)nRand * 0.01f);
@@ -147,10 +162,12 @@ HRESULT CGame::Init(void)
 		}
 	}
 
+	m_nMaxEnemy = CObject::GetNumEnemAll();
+
 	// ミニマップ用カメラを生成
 	if (m_pMapCamera == NULL)
 	{// 使用していない場合
-		m_pMapCamera = new CMultiCamera;
+		m_pMapCamera = new CMapCamera;
 
 		// 初期化
 		if (m_pMapCamera != NULL)
@@ -159,13 +176,13 @@ HRESULT CGame::Init(void)
 			//プレイヤー追従カメラの画面位置設定
 			viewport.X = 0;
 			viewport.Y = 0;
-			viewport.Width = SCREEN_WIDTH * 0.125f;
-			viewport.Height = SCREEN_HEIGHT * 0.22f;
-			viewport.MinZ = 0.1f;
-			viewport.MaxZ = 0.2f;
+			viewport.Width = 200;
+			viewport.Height = 200;
+			viewport.MinZ = 0.0f;
+			viewport.MaxZ = 0.1f;
 			m_pMapCamera->Init();
 			m_pMapCamera->SetLength(10000.0f);
-			m_pMapCamera->SetRotation(D3DXVECTOR3(0.0f, 0.0001f, 0.00001f));
+			m_pMapCamera->SetRotation(D3DXVECTOR3(0.0f, D3DX_PI * 0.5f, 0.00001f));
 			m_pMapCamera->SetViewPort(viewport);
 		}
 	}
@@ -228,6 +245,11 @@ void CGame::Uninit(void)
 		m_pMapCamera = NULL;
 	}
 
+	if (m_pMapThermo != NULL)
+	{
+		m_pMapThermo = NULL;
+	}
+
 	m_pScore = NULL;		// スコアのポインタ
 	m_pTime = NULL;		// タイムのポインタ
 	m_pPlayer = NULL;	// プレイヤーのポインタ
@@ -255,9 +277,6 @@ void CGame::Update(void)
 		}
 	}
 
-	// 更新処理
-	CScene::Update();
-
 	// タイム
 	if (m_pTime != NULL)
 	{
@@ -274,10 +293,23 @@ void CGame::Update(void)
 		m_pScore->Update();
 	}
 
+	if (m_pMapThermo != NULL)
+	{
+		D3DXCOLOR col = m_pMapThermo->GetCol();
+		col.a = 1.0f - (float)(CObject::GetNumEnemAll() / m_nMaxEnemy);
+		m_pMapThermo->SetColor(col);
+	}
+
 	if (CManager::GetSlow()->Get() == 1.0f && CManager::GetSlow()->GetOld() != 1.0f)
 	{
 		CLockOn::MultiDeath();
 	}
+
+	// 更新処理
+	CScene::Update();
+
+	// 敵の配置管理
+	EnemySet();
 
 #ifdef _DEBUG
 
@@ -391,6 +423,39 @@ void CGame::DataReset(void)
 		{
 			m_pFileLoad->Init();
 			m_pFileLoad->OpenFile("data\\TXT\\model.txt");
+		}
+	}
+}
+
+//===================================================
+// 敵の配置
+//===================================================
+void CGame::EnemySet(void)
+{
+	if(m_pTime == NULL)
+	{
+		return;
+	}
+
+	if (m_pTime->GetAnim() == 0 && m_pTime->GetNum() % NEXTWAVECNT == 0 && m_pTime->GetNum() < START_TIME)
+	{// 次のウェーブ
+		int NextNumEnemy = (int)(CObject::GetNumEnemAll() * 1.3f);
+
+		// 敵の配置
+		while (1)
+		{
+			if (CObject::GetNumEnemAll() < NextNumEnemy)
+			{
+				int nRand = rand() % 201 - 100;
+				float fRot = D3DX_PI * ((float)nRand * 0.01f);
+
+				CEnemy::Create(D3DXVECTOR3(0.0f + rand() % 300 - 150, 0.0f, 0.0f + rand() % 300 - 150), D3DXVECTOR3(0.0f, fRot, 0.0f),
+					D3DXVECTOR3(-sinf(fRot) * 4.0f, 0.0f, -cosf(fRot) * 4.0f), "data\\TXT\\motion_murabito.txt");
+			}
+			else
+			{
+				break;
+			}
 		}
 	}
 }

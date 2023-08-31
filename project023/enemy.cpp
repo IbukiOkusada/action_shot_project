@@ -26,6 +26,7 @@
 #include "player.h"
 #include "meshcylinder.h"
 #include "target.h"
+#include "thermo.h"
 
 //===============================================
 // マクロ定義
@@ -33,8 +34,8 @@
 #define MOVE			(2.0f)	// 移動量
 #define STATE_CNT		(300)	// 状態管理カウント
 #define DAMINTERVAL		(5)		// ダメージインターバル
-#define MAX_LIFE		(240)	// 体力
-#define STATE_LINE		(80)
+#define MAX_LIFE		(210)	// 体力
+#define STATE_LINE		(70)
 #define HOTINTERVAL		(10)	// 熱中症状態インターバル
 #define LEAVECNT		(120)	// 退場タイマー
 #define LEAVEMOVE		(3.0f)	// 退場時の移動量
@@ -73,6 +74,7 @@ CEnemy::CEnemy(int nPriOrity)
 	m_Interval.fHot = 0;
 	m_Interval.fDamage = 0;
 	m_pLockOn = NULL;
+	m_pThermo = NULL;
 }
 
 //===============================================
@@ -115,6 +117,13 @@ HRESULT CEnemy::Init(const char *pName)
 	m_fMoveCnt = (float)(rand() % 1000);
 	m_fLife = rand() % STATE_LINE;
 
+	// 温度表示の生成
+	if (m_pThermo == NULL)
+	{
+		m_pThermo = CThermo::Create();
+
+	}
+
 	return S_OK;
 }
 
@@ -143,6 +152,13 @@ void CEnemy::Uninit(void)
 	{
 		m_pLockOn->Uninit();
 		m_pLockOn = NULL;
+	}
+
+	// 温度表示の終了
+	if (m_pThermo != NULL)
+	{
+		m_pThermo->Uninit();
+		m_pThermo = NULL;
 	}
 
 	// ロックオン確認
@@ -213,6 +229,9 @@ void CEnemy::Update(void)
 		UpdateDown();
 		break;
 	}
+
+	// 温度表示設定
+	SetThermo();
 }
 
 
@@ -435,6 +454,14 @@ void CEnemy::SetParticle(void)
 			CEffect::TYPE_HEAT);
 		break;
 	}
+
+	for (int nCnt = 0; nCnt < m_state + 1; nCnt++)
+	{
+		CParticle::Create(D3DXVECTOR3(m_pBody->GetParts(3)->GetMtxWorld()->_41,
+			m_pBody->GetParts(3)->GetMtxWorld()->_42 + 12.0f,
+			m_pBody->GetParts(3)->GetMtxWorld()->_43),
+			CEffect::TYPE_HEATHAZE);
+	}
 }
 
 //===============================================
@@ -495,12 +522,6 @@ void CEnemy::UpdateNormal(void)
 		{
 			m_fMoveCnt = 0;
 		}
-	}
-
-	// ダメージインターバル
-	if (m_Interval.fDamage > 0)
-	{
-		m_Interval.fDamage -= CManager::GetSlow()->Get();
 	}
 
 	// 体温設定
@@ -616,6 +637,12 @@ void CEnemy::UpdateDown(void)
 //===============================================
 void CEnemy::SetBodyTemp(void)
 {
+	// ダメージインターバル
+	if (m_Interval.fDamage > 0)
+	{
+		m_Interval.fDamage -= CManager::GetSlow()->Get();
+	}
+
 	if (m_state != STATE_DEFCOOL)
 	{
 		// 体温上昇インターバル
@@ -635,4 +662,28 @@ void CEnemy::SetBodyTemp(void)
 		// 状態更新
 		SetState();
 	}
+}
+
+//===============================================
+// 温度表示設定
+//===============================================
+void CEnemy::SetThermo(void)
+{
+	if (m_pThermo == NULL)
+	{
+		return;
+	}
+
+	// 体温に合わせて色を設定
+	D3DXCOLOR thermoCol = D3DXCOLOR(0.9f, 0.25f, 0.25f, 1.0f);	// 温度表示の色
+	thermoCol.a = (float)(m_fLife / MAX_LIFE) * 0.7f;
+	m_pThermo->SetColor(thermoCol);
+
+	// 座標設定
+	D3DXVECTOR3 pos = GetPosition();
+	pos.y = 100.0f;
+	m_pThermo->SetPosition(pos);
+
+	// サイズ設定
+	m_pThermo->SetpVtx(1450.0f, 1450.0f);
 }

@@ -11,6 +11,7 @@
 #include "debugproc.h"
 #include "explosion.h"
 #include "enemy.h"
+#include "texture.h"
 
 //===============================================
 // ƒ}ƒNƒ’è‹`
@@ -75,29 +76,29 @@ void CParticle::Set(D3DXVECTOR3 Defpos, D3DXVECTOR3 Defmove, CEffect::TYPE type)
 	switch (type)
 	{
 	case CEffect::TYPE_NONE:	// ‰½‚à‚È‚¢
-		
-	break;
+
+		break;
 
 	case CEffect::TYPE_BULLET:	// ’e
 
 			// À•W‚ÌÝ’è
-			pos = Defpos;
+		pos = Defpos;
 
-			//ˆÚ“®—Ê‚ÌÝ’è
-			move.x = sinf((float)(rand() % 629 - 314) / 100.0f) * ((float)(rand() % 100)) * 0.1f;
-			move.y = cosf((float)(rand() % 629 - 314) / 100.0f) * ((float)(rand() % 100)) * 0.1f;
-			move.z = cosf((float)(rand() % 629 - 314) / 100.0f) * ((float)(rand() % 100)) * 0.1f;
+		//ˆÚ“®—Ê‚ÌÝ’è
+		move.x = sinf((float)(rand() % 629 - 314) / 100.0f) * ((float)(rand() % 100)) * 0.1f;
+		move.y = cosf((float)(rand() % 629 - 314) / 100.0f) * ((float)(rand() % 100)) * 0.1f;
+		move.z = cosf((float)(rand() % 629 - 314) / 100.0f) * ((float)(rand() % 100)) * 0.1f;
 
-			//F‚ÌÝ’è
-			col = D3DXCOLOR(fCol, fCol + 0.1f, 1.0f, 1.0f);
+		//F‚ÌÝ’è
+		col = D3DXCOLOR(fCol, fCol + 0.1f, 1.0f, 1.0f);
 
-			//”¼Œa‚ÌÝ’è
-			fRadius = 3.0f;
+		//”¼Œa‚ÌÝ’è
+		fRadius = 3.0f;
 
-			//Žõ–½‚ÌÝ’è
-			fLife = 10.0f;
+		//Žõ–½‚ÌÝ’è
+		fLife = 10.0f;
 
-			CEffect::Create(Defpos, move, col, fRadius, fLife, type);
+		CEffect::Create(Defpos, move, col, fRadius, fLife, type);
 
 		break;
 
@@ -367,6 +368,30 @@ void CParticle::Set(D3DXVECTOR3 Defpos, D3DXVECTOR3 Defmove, CEffect::TYPE type)
 
 			CEffect::Create(Defpos + move, move, col, fRadius, fLife, type);
 		}
+
+		break;
+
+	case CEffect::TYPE_HEATHAZE:	// ‰Œ
+
+			// À•W‚ÌÝ’è
+		pos = Defpos;
+
+		//ˆÚ“®—Ê‚ÌÝ’è
+		move.x = sinf((float)(rand() % 629 - 314) * 0.01f) * ((float)(rand() % 100)) * 0.04f;
+		move.y = ((float)(rand() % 50)) * 0.075f;
+		move.z = cosf((float)(rand() % 629 - 314) * 0.01f) * ((float)(rand() % 100)) * 0.04f;
+
+		//F‚ÌÝ’è
+		col = D3DXCOLOR(0.28f, 0.15f, 0.15f, 0.09f);
+
+		//”¼Œa‚ÌÝ’è
+		fRadius = 300.0f;
+
+		//Žõ–½‚ÌÝ’è
+		fLife = 300.0f;
+
+		CEffect *pEffect = CEffect::Create(Defpos + move, move, col, fRadius, fLife, type);
+		pEffect->BindTexture(CManager::GetTexture()->Regist(CTexture::GetFileName(CTexture::TYPE_HEATHAZE)));
 
 		break;
 	}

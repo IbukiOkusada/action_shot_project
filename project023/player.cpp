@@ -121,6 +121,7 @@ CPlayer::CPlayer(const D3DXVECTOR3 pos)
 	m_pWeaponR = NULL;
 	m_pSlowGage = NULL;
 	m_pBalloon = NULL;
+	m_pMapIcon = NULL;
 }
 
 //===============================================
@@ -144,6 +145,11 @@ CPlayer::CPlayer(int nPriOrity)
 	m_pBody = NULL;
 	m_pLeg = NULL;
 	m_pWaist = NULL;
+	m_pWeaponL = NULL;
+	m_pWeaponR = NULL;
+	m_pSlowGage = NULL;
+	m_pBalloon = NULL;
+	m_pMapIcon = NULL;
 	m_bAttack = false;
 	m_fAttackTimer = 0;
 	m_nAttackHand = 0;
@@ -278,6 +284,15 @@ HRESULT CPlayer::Init(const char *pBodyName, const char *pLegName)
 
 	// 軌跡の生成
 	m_pOrbit = CMeshOrbit::Create(&m_Info.mtxWorld, D3DXVECTOR3(0.0f, 20.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+
+	// マップアイコンの生成
+	if (m_pMapIcon == NULL)
+	{
+		m_pMapIcon = CObject3D::Create(GetPosition(), GetRotation());
+		m_pMapIcon->SetType(CObject::TYPE_MAP);
+		m_pMapIcon->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\mapicon000.png"));
+		m_pMapIcon->SetCol(D3DXCOLOR(0.8f, 0.8f, 1.0f, 1.0f));
+	}
 
 	return S_OK;
 }
@@ -640,8 +655,31 @@ void CPlayer::Controller(void)
 		}
 	}
 
-	m_bJump = true;
+	//場外判定
+	if (pos.x > 3980.0f)
+	{
+		pos.x = 3980.0f;
+		m_Info.move.x = 0.0f;
+	}
+	else if (pos.x < -3440.0f)
+	{
+		pos.x = -3440.0f;
+		m_Info.move.x = 0.0f;
+	}
 
+	if (pos.z > 3600.0f)
+	{
+		pos.z = 3600.0f;
+		m_Info.move.z = 0.0f;
+	}
+	else if (pos.z < -3600.0f)
+	{
+		pos.z = -3600.0f;
+		m_Info.move.z = 0.0f;
+	}
+
+	// 最低ライン判定
+	m_bJump = true;
 	if (pos.y < 0.0f)
 	{
 		m_Info.move.y = 0.0f;
@@ -649,6 +687,7 @@ void CPlayer::Controller(void)
 		m_bJump = false;
 	}
 
+	// 起伏との当たり判定
 	D3DXVECTOR3 nor = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	float fHeight = CGame::GetMeshField()->GetHeight(pos, nor);
 
@@ -678,6 +717,13 @@ void CPlayer::Controller(void)
 	// 頂点情報設定
 	SetRotation(rot);
 	SetPosition(pos);
+
+	// マップアイコンの移動
+	if (m_pMapIcon != NULL)
+	{
+		m_pMapIcon->SetPosition(GetPosition());
+
+	}
 
 	pos = GetPosition();
 

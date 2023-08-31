@@ -34,6 +34,8 @@ public:		// 誰でもアクセス可能
 	// メンバ関数(取得)
 	float GetWidth(void) { return m_fWidth; }
 	float GetHeight(void) { return m_fHeight; }
+	static CMeshField *GetTop(void) { return m_pTop; }
+	CMeshField *GetNext(void) { return m_pNext; }
 
 	// メンバ関数(設定)
 	void SetSize(float fWidth, float fHeight);
@@ -42,8 +44,12 @@ public:		// 誰でもアクセス可能
 private:	// 自分だけがアクセス可能
 
 	// メンバ関数
-	float m_fWidth;		// 幅
-	float m_fHeight;	// 高さ
+	static CMeshField *m_pTop;	// 先頭のオブジェクトへのポインタ
+	static CMeshField *m_pCur;	// 最後尾のオブジェクトへのポインタ
+	CMeshField *m_pPrev;	// 前のオブジェクトへのポインタ
+	CMeshField *m_pNext;	// 次のオブジェクトへのポインタ
+	float m_fWidth;			// 幅
+	float m_fHeight;		// 高さ
 };
 
 #endif

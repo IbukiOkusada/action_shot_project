@@ -38,6 +38,7 @@ public:	// 誰でもアクセス可能な定義
 		TYPE_SLOWGUNFIL,	// スロー時のフィルター
 		TYPE_BALLOONPINK,	// ピンクの水風船
 		TYPE_BALLOONBLUE,	// 水色の風船
+		TYPE_HEATHAZE,		// 陽炎
 		TYPE_MAX
 	}TYPE;
 

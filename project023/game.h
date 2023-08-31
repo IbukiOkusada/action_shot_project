@@ -13,7 +13,7 @@
 class CScore;
 class CTime;
 class CPlayer;
-class CMultiCamera;
+class CMapCamera;
 class CLight;
 class CFileLoad;
 class CEditor;
@@ -21,6 +21,7 @@ class CSlow;
 class CObject3D;
 class CMeshField;
 class CPause;
+class CThermo;
 
 //===============================================
 // ゲームクラスの定義(派生クラス)
@@ -49,8 +50,9 @@ public:
 	static CFileLoad *GetFileLoad(void);
 	static CPause *GetPause(void);
 	static CEditor *GetEditor(void);
-	static CMultiCamera *GetMapCamera(void) { return m_pMapCamera; }
+	CMapCamera *GetMapCamera(void) { return m_pMapCamera; }
 	void DataReset(void);
+	void EnemySet(void);
 
 private:
 
@@ -62,7 +64,9 @@ private:
 	static CMeshField *m_pMeshField;	// メッシュフィールドのポインタ
 	static CPause *m_pPause;			// ポーズのポインタ
 	static CEditor *m_pEditor;			// エディターのポインタ
-	static CMultiCamera *m_pMapCamera;		// ミニマップ用カメラ
+	CMapCamera *m_pMapCamera;			// ミニマップ用カメラ
+	CThermo *m_pMapThermo;				// マップ全体の温度表示
+	int m_nMaxEnemy;					// 現在のエネミー最大数
 };
 
 #endif

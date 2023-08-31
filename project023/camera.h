@@ -93,16 +93,36 @@ public:	// 誰でもアクセス可能
 	~CMultiCamera();	// デストラクタ
 
 	// メンバ関数
-	HRESULT Init(void);
-	void Uninit(void);
-	void Update(void);
-	void SetCamera(void);
+	virtual HRESULT Init(void);
+	virtual void Uninit(void);
+	virtual void Update(void);
+	virtual void SetCamera(void);
 	void SetViewPort(D3DVIEWPORT9 viewport) { m_viewport = viewport; }
+	D3DVIEWPORT9 *GetViewPort(void) { return &m_viewport; }
 
 private:	// 自分だけがアクセス可能
 
 	// メンバ変数
 	D3DVIEWPORT9 m_viewport;		//ビューポート
+};
+
+//**********************************************************
+// ミニマップカメラクラスの定義
+//**********************************************************
+class CMapCamera : public CMultiCamera
+{
+public:	// 誰でもアクセス可能
+	CMapCamera();	// コンストラクタ
+	~CMapCamera();	// デストラクタ
+
+	// メンバ関数
+	HRESULT Init(void);
+	void Uninit(void);
+	void Update(void);
+	void SetCamera(void);
+
+private:	// 自分だけがアクセス可能
+
 };
 
 #endif

@@ -14,6 +14,7 @@
 class CCharacter;
 class CShadow;
 class CObjectBillboard;
+class CThermo;
 
 //==========================================================
 // 敵のクラス定義(派生クラス)
@@ -97,6 +98,7 @@ private:	// 自分だけがアクセス可能
 	void UpdateDown(void);
 	void UpdateHeat(void);
 	void SetBodyTemp(void);
+	void SetThermo(void);
 
 	// メンバ変数
 	static const int m_aParticleCounter[STATE_MAX];
@@ -113,6 +115,7 @@ private:	// 自分だけがアクセス可能
 	Interval m_Interval;	// インターバル
 	STATE m_state;			// 状態管理
 	CObject *m_pLockOn;		// ロックオン
+	CThermo *m_pThermo;		// 温度表示
 };
 
 #endif

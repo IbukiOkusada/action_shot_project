@@ -20,6 +20,7 @@ class CObjectBillboard;
 class CModel;
 class CLockOn;
 class CMeshOrbit;
+class CObject3D;
 
 //==========================================================
 // プレイヤーのクラス定義(派生クラス)
@@ -153,6 +154,7 @@ private:	// 自分だけがアクセス可能
 	static const int m_aWepTimer[ATK_MAX];			// 攻撃タイマー	
 	static const char *m_apFileName[WEAPON_MAX];	// 武器ファイル名
 	static const CMeshBalloon::SET m_SetBalloon;	// 風船初期設定
+	CObject3D *m_pMapIcon;	// マップアイコン
 };
 
 #endif

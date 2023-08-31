@@ -206,6 +206,15 @@ void CEffect::Update(void)
 			m_Info.move.y -= m_Info.move.y * 0.005f * CManager::GetSlow()->Get();
 
 			break;
+
+		case CEffect::TYPE_HEATHAZE:	// ”š”­
+
+			m_Info.col.a -= 0.0001f * CManager::GetSlow()->Get();
+			m_Info.fRadius -= (rand() % 100 - 50) * 0.01f * CManager::GetSlow()->Get();
+			m_Info.move.x += (rand() % 100 - 50) * 0.01f;
+			m_Info.move.z += (rand() % 100 - 50) * 0.01f;
+
+			break;
 		}
 
 		if (m_Info.col.a < 0.0f || m_Info.fRadius < 0.0f)
