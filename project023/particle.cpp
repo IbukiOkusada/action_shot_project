@@ -382,7 +382,7 @@ void CParticle::Set(D3DXVECTOR3 Defpos, D3DXVECTOR3 Defmove, CEffect::TYPE type)
 		move.z = cosf((float)(rand() % 629 - 314) * 0.01f) * ((float)(rand() % 100)) * 0.04f;
 
 		//êFÇÃê›íË
-		col = D3DXCOLOR(0.28f, 0.15f, 0.15f, 0.09f);
+		col = D3DXCOLOR(0.28f, 0.15f, 0.15f, 0.11f);
 
 		//îºåaÇÃê›íË
 		fRadius = 300.0f;

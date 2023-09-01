@@ -133,24 +133,24 @@ void CPause::Update(void)
 
 		CObject::TYPE type = CObject::TYPE_NONE;
 
-		if (m_bState == false)
-		{
-			type = CObject::TYPE_PAUSE;
-		}
+		//if (m_bState == false)
+		//{
+		//	type = CObject::TYPE_PAUSE;
+		//}
 
-		if (m_pBg != NULL)
-		{
-			m_pBg->SetType(type);
-		}
+		//if (m_pBg != NULL)
+		//{
+		//	m_pBg->SetType(type);
+		//}
 
-		// ‘I‘ðŽˆ
-		for (int nCnt = 0; nCnt < MENU_MAX; nCnt++)
-		{
-			if (m_aMenu[nCnt].pObject2D != NULL)
-			{// ¶¬‚³‚ê‚½
-				m_aMenu[nCnt].pObject2D->SetType(type);
-			}
-		}
+		//// ‘I‘ðŽˆ
+		//for (int nCnt = 0; nCnt < MENU_MAX; nCnt++)
+		//{
+		//	if (m_aMenu[nCnt].pObject2D != NULL)
+		//	{// ¶¬‚³‚ê‚½
+		//		m_aMenu[nCnt].pObject2D->SetType(type);
+		//	}
+		//}
 	}
 
 	if (m_bState == false)

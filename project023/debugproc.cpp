@@ -70,7 +70,7 @@ void CDebugProc::Init(void)
 
 	//‰Šú•\¦İ’è
 #if _DEBUG
-	m_bDisp = true;
+	m_bDisp = false;
 #else NDEBUG
 	m_bDisp = false;
 #endif
