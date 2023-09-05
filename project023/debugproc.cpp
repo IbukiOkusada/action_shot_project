@@ -68,12 +68,13 @@ void CDebugProc::Init(void)
 	//デバッグ表示用フォントの生成
 	D3DXCreateFont(pDevice, 18, 0, 0, 0, FALSE, SHIFTJIS_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, "Terminal", &m_pFont);
 
-	//初期表示設定
+//初期表示設定
 #if _DEBUG
-	m_bDisp = false;
+	m_bDisp = true;
 #else NDEBUG
 	m_bDisp = false;
 #endif
+
 }
 
 //==========================================================
@@ -126,13 +127,12 @@ void CDebugProc::Update(void)
 //==========================================================
 void CDebugProc::Draw(void)
 {
-	Print("現在の軌跡数 %d\n", CMeshOrbit::Get());
 
 	RECT rect = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
 
 	if (m_bDisp == true)
 	{//デバックモードがオンの時
-	 //テキストの描画
+		//テキストの描画
 		m_pFont->DrawText(NULL, &m_aStr[0], -1, &rect, DT_LEFT, D3DCOLOR_RGBA(255, 255, 255, 255));
 	}
 

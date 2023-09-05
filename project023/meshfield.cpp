@@ -267,7 +267,7 @@ float CMeshField::GetHeight(D3DXVECTOR3 pos, D3DXVECTOR3 &normal)
 	float fField, fField2;
 	D3DXVECTOR3 nor;
 	D3DXVECTOR3 MeshPos = GetPosition();
-	int nNowWidth = -1;	// 乗っている幅番号
+	int nNowWidth = -1;		// 乗っている幅番号
 	int nNowHeight = -1;	// 乗っている高さ番号
 
 	if (pos.x < MeshPos.x + m_pVtx[0].pos.x || pos.x > MeshPos.x + m_pVtx[GetVertex() - 1].pos.x ||
@@ -379,177 +379,315 @@ float CMeshField::GetHeight(D3DXVECTOR3 pos, D3DXVECTOR3 &normal)
 }
 
 //==========================================================
+// 全ての床との判定
+//==========================================================
+float CMeshField::GetHeight(D3DXVECTOR3 pos)
+{
+	CMeshField *pMesh = CMeshField::GetTop();	// 先頭を取得
+	float fHeight = 0.0f;	// 高さ
+	D3DXVECTOR3 Pos0, Pos1, Pos2, Pos3;
+	D3DXVECTOR3 vecToPos;	//判定用変数
+	D3DXVECTOR3 vec1, vec2;	//判定用変数
+	D3DXVECTOR3 nor0, nor3;
+	float fRate, fRate2;	//判定用変数
+	float fMaxField;		//判定用
+	float fField, fField2;
+	int nNowWidth = -1;		// 乗っている幅番号
+	int nNowHeight = -1;	// 乗っている高さ番号
+
+	while (pMesh != NULL)
+	{// 使用されている間繰り返し
+		CMeshField *pMeshNext = pMesh->GetNext();	// 次を保持
+		D3DXVECTOR3 MeshPos = pMesh->GetPosition();
+
+		if (pos.x < MeshPos.x + pMesh->m_pVtx[0].pos.x || pos.x > MeshPos.x + pMesh->m_pVtx[pMesh->GetVertex() - 1].pos.x ||
+			pos.z > MeshPos.z + pMesh->m_pVtx[0].pos.z || pos.z < MeshPos.z + pMesh->m_pVtx[pMesh->GetVertex() - 1].pos.z)
+		{// 範囲外
+			pMesh = pMeshNext;	// 次に移動
+
+			continue;
+		}
+
+		// サイズを取得
+		vec1 = pMesh->m_pVtx[pMesh->GetVertex() - 1].pos - pMesh->m_pVtx[0].pos;
+		vec2 = pos - (MeshPos + pMesh->m_pVtx[0].pos);
+
+		if (vec1.x == 0.0f || vec1.z == 0.0f)
+		{// 直線の場合
+			return fHeight;
+		}
+
+		//xとz座標のメッシュ内の割合を求める
+		nor0 = D3DXVECTOR3(vec2.x / vec1.x, 0.0f, vec2.z / vec1.z);
+
+		// 幅の場所を取得
+		nNowWidth = (int)((float)(pMesh->GetNumWidth() * nor0.x));
+
+		// 高さの場所を取得
+		nNowHeight = (int)((float)(pMesh->GetNumHeight() * nor0.z));
+
+		Pos0 = pMesh->m_pVtx[nNowHeight * (pMesh->GetNumWidth() + 1) + nNowWidth + pMesh->GetNumWidth() + 1].pos;
+		Pos1 = pMesh->m_pVtx[nNowHeight * (pMesh->GetNumWidth() + 1) + nNowWidth + 0].pos;
+		Pos2 = pMesh->m_pVtx[nNowHeight * (pMesh->GetNumWidth() + 1) + nNowWidth + pMesh->GetNumWidth() + 2].pos;
+		Pos3 = pMesh->m_pVtx[nNowHeight * (pMesh->GetNumWidth() + 1) + nNowWidth + 1].pos;
+
+		// Pos0からのベクトルを求める
+		vec1 = Pos1 - Pos0;
+		vec2 = Pos2 - Pos0;
+
+		// 現在の座標のベクトルを求める
+		vecToPos = D3DXVECTOR3(pos.x - (MeshPos.x + Pos0.x),
+			pos.y - (MeshPos.y + Pos0.y),
+			pos.z - (MeshPos.z + Pos0.z));
+
+		D3DXVec3Cross(&nor0, &vec1, &vec2);
+
+		D3DXVec3Normalize(&nor0, &nor0);	// ベクトルを正規化する
+
+		// 面積を求める
+		fMaxField = (vec1.x * vec2.z) - (vec1.z * vec2.x);
+
+		// 現在の位置との面積を求める
+		fField = (vecToPos.x * vec2.z) - (vecToPos.z * vec2.x);
+		fField2 = (vecToPos.z * vec1.x) - (vecToPos.x * vec1.z);
+
+		// 交点の割合を求める
+		fRate = fField / fMaxField;
+		fRate2 = fField2 / fMaxField;
+
+		// 範囲内判定
+		if (nor0.y != 0.0f)
+		{
+			if (fRate >= 0.0f && fRate <= 1.0f && fRate2 >= 0.0f && fRate2 <= 1.0f && (fRate + fRate2) <= 1.0f)
+			{// 三角ポリゴンの中にいる
+				fHeight = (-((pos.x - (MeshPos.x + Pos0.x)) * nor0.x) +
+					-((pos.z - (MeshPos.z + Pos0.z)) * nor0.z)) / nor0.y + (MeshPos.y + Pos0.y);
+
+				return fHeight;
+			}
+		}
+
+		// Pos3からのベクトルを求める
+		vec1 = Pos2 - Pos3;
+		vec2 = Pos1 - Pos3;
+
+		D3DXVec3Cross(&nor3, &vec2, &vec1);
+
+		D3DXVec3Normalize(&nor3, &nor3);	// ベクトルを正規化する
+
+		// 現在の座標のベクトルを求める
+		vecToPos = D3DXVECTOR3(pos.x - (MeshPos.x + Pos3.x),
+			pos.y - (MeshPos.y + Pos3.y),
+			pos.z - (MeshPos.z + Pos3.z));
+
+		// 面積を求める
+		fMaxField = (vec1.x * vec2.z) - (vec1.z * vec2.x);
+
+		// 現在の位置との面積を求める
+		fField = (vecToPos.x * vec2.z) - (vecToPos.z * vec2.x);
+		fField2 = (vecToPos.z * vec1.x) - (vecToPos.x * vec1.z);
+
+		// 交点の割合を求める
+		fRate = fField / fMaxField;
+		fRate2 = fField2 / fMaxField;
+
+		// 範囲内判定
+		if (nor0.y != 0.0f)
+		{
+			if (fRate >= 0.0f && fRate <= 1.0f && fRate2 >= 0.0f && fRate2 <= 1.0f && (fRate + fRate2) <= 1.0f)
+			{// 三角ポリゴンの中にいる
+				fHeight = (-((pos.x - (MeshPos.x + Pos3.x)) * nor3.x) +
+					-((pos.z - (MeshPos.z + Pos3.z)) * nor3.z)) / nor3.y + (MeshPos.y + Pos3.y);
+
+				return fHeight;
+			}
+		}
+
+		pMesh = pMeshNext;	// 次に移動
+	}
+
+	return fHeight;
+}
+
+//==========================================================
 // メッシュ調整
 //==========================================================
 void CMeshField::Edit(float *pLength, float *pSpeed)
 {
-	//CInputKeyboard *pInputKey = CManager::GetInputKeyboard();
-	//D3DXVECTOR3 pos = CManager::GetPlayer()->GetPosition();
+	CPlayer *pPlayer = CManager::GetScene()->GetPlayer();
 
-	//// リセット
-	//if (pInputKey->GetPress(DIK_F6) == true)
-	//{
-	//	for (int nCntpVtx = 0; nCntpVtx < GetVertex(); nCntpVtx++)
-	//	{
-	//		m_pVtx[nCntpVtx].pos.y = 0.0f;
-	//	}
-	//}
+	if (pPlayer == NULL)
+	{
+		return;
+	}
 
-	//// 範囲設定
-	//if (pInputKey->GetPress(DIK_5) == true)
-	//{
-	//	*pLength += 1.0f;
-	//}
-	//else if (pInputKey->GetPress(DIK_6) == true)
-	//{
-	//	*pLength -= 1.0f;
-	//}
+	CInputKeyboard *pInputKey = CManager::GetInputKeyboard();
+	D3DXVECTOR3 pos = pPlayer->GetPosition();
 
-	//// 速度設定
-	//if (pInputKey->GetPress(DIK_Y) == true)
-	//{
-	//	*pSpeed += 0.5f;
-	//}
-	//else if (pInputKey->GetPress(DIK_H) == true)
-	//{
-	//	*pSpeed -= 0.5f;
-	//}
+	// リセット
+	if (pInputKey->GetPress(DIK_F6) == true)
+	{
+		for (int nCntpVtx = 0; nCntpVtx < GetVertex(); nCntpVtx++)
+		{
+			m_pVtx[nCntpVtx].pos.y = 0.0f;
+		}
+	}
 
-	//// 幅設定
-	//if (pInputKey->GetPress(DIK_I) == true)
-	//{
-	//	m_fWidth += 0.5f;
-	//}
-	//else if (pInputKey->GetPress(DIK_K) == true)
-	//{
-	//	m_fWidth -= 0.5f;
-	//}
+	// 範囲設定
+	if (pInputKey->GetPress(DIK_5) == true)
+	{
+		*pLength += 1.0f;
+	}
+	else if (pInputKey->GetPress(DIK_6) == true)
+	{
+		*pLength -= 1.0f;
+	}
 
-	//// 高さ設定
-	//if (pInputKey->GetPress(DIK_O) == true)
-	//{
-	//	m_fHeight += 1.0f;
-	//}
-	//else if (pInputKey->GetPress(DIK_L) == true)
-	//{
-	//	m_fHeight -= 1.0f;
-	//}
+	// 速度設定
+	if (pInputKey->GetPress(DIK_Y) == true)
+	{
+		*pSpeed += 0.5f;
+	}
+	else if (pInputKey->GetPress(DIK_H) == true)
+	{
+		*pSpeed -= 0.5f;
+	}
 
-	//// 範囲内頂点調整
-	//if (pInputKey->GetPress(DIK_U) == true)
-	//{
-	//	for (int nCntpVtx = 0; nCntpVtx < GetVertex(); nCntpVtx++)
-	//	{
-	//		D3DXVECTOR3 VtxPos = m_pVtx[nCntpVtx].pos + GetPosition();
+	// 幅設定
+	if (pInputKey->GetPress(DIK_I) == true)
+	{
+		m_fWidth += 0.5f;
+	}
+	else if (pInputKey->GetPress(DIK_K) == true)
+	{
+		m_fWidth -= 0.5f;
+	}
 
-	//		float fLength =
-	//			sqrtf((VtxPos.x - pos.x) * (VtxPos.x - pos.x)
-	//				+ (VtxPos.z - pos.z) * (VtxPos.z - pos.z));
+	// 高さ設定
+	if (pInputKey->GetPress(DIK_O) == true)
+	{
+		m_fHeight += 1.0f;
+	}
+	else if (pInputKey->GetPress(DIK_L) == true)
+	{
+		m_fHeight -= 1.0f;
+	}
 
-	//		if (fLength <= *pLength)
-	//		{// 範囲内の頂点
-	//			m_pVtx[nCntpVtx].pos.y += *pSpeed;	// 座標を移動
-	//		}
-	//	}
-	//}
-	//else if (pInputKey->GetPress(DIK_J) == true)
-	//{
-	//	for (int nCntpVtx = 0; nCntpVtx < GetVertex(); nCntpVtx++)
-	//	{
-	//		D3DXVECTOR3 VtxPos = m_pVtx[nCntpVtx].pos + GetPosition();
+	// 範囲内頂点調整
+	if (pInputKey->GetPress(DIK_U) == true)
+	{
+		for (int nCntpVtx = 0; nCntpVtx < GetVertex(); nCntpVtx++)
+		{
+			D3DXVECTOR3 VtxPos = m_pVtx[nCntpVtx].pos + GetPosition();
 
-	//		float fLength =
-	//			sqrtf((VtxPos.x - pos.x) * (VtxPos.x - pos.x)
-	//				+ (VtxPos.z - pos.z) * (VtxPos.z - pos.z));
+			float fLength =
+				sqrtf((VtxPos.x - pos.x) * (VtxPos.x - pos.x)
+					+ (VtxPos.z - pos.z) * (VtxPos.z - pos.z));
 
-	//		if (fLength <= *pLength)
-	//		{// 範囲内の頂点
-	//			m_pVtx[nCntpVtx].pos.y -= *pSpeed;	// 座標を移動
-	//		}
-	//	}
-	//}
+			if (fLength <= *pLength)
+			{// 範囲内の頂点
+				m_pVtx[nCntpVtx].pos.y += *pSpeed;	// 座標を移動
+			}
+		}
+	}
+	else if (pInputKey->GetPress(DIK_J) == true)
+	{
+		for (int nCntpVtx = 0; nCntpVtx < GetVertex(); nCntpVtx++)
+		{
+			D3DXVECTOR3 VtxPos = m_pVtx[nCntpVtx].pos + GetPosition();
 
-	//// 頂点設定
-	//for (int nCntpVtx = 0; nCntpVtx < GetVertex(); nCntpVtx++)
-	//{
-	//	//頂点座標
-	//	m_pVtx[nCntpVtx].pos.x = -(m_fWidth * GetNumWidth()) + (nCntpVtx % (GetNumWidth() + 1) * (m_fWidth * 2));
-	//	m_pVtx[nCntpVtx].pos.z = (m_fHeight * GetNumHeight()) + ((nCntpVtx / (GetNumWidth() + 1) * (-m_fHeight * 2)));
-	//}
+			float fLength =
+				sqrtf((VtxPos.x - pos.x) * (VtxPos.x - pos.x)
+					+ (VtxPos.z - pos.z) * (VtxPos.z - pos.z));
 
-	//// 法線ベクトルの設定
-	//D3DXVECTOR3 nor, vec1, vec2;
-	//VERTEX_3D *aVtx[4];
+			if (fLength <= *pLength)
+			{// 範囲内の頂点
+				m_pVtx[nCntpVtx].pos.y -= *pSpeed;	// 座標を移動
+			}
+		}
+	}
 
-	//for (int nCntHeight = 0; nCntHeight < GetNumHeight(); nCntHeight++)
-	//{
-	//	for (int nCntWidth = 0; nCntWidth < GetNumWidth(); nCntWidth++)
-	//	{
-	//		aVtx[0] = &m_pVtx[nCntHeight * (GetNumWidth() + 1) + nCntWidth + 0];
-	//		aVtx[1] = &m_pVtx[nCntHeight * (GetNumWidth() + 1) + nCntWidth + 1];
-	//		aVtx[2] = &m_pVtx[nCntHeight * (GetNumWidth() + 1) + nCntWidth + GetNumWidth() + 1];
-	//		aVtx[3] = &m_pVtx[nCntHeight * (GetNumWidth() + 1) + nCntWidth + GetNumWidth() + 2];
+	// 頂点設定
+	for (int nCntpVtx = 0; nCntpVtx < GetVertex(); nCntpVtx++)
+	{
+		//頂点座標
+		m_pVtx[nCntpVtx].pos.x = -(m_fWidth * GetNumWidth()) + (nCntpVtx % (GetNumWidth() + 1) * (m_fWidth * 2));
+		m_pVtx[nCntpVtx].pos.z = (m_fHeight * GetNumHeight()) + ((nCntpVtx / (GetNumWidth() + 1) * (-m_fHeight * 2)));
+	}
 
-	//		//Pos0からのベクトルを求める
-	//		vec1 = aVtx[1]->pos - aVtx[0]->pos;
-	//		vec2 = aVtx[2]->pos - aVtx[0]->pos;
+	// 法線ベクトルの設定
+	D3DXVECTOR3 nor, vec1, vec2;
+	VERTEX_3D *aVtx[4];
 
-	//		D3DXVec3Cross(&aVtx[0]->nor, &vec1, &vec2);
+	for (int nCntHeight = 0; nCntHeight < GetNumHeight(); nCntHeight++)
+	{
+		for (int nCntWidth = 0; nCntWidth < GetNumWidth(); nCntWidth++)
+		{
+			aVtx[0] = &m_pVtx[nCntHeight * (GetNumWidth() + 1) + nCntWidth + 0];
+			aVtx[1] = &m_pVtx[nCntHeight * (GetNumWidth() + 1) + nCntWidth + 1];
+			aVtx[2] = &m_pVtx[nCntHeight * (GetNumWidth() + 1) + nCntWidth + GetNumWidth() + 1];
+			aVtx[3] = &m_pVtx[nCntHeight * (GetNumWidth() + 1) + nCntWidth + GetNumWidth() + 2];
 
-	//		D3DXVec3Normalize(&aVtx[0]->nor, &aVtx[0]->nor);	// ベクトルを正規化する
+			//Pos0からのベクトルを求める
+			vec1 = aVtx[1]->pos - aVtx[0]->pos;
+			vec2 = aVtx[2]->pos - aVtx[0]->pos;
 
-	//		//Pos3からのベクトルを求める
-	//		vec1 = aVtx[2]->pos - aVtx[3]->pos;
-	//		vec2 = aVtx[1]->pos - aVtx[3]->pos;
+			D3DXVec3Cross(&aVtx[0]->nor, &vec1, &vec2);
 
-	//		D3DXVec3Cross(&aVtx[3]->nor, &vec1, &vec2);
+			D3DXVec3Normalize(&aVtx[0]->nor, &aVtx[0]->nor);	// ベクトルを正規化する
 
-	//		D3DXVec3Normalize(&aVtx[3]->nor, &aVtx[3]->nor);	// ベクトルを正規化する
+			//Pos3からのベクトルを求める
+			vec1 = aVtx[2]->pos - aVtx[3]->pos;
+			vec2 = aVtx[1]->pos - aVtx[3]->pos;
 
-	//		aVtx[1]->nor = (aVtx[0]->nor + aVtx[3]->nor) / 2;
-	//		aVtx[2]->nor = (aVtx[0]->nor + aVtx[3]->nor) / 2;
-	//	}
-	//}
+			D3DXVec3Cross(&aVtx[3]->nor, &vec1, &vec2);
 
-	//// 保存
-	//if (pInputKey->GetPress(DIK_F7) == true)
-	//{
-	//	FILE *pFile = fopen("data\\TXT\\mesh.txt", "w");
-	//	D3DXVECTOR3 ROT;
+			D3DXVec3Normalize(&aVtx[3]->nor, &aVtx[3]->nor);	// ベクトルを正規化する
 
-	//	if (pFile == NULL)
-	//	{//ファイルが開けなかった場合
-	//		return;
-	//	}
+			aVtx[1]->nor = (aVtx[0]->nor + aVtx[3]->nor) / 2;
+			aVtx[2]->nor = (aVtx[0]->nor + aVtx[3]->nor) / 2;
+		}
+	}
 
-	//	fprintf(pFile, "#==============================================================================\n"
-	//		"# 起伏データファイル[mesh.txt]\n"
-	//		"# Author : IBUKI OKUSADA\n"
-	//		"#==============================================================================\n\n");
-	//	fprintf(pFile, "#----------------------------------------------\n"
-	//		"# 高さ情報\n"
-	//		"#----------------------------------------------\n\n");
+	// 保存
+	if (pInputKey->GetPress(DIK_F7) == true)
+	{
+		FILE *pFile = fopen("data\\TXT\\mesh.txt", "w");
+		D3DXVECTOR3 ROT;
 
-	//	// 頂点の高さを書き出し
-	//	for (int nCntpVtx = 0; nCntpVtx < GetVertex(); nCntpVtx++)
-	//	{
-	//		fprintf(pFile, "	HEIGHT = %f	[%d]\n", m_pVtx[nCntpVtx].pos.y, nCntpVtx);
-	//	}
+		if (pFile == NULL)
+		{//ファイルが開けなかった場合
+			return;
+		}
 
-	//	//ファイルを閉じる
-	//	fclose(pFile);
-	//}
+		fprintf(pFile, "#==============================================================================\n"
+			"# 起伏データファイル[mesh.txt]\n"
+			"# Author : IBUKI OKUSADA\n"
+			"#==============================================================================\n\n");
+		fprintf(pFile, "#----------------------------------------------\n"
+			"# 高さ情報\n"
+			"#----------------------------------------------\n\n");
 
-	//// 頂点情報設定
-	//SetVtx();
+		// 頂点の高さを書き出し
+		for (int nCntpVtx = 0; nCntpVtx < GetVertex(); nCntpVtx++)
+		{
+			fprintf(pFile, "	HEIGHT = %f	[%d]\n", m_pVtx[nCntpVtx].pos.y, nCntpVtx);
+		}
 
-	//// デバッグ表示
-	//CManager::GetDebugProc()->Print("\n-------------------------------------------------------\n");
-	//CManager::GetDebugProc()->Print("メッシュフィールド起伏操作方法 ---------------\n");
-	//CManager::GetDebugProc()->Print("リセット【F6】: 保存【F7】: 選択範囲【 %f 】: 範囲操作【 5, 6 】\n", *pLength);
-	//CManager::GetDebugProc()->Print(" 頂点上昇 【 U, J 】: 速度変更【 Y, H 】[ %f ] : 頂点数-> 縦[ %d ], 横[ %d ]\n", *pSpeed, GetNumHeight(), GetNumWidth());
-	//CManager::GetDebugProc()->Print(" 幅  【 I, K 】[ %f ]\n", m_fWidth);
-	//CManager::GetDebugProc()->Print(" 高さ【 T, H 】[ %f ]\n", m_fHeight);
+		//ファイルを閉じる
+		fclose(pFile);
+	}
+
+	// 頂点情報設定
+	SetVtx();
+
+	// デバッグ表示
+	CManager::GetDebugProc()->Print("\n-------------------------------------------------------\n");
+	CManager::GetDebugProc()->Print("メッシュフィールド起伏操作方法 ---------------\n");
+	CManager::GetDebugProc()->Print("リセット【F6】: 保存【F7】: 選択範囲【 %f 】: 範囲操作【 5, 6 】\n", *pLength);
+	CManager::GetDebugProc()->Print(" 頂点上昇 【 U, J 】: 速度変更【 Y, H 】[ %f ] : 頂点数-> 縦[ %d ], 横[ %d ]\n", *pSpeed, GetNumHeight(), GetNumWidth());
+	CManager::GetDebugProc()->Print(" 幅  【 I, K 】[ %f ]\n", m_fWidth);
+	CManager::GetDebugProc()->Print(" 高さ【 T, H 】[ %f ]\n", m_fHeight);
 }
 
 //==========================================================
@@ -670,4 +808,36 @@ bool CMeshField::GetAreaHot(D3DXVECTOR3 pos)
 		}
 	}
 	return false;
+}
+
+//==========================================================
+// 現在地のエリア確認
+//==========================================================
+CMeshField *CMeshField::GetArea(D3DXVECTOR3 pos)
+{
+	int nCnt = 0;
+	// 床の描画
+	CMeshField *pMesh = CMeshField::GetTop();	// 先頭を取得
+
+	while (pMesh != NULL)
+	{// 使用されている間繰り返し
+		CMeshField *pMeshNext = pMesh->GetNext();	// 次を保持
+		D3DXVECTOR3 MeshPos = pMesh->GetPosition();
+
+		if (pos.x > MeshPos.x + pMesh->m_pVtx[0].pos.x && pos.x < MeshPos.x + pMesh->m_pVtx[pMesh->GetVertex() - 1].pos.x &&
+			pos.z < MeshPos.z + pMesh->m_pVtx[0].pos.z && pos.z > MeshPos.z + pMesh->m_pVtx[pMesh->GetVertex() - 1].pos.z)
+		{// 範囲内
+			return pMesh;
+		}
+
+		pMesh = pMeshNext;	// 次に移動
+
+		nCnt++;
+
+		if (nCnt >= NUM_AREA)
+		{
+			break;
+		}
+	}
+	return NULL;
 }

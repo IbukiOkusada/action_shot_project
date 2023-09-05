@@ -44,27 +44,27 @@ public:
 	// メンバ関数(ポインタ)
 	static CScore *GetScore(void);
 	CTime *GetTime(void);
-	static CPlayer *GetPlayer(void);
+	CPlayer *GetPlayer(void);
 	static CSlow *GetSlow(void);
 	static CMeshField *GetMeshField(void);
 	static void SetMesh(CMeshField *pMesh) { m_pMeshField = pMesh; }
-	static CFileLoad *GetFileLoad(void);
+	CFileLoad *GetFileLoad(void);
 	static CPause *GetPause(void);
-	static CEditor *GetEditor(void);
+	CEditor *GetEditor(void);
 	CMapCamera *GetMapCamera(void) { return m_pMapCamera; }
 	void DataReset(void);
 	void EnemySet(void);
 
 private:
 
-	static CFileLoad *m_pFileLoad;		// ファイル読み込みのポインタ
+	CFileLoad *m_pFileLoad;		// ファイル読み込みのポインタ
 	static CScore *m_pScore;			// スコアのポインタ
 	CTime *m_pTime;				// タイムのポインタ
-	static CPlayer *m_pPlayer;			// プレイヤーのポインタ
+	CPlayer *m_pPlayer;			// プレイヤーのポインタ
 	static CSlow *m_pSlow;				// スローのポインタ
 	static CMeshField *m_pMeshField;	// メッシュフィールドのポインタ
 	static CPause *m_pPause;			// ポーズのポインタ
-	static CEditor *m_pEditor;			// エディターのポインタ
+	CEditor *m_pEditor;			// エディターのポインタ
 	CMapCamera *m_pMapCamera;			// ミニマップ用カメラ
 	CThermo *m_pMapThermo;				// マップ全体の温度表示
 	CEnemyManager *m_pEnemyManager;		// エネミーマネージャーのポインタ

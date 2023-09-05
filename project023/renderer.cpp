@@ -177,14 +177,17 @@ void CRenderer::Draw(void)
 	if (SUCCEEDED(m_pD3DDevice->BeginScene()))
 	{// 描画が成功した場合
 
-		//// エディットの描画
-		//if (pEditor != NULL)
-		//{
-		//	//pEditor->Draw();
-		//}
-
 		// オブジェクトの描画
 		CObject::DrawAll();
+
+#if _DEBUG	// デバッグ時
+
+		if (CManager::GetScene()->GetEditor() != NULL)
+		{
+			CManager::GetScene()->GetEditor()->Draw();
+		}
+
+#endif
 
 		// デバッグ表示
 		if (pDebugProc != NULL)

@@ -811,8 +811,6 @@ void CCamera::SlowShw(void)
 		fRightRot += -D3DX_PI * 2;
 	}
 
-	CManager::GetDebugProc()->Print("%f, %f\n", fLeftRot, fRightRot);
-
 	//x²‚ÌˆÚ“®
 	if (pInputPad->GetStickPress(0, CInputPad::BUTTON_RIGHT_X, 0.0f, CInputPad::STICK_PLUS) == true)
 	{//QƒL[“ü—Í

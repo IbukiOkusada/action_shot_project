@@ -37,18 +37,15 @@
 #define START_TIME	(150)	// 制限時間
 #define START_SCORE	(0)		// 開始スコア
 #define MAP_SIZE	(100.0f)	// マップサイズ
-#define STARTSET_NUMENEMY	(30)	// 開始時に配置する敵の数
+#define STARTSET_NUMENEMY	(2)	// 開始時に配置する敵の数
 
 //===============================================
 // 静的メンバ変数
 //===============================================
 CScore *CGame::m_pScore = NULL;		// スコアのポインタ
-CPlayer *CGame::m_pPlayer = NULL;	// プレイヤーのポインタ
 CSlow *CGame::m_pSlow = NULL;		// スロー状態へのポインタ
 CMeshField *CGame::m_pMeshField = NULL;	// メッシュフィールドのポインタ
-CFileLoad *CGame::m_pFileLoad = NULL;	// ファイル読み込みのポインタ
 CPause *CGame::m_pPause = NULL;		// ポーズのポインタ
-CEditor *CGame::m_pEditor = NULL;	// エディターへのポインタ
 
 //===============================================
 // コンストラクタ
@@ -60,6 +57,9 @@ CGame::CGame()
 	m_nMaxEnemy = 0;
 	m_pTime = NULL;
 	m_pEnemyManager = NULL;
+	m_pPlayer = NULL;
+	m_pFileLoad = NULL;
+	m_pEditor = NULL;
 }
 
 //===============================================
@@ -87,25 +87,21 @@ HRESULT CGame::Init(void)
 		}
 	}
 
-	//// エディットの生成
-	//if (m_pEditor == NULL)
-	//{// 使用していない場合
-	//	m_pEditor = new CEditor;
+	// エディットの生成
+	if (m_pEditor == NULL)
+	{// 使用していない場合
+		m_pEditor = new CEditor;
 
-	//	// 初期化
-	//	if (m_pEditor != NULL)
-	//	{
-	//		m_pEditor->Init();
-	//	}
-	//}
+		// 初期化
+		if (m_pEditor != NULL)
+		{
+			m_pEditor->Init();
+		}
+	}
 
 	// オブジェクト生成
 	CMeshDome::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 20000.0f, 10.0f, 3, 10, 10);
 	CMeshCylinder::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 17000.0f, 100.0f, 3, 10, 10);
-	CEnemy::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f),
-		D3DXVECTOR3(0.0f, D3DX_PI * 0.25f, 0.0f), D3DXVECTOR3(-sinf(D3DX_PI * 0.25f) * 1.0f, 0.0f, -cosf(D3DX_PI * 0.25f) * 1.0f), "data\\TXT\\motion_murabito.txt");
-	CObjectX *p = CObjectX::Create(D3DXVECTOR3(2500.0f, 0.0f, 2500.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), "data/MODEL/container000.x");
-	p->SetType(CObject::TYPE_ENEMYSPAWN);
 	m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 0.0f, 3500.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f),
 		"data\\TXT\\motion_body.txt", "data\\TXT\\motion_leg.txt", 1);
 
@@ -277,6 +273,23 @@ void CGame::Update(void)
 		}
 	}
 
+#if _DEBUG
+
+	// エディターの更新処理
+	if (m_pEditor != NULL)
+	{
+		m_pEditor->Update();
+	}
+
+	if (m_pEditor->GetActive() == true || m_pEditor->GetMeshActive() == true)
+	{
+		// 更新処理
+		CScene::Update();
+		return;
+	}
+
+#endif
+
 	// タイム
 	if (m_pTime != NULL)
 	{
@@ -296,7 +309,14 @@ void CGame::Update(void)
 	if (m_pMapThermo != NULL)
 	{
 		D3DXCOLOR col = m_pMapThermo->GetCol();
-		col.a = 1.0f - (float)(CObject::GetNumEnemAll() / m_nMaxEnemy);
+		if (m_nMaxEnemy > 0)
+		{// 一体でも存在している
+			col.a = 1.0f - (float)(CObject::GetNumEnemAll() / m_nMaxEnemy);
+		}
+		else
+		{
+			col.a = 1.0f;
+		}
 		m_pMapThermo->SetColor(col);
 	}
 
@@ -310,16 +330,6 @@ void CGame::Update(void)
 
 	// 敵の配置管理
 	EnemySet();
-
-#ifdef _DEBUG
-
-	// エディターの更新処理
-	if (m_pEditor != NULL)
-	{
-		m_pEditor->Update();
-	}
-
-#endif
 }
 
 //===============================================

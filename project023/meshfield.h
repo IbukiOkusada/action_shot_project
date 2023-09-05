@@ -31,6 +31,7 @@ public:		// 誰でもアクセス可能
 	void Edit(float *pLength, float *pSpeed);
 	void UpDownLoad(const char *pFileName);
 	static bool GetAreaHot(D3DXVECTOR3 pos);
+	static CMeshField *GetArea(D3DXVECTOR3 pos);
 
 	// メンバ関数(取得)
 	float GetWidth(void) { return m_fWidth; }
@@ -42,6 +43,7 @@ public:		// 誰でもアクセス可能
 	// メンバ関数(設定)
 	void SetSize(float fWidth, float fHeight);
 	float GetHeight(D3DXVECTOR3 pos, D3DXVECTOR3 &normal);
+	static float GetHeight(D3DXVECTOR3 pos);
 	void SetHot(bool bHot) { m_bHot = bHot; }
 
 private:	// 自分だけがアクセス可能

@@ -26,6 +26,9 @@ class CFade;
 class CMultiCamera;
 class CMapCamera;
 class CTime;
+class CPlayer;
+class CFileLoad;
+class CEditor;
 
 //===============================================
 // シーンクラスの定義
@@ -55,6 +58,9 @@ public:
 	virtual void Draw(void);
 	virtual CMapCamera *GetMapCamera(void) { return NULL; }
 	virtual CTime *GetTime(void) { return NULL; }
+	virtual CPlayer *GetPlayer(void) { return NULL; }
+	virtual CFileLoad *GetFileLoad(void) { return NULL; }
+	virtual CEditor *GetEditor(void) { return NULL; }
 	void SetMode(MODE mode) { m_mode = mode; }
 	MODE GetMode(void) { return m_mode; }
 

@@ -115,7 +115,7 @@ HRESULT CEnemy::Init(const char *pName)
 	}
 
 	m_fMoveCnt = (float)(rand() % 1000);
-	m_fLife = (float)(rand() % STATE_LINE);
+	m_fLife = (float)(rand() % STATE_LINE) + 0.1f;
 
 	// ‰·“x•\¦‚Ì¶¬
 	if (m_pThermo == NULL)
@@ -330,7 +330,7 @@ void CEnemy::Controller(void)
 	}
 
 	D3DXVECTOR3 nor;
-	float fHeight = CGame::GetMeshField()->GetHeight(m_Info.pos, nor);
+	float fHeight = CMeshField::GetHeight(m_Info.pos);
 	m_Info.pos.y = fHeight;
 
 
@@ -561,6 +561,7 @@ void CEnemy::UpdateCool(void)
 //===============================================
 void CEnemy::UpdateCoolDown(void)
 {
+	CPlayer *pPlayer = CManager::GetScene()->GetPlayer();
 	m_fStateCnt -= CManager::GetSlow()->Get();
 
 	Controller();
@@ -572,9 +573,9 @@ void CEnemy::UpdateCoolDown(void)
 		m_fMoveCnt = LEAVECNT;
 		m_fLife = 0.1f;
 
-		if (CGame::GetPlayer() != NULL)
+		if (pPlayer != NULL)
 		{
-			CGame::GetPlayer()->AddSlowTime();
+			pPlayer->AddSlowTime();
 
 			// Œü‚«‚ğ•ÏX‚·‚é
 			D3DXVECTOR3 rot = GetRotation();

@@ -34,8 +34,8 @@
 //===============================================
 // マクロ定義
 //===============================================
-#define MOVE	(3.0f)		// 移動量
-#define SHW_MOVE	(1.5f)
+#define MOVE	(2.2f)		// 移動量
+#define SHW_MOVE	(1.0f)	// シャワー中移動量
 #define PLAYER_GRAVITY	(-0.15f)		//プレイヤー重力
 #define PLAYER_JUMP		(10.0f)		//プレイヤージャンプ力
 #define DEF_SLOWTIME	(60 * 5)	// スロー可能時間
@@ -291,7 +291,7 @@ HRESULT CPlayer::Init(const char *pBodyName, const char *pLegName)
 		m_pMapIcon = CObject3D::Create(GetPosition(), GetRotation());
 		m_pMapIcon->SetType(CObject::TYPE_MAP);
 		m_pMapIcon->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\mapicon000.png"));
-		m_pMapIcon->SetCol(D3DXCOLOR(0.8f, 0.8f, 1.0f, 1.0f));
+		m_pMapIcon->SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 	}
 
 	return S_OK;
@@ -689,7 +689,7 @@ void CPlayer::Controller(void)
 
 	// 起伏との当たり判定
 	D3DXVECTOR3 nor = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	float fHeight = CGame::GetMeshField()->GetHeight(pos, nor);
+	float fHeight = CMeshField::GetHeight(pos);
 
 	if (fHeight > pos.y)
 	{// 
@@ -1485,7 +1485,7 @@ void CPlayer::Particle(void)
 		{
 			if (pMotion->GetNowFrame() == 0 && (pMotion->GetNowKey() == 0 || pMotion->GetNowKey() == 2))
 			{// 地面を蹴った
-				CParticle::Create(m_Info.pos, m_Info.move, CEffect::TYPE_DUST);
+				CParticle::Create(m_Info.pos, D3DXVECTOR3(m_Info.move.x, 0.0f, m_Info.move.z), CEffect::TYPE_DUST);
 			}
 		}
 		else if (pMotion->GetNowMotion() == BMOTION_JUMP)

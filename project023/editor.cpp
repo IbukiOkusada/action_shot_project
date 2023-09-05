@@ -19,6 +19,7 @@
 #include "texture.h"
 #include "meshfield.h"
 #include "game.h"
+#include "player.h"
 
 //==========================================================
 //マクロ定義
@@ -44,6 +45,7 @@ CEditor::CEditor()
 	m_Object.pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_Object.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_bUse = false;
+	m_bMesh = false;
 	m_nMoveCnt = 0;
 	m_nNumMove = 0;
 	m_nType = TYPE_NONE;
@@ -65,7 +67,12 @@ CEditor::~CEditor()
 //==========================================================
 void CEditor::Init(void)
 {
-	m_Object.nIdxModel = CManager::GetModelFile()->Regist(CGame::GetFileLoad()->GetModelFileName(m_nIdx));
+	if (CManager::GetScene()->GetFileLoad() == NULL)
+	{
+		return;
+	}
+
+	m_Object.nIdxModel = CManager::GetModelFile()->Regist(CManager::GetScene()->GetFileLoad()->GetModelFileName(m_nIdx));
 }
 
 //==========================================================
@@ -81,223 +88,243 @@ void CEditor::Uninit(void)
 //==========================================================
 void CEditor::Update(void)
 {
-	return;
-	//CCamera *pCamera = CManager::GetCamera();
-	//CInputKeyboard *pInputKey = CManager::GetInputKeyboard();
-	//D3DXVECTOR3 pos = m_Object.pos;
-	//D3DXVECTOR3 rot = m_Object.rot;
-	//D3DXVECTOR3 CamRot = pCamera->GetRotation();	// カメラの角度
+	if (CManager::GetScene()->GetFileLoad() == NULL)
+	{
+		return;
+	}
 
-	//// メッシュフィールド操作
-	//if (CManager::GetMeshField() != NULL && m_bMesh == true)
-	//{
-	//	CManager::GetMeshField()->Edit(&m_fLength, &m_fMeshMove);
+	CCamera *pCamera = CManager::GetCamera();
+	CInputKeyboard *pInputKey = CManager::GetInputKeyboard();
+	CPlayer *pPlayer = CManager::GetScene()->GetPlayer();
+	D3DXVECTOR3 pos = m_Object.pos;
+	D3DXVECTOR3 rot = m_Object.rot;
+	D3DXVECTOR3 CamRot = pCamera->GetRotation();	// カメラの角度
+	CMeshField *pMesh = NULL;	// 先頭を取得
 
-	//	if (m_fLength > MAX_MESHLENGTH)
-	//	{
-	//		m_fLength = MAX_MESHLENGTH;
-	//	}
-	//	if (m_fLength < MIN_MESHLENGTH)
-	//	{
-	//		m_fLength = MIN_MESHLENGTH;
-	//	}
+	// 配置場所を指定されたエリアに設定
+	if (pPlayer != NULL)
+	{
+		pMesh = CMeshField::GetArea(pPlayer->GetPosition());
+	}
 
-	//	if (m_fMeshMove > MAX_MESHMOVE)
-	//	{
-	//		m_fMeshMove = MAX_MESHMOVE;
-	//	}
-	//	if (m_fMeshMove < MIN_MESHMOVE)
-	//	{
-	//		m_fMeshMove = MIN_MESHMOVE;
-	//	}
-	//}
-	//
-	//if (pInputKey->GetTrigger(DIK_F3) == true)
-	//{
-	//	m_bUse = m_bUse ? false : true;
-	//}
-	//if (pInputKey->GetTrigger(DIK_F4) == true)
-	//{
-	//	m_bMesh = m_bMesh ? false : true;
-	//}
+	// メッシュフィールド操作
+	if (pMesh != NULL && m_bMesh == true)
+	{
+		pMesh->Edit(&m_fLength, &m_fMeshMove);
 
-	//CManager::GetDebugProc()->Print("エディター[ F3 ] : メッシュ操作[ F4 ]\n");
+		if (m_fLength > MAX_MESHLENGTH)
+		{
+			m_fLength = MAX_MESHLENGTH;
+		}
+		if (m_fLength < MIN_MESHLENGTH)
+		{
+			m_fLength = MIN_MESHLENGTH;
+		}
 
-	//if (m_bUse == false)
-	//{// 使用中ではない場合
-	//	return;
-	//}
+		if (m_fMeshMove > MAX_MESHMOVE)
+		{
+			m_fMeshMove = MAX_MESHMOVE;
+		}
+		if (m_fMeshMove < MIN_MESHMOVE)
+		{
+			m_fMeshMove = MIN_MESHMOVE;
+		}
+	}
+	
+	if (pInputKey->GetTrigger(DIK_F3) == true)
+	{
+		m_bUse = m_bUse ? false : true;
+	}
+	if (pInputKey->GetTrigger(DIK_F4) == true)
+	{
+		m_bMesh = m_bMesh ? false : true;
+	}
 
-	//if (pInputKey->GetPress(DIK_LEFT) == true)
-	//{
-	//	if (pInputKey->GetPress(DIK_UP) == true)
-	//	{
-	//		pos.x += cosf(CamRot.y + (-D3DX_PI * 0.75f)) * m_fSpeed;
-	//		pos.z += sinf(CamRot.y + (-D3DX_PI * 0.75f)) * m_fSpeed;
-	//	}
-	//	else if (pInputKey->GetPress(DIK_DOWN) == true)
-	//	{
-	//		pos.x += cosf(CamRot.y + (-D3DX_PI * 0.25f)) * m_fSpeed;
-	//		pos.z += sinf(CamRot.y + (-D3DX_PI * 0.25f)) * m_fSpeed;
-	//	}
-	//	else
-	//	{
-	//		pos.x += cosf(CamRot.y + (-D3DX_PI * 0.5f)) * m_fSpeed;
-	//		pos.z += sinf(CamRot.y + (-D3DX_PI * 0.5f)) * m_fSpeed;
-	//	}
+	CManager::GetDebugProc()->Print("エディター[ F3 ] : メッシュ操作[ F4 ]\n");
 
-	//	m_nMoveCnt++;
-	//}
-	//else if (pInputKey->GetPress(DIK_RIGHT) == true)
-	//{
-	//	if (pInputKey->GetPress(DIK_UP) == true)
-	//	{
-	//		pos.x += cosf(CamRot.y + (D3DX_PI * 0.75f)) * m_fSpeed;
-	//		pos.z += sinf(CamRot.y + (D3DX_PI * 0.75f)) * m_fSpeed;
-	//	}
-	//	else if (pInputKey->GetPress(DIK_DOWN) == true)
-	//	{
-	//		pos.x += cosf(CamRot.y + (D3DX_PI * 0.25f)) * m_fSpeed;
-	//		pos.z += sinf(CamRot.y + (D3DX_PI * 0.25f)) * m_fSpeed;
-	//	}
-	//	else
-	//	{
-	//		pos.x += cosf(CamRot.y + (D3DX_PI * 0.5f)) * m_fSpeed;
-	//		pos.z += sinf(CamRot.y + (D3DX_PI * 0.5f)) * m_fSpeed;
-	//	}
+	if (m_bUse == false)
+	{// 使用中ではない場合
+		return;
+	}
 
-	//	m_nMoveCnt++;
-	//}
-	//else if (pInputKey->GetPress(DIK_UP) == true)
-	//{
-	//	pos.x += -cosf(CamRot.y) * m_fSpeed;
-	//	pos.z += -sinf(CamRot.y) * m_fSpeed;
+	if (pInputKey->GetPress(DIK_LEFT) == true)
+	{
+		if (pInputKey->GetPress(DIK_UP) == true)
+		{
+			pos.x += cosf(CamRot.y + (-D3DX_PI * 0.75f)) * m_fSpeed;
+			pos.z += sinf(CamRot.y + (-D3DX_PI * 0.75f)) * m_fSpeed;
+		}
+		else if (pInputKey->GetPress(DIK_DOWN) == true)
+		{
+			pos.x += cosf(CamRot.y + (-D3DX_PI * 0.25f)) * m_fSpeed;
+			pos.z += sinf(CamRot.y + (-D3DX_PI * 0.25f)) * m_fSpeed;
+		}
+		else
+		{
+			pos.x += cosf(CamRot.y + (-D3DX_PI * 0.5f)) * m_fSpeed;
+			pos.z += sinf(CamRot.y + (-D3DX_PI * 0.5f)) * m_fSpeed;
+		}
 
-	//	m_nMoveCnt++;
-	//}
-	//else if (pInputKey->GetPress(DIK_DOWN) == true)
-	//{
-	//	pos.x += cosf(CamRot.y) * m_fSpeed;
-	//	pos.z += sinf(CamRot.y) * m_fSpeed;
+		m_nMoveCnt++;
+	}
+	else if (pInputKey->GetPress(DIK_RIGHT) == true)
+	{
+		if (pInputKey->GetPress(DIK_UP) == true)
+		{
+			pos.x += cosf(CamRot.y + (D3DX_PI * 0.75f)) * m_fSpeed;
+			pos.z += sinf(CamRot.y + (D3DX_PI * 0.75f)) * m_fSpeed;
+		}
+		else if (pInputKey->GetPress(DIK_DOWN) == true)
+		{
+			pos.x += cosf(CamRot.y + (D3DX_PI * 0.25f)) * m_fSpeed;
+			pos.z += sinf(CamRot.y + (D3DX_PI * 0.25f)) * m_fSpeed;
+		}
+		else
+		{
+			pos.x += cosf(CamRot.y + (D3DX_PI * 0.5f)) * m_fSpeed;
+			pos.z += sinf(CamRot.y + (D3DX_PI * 0.5f)) * m_fSpeed;
+		}
 
-	//	m_nMoveCnt++;
-	//}
-	////上下移動
-	//else if (pInputKey->GetPress(DIK_RSHIFT) == true)
-	//{
-	//	pos.y += m_fSpeed;
+		m_nMoveCnt++;
+	}
+	else if (pInputKey->GetPress(DIK_UP) == true)
+	{
+		pos.x += -cosf(CamRot.y) * m_fSpeed;
+		pos.z += -sinf(CamRot.y) * m_fSpeed;
 
-	//	m_nMoveCnt++;
-	//}
-	//else if (pInputKey->GetPress(DIK_RCONTROL) == true)
-	//{
-	//	pos.y -= m_fSpeed;
+		m_nMoveCnt++;
+	}
+	else if (pInputKey->GetPress(DIK_DOWN) == true)
+	{
+		pos.x += cosf(CamRot.y) * m_fSpeed;
+		pos.z += sinf(CamRot.y) * m_fSpeed;
 
-	//	m_nMoveCnt++;
-	//}
-	//else
-	//{
-	//	m_nMoveCnt = m_nNumMove - 1;
-	//}
+		m_nMoveCnt++;
+	}
+	//上下移動
+	else if (pInputKey->GetPress(DIK_RSHIFT) == true)
+	{
+		pos.y += m_fSpeed;
 
-	//if (m_nMoveCnt > m_nNumMove)
-	//{
-	//	m_nMoveCnt = 0;
-	//}
-	//else
-	//{
-	//	pos = m_Object.pos;
-	//}
+		m_nMoveCnt++;
+	}
+	else if (pInputKey->GetPress(DIK_RCONTROL) == true)
+	{
+		pos.y -= m_fSpeed;
 
-	////設置
-	//if (pInputKey->GetTrigger(DIK_RETURN) == true)
-	//{
-	//	CObjectX::Create(pos, rot, CManager::GetFileLoad()->GetModelFileName(m_nIdx));
-	//}
+		m_nMoveCnt++;
+	}
+	else
+	{
+		m_nMoveCnt = m_nNumMove - 1;
+	}
 
-	////設置物変更
-	//if (pInputKey->GetTrigger(DIK_LSHIFT) == true)
-	//{
-	//	m_nIdx = (m_nIdx + 1) % CManager::GetFileLoad()->GetModelNumAll();
-	//	m_Object.nIdxModel = CManager::GetModelFile()->Regist(CManager::GetFileLoad()->GetModelFileName(m_nIdx));
-	//}
-	//else if (pInputKey->GetTrigger(DIK_LCONTROL) == true)
-	//{
-	//	m_nIdx = (m_nIdx - 1 + CManager::GetFileLoad()->GetModelNumAll()) % CManager::GetFileLoad()->GetModelNumAll();
-	//	m_Object.nIdxModel = CManager::GetModelFile()->Regist(CManager::GetFileLoad()->GetModelFileName(m_nIdx));
-	//}
+	if (m_nMoveCnt > m_nNumMove)
+	{
+		m_nMoveCnt = 0;
+	}
+	else
+	{
+		pos = m_Object.pos;
+	}
 
-	////回転
-	//if (pInputKey->GetTrigger(DIK_P) == true)
-	//{
-	//	rot.y += D3DX_PI * 0.5f;
-	//}
-	//else if (pInputKey->GetTrigger(DIK_L) == true)
-	//{
-	//	rot.y -= -D3DX_PI * 0.5f;
-	//}
+	//設置
+	if (pInputKey->GetTrigger(DIK_RETURN) == true)
+	{
+		CObjectX::Create(pos, rot, CManager::GetScene()->GetFileLoad()->GetModelFileName(m_nIdx));
+	}
 
-	//if (rot.y < -D3DX_PI)
-	//{// x座標角度限界
-	//	rot.y += D3DX_PI * 2;
-	//}
-	//else if (rot.y > D3DX_PI)
-	//{// x座標角度限界
-	//	rot.y += -D3DX_PI * 2;
-	//}
+	//設置物変更
+	if (pInputKey->GetTrigger(DIK_LSHIFT) == true)
+	{
+		m_nIdx = (m_nIdx + 1) % CManager::GetScene()->GetFileLoad()->GetModelNumAll();
+		m_Object.nIdxModel = CManager::GetModelFile()->Regist(CManager::GetScene()->GetFileLoad()->GetModelFileName(m_nIdx));
+	}
+	else if (pInputKey->GetTrigger(DIK_LCONTROL) == true)
+	{
+		m_nIdx = (m_nIdx - 1 + CManager::GetScene()->GetFileLoad()->GetModelNumAll()) % CManager::GetScene()->GetFileLoad()->GetModelNumAll();
+		m_Object.nIdxModel = CManager::GetModelFile()->Regist(CManager::GetScene()->GetFileLoad()->GetModelFileName(m_nIdx));
+	}
 
-	////保存
-	//if (pInputKey->GetTrigger(DIK_F9) == true)
-	//{//F9キー押されたとき
-	//	Save();
-	//}
+	//回転
+	if (pInputKey->GetTrigger(DIK_P) == true)
+	{
+		rot.y += D3DX_PI * 0.5f;
+	}
+	else if (pInputKey->GetTrigger(DIK_L) == true)
+	{
+		rot.y -= -D3DX_PI * 0.5f;
+	}
 
-	////移動量変更
-	//if (pInputKey->GetPress(DIK_0) == true)
-	//{
-	//	m_fSpeed += 1.0f;
-	//	if (m_fSpeed > MAX_EDITSPEED)
-	//	{
-	//		m_fSpeed = MAX_EDITSPEED;
-	//	}
-	//}
-	//else if (pInputKey->GetPress(DIK_9) == true)
-	//{
-	//	m_fSpeed -= 1.0f;
-	//	if (m_fSpeed < MIN_EDITSPEED)
-	//	{
-	//		m_fSpeed = MIN_EDITSPEED;
-	//	}
-	//}
+	if (rot.y < -D3DX_PI)
+	{// x座標角度限界
+		rot.y += D3DX_PI * 2;
+	}
+	else if (rot.y > D3DX_PI)
+	{// x座標角度限界
+		rot.y += -D3DX_PI * 2;
+	}
 
-	//// 操作方法変更
-	//if (pInputKey->GetTrigger(DIK_F4) == true)
-	//{
-	//	m_nType ^= 1;
+	//保存
+	if (pInputKey->GetTrigger(DIK_F9) == true)
+	{//F9キー押されたとき
+		Save();
+	}
 
-	//	switch (m_nType)
-	//	{
-	//	case TYPE_NONE:
-	//		m_nNumMove = 1;
+	//移動量変更
+	if (pInputKey->GetPress(DIK_0) == true)
+	{
+		m_fSpeed += 1.0f;
+		if (m_fSpeed > MAX_EDITSPEED)
+		{
+			m_fSpeed = MAX_EDITSPEED;
+		}
+	}
+	else if (pInputKey->GetPress(DIK_9) == true)
+	{
+		m_fSpeed -= 1.0f;
+		if (m_fSpeed < MIN_EDITSPEED)
+		{
+			m_fSpeed = MIN_EDITSPEED;
+		}
+	}
 
-	//		break;
+	// 操作方法変更
+	if (pInputKey->GetTrigger(DIK_F4) == true)
+	{
+		m_nType ^= 1;
 
-	//	case TYPE_REPEAT:
+		switch (m_nType)
+		{
+		case TYPE_NONE:
+			m_nNumMove = 1;
 
-	//		m_nNumMove = 10;
-	//		break;
-	//	}
-	//}
+			break;
 
-	//m_Object.pos = pos;
-	//m_Object.rot = rot;
+		case TYPE_REPEAT:
 
-	//CManager::GetDebugProc()->Print("\n-------------------------------------------------------\n");
-	//CManager::GetDebugProc()->Print("エディット操作方法 ---------------\n");
-	//CManager::GetDebugProc()->Print("配置【ENTER】: 移動 【↑,↓,←,→】: 回転【P, I】: 移動方法変更【F4】\n");
-	//CManager::GetDebugProc()->Print("保存【F9】\n");
-	//CManager::GetDebugProc()->Print("配置物変更【LSHIFT, LCTRL】: 高さ移動【RSHIFT, RCTRL\n移動量変更【9, 0】: 削除範囲変更【7, 8】\n");
-	//CManager::GetDebugProc()->Print("座標【%f, %f, %f】: 向き【%f】 : 移動量【%f】\n", pos.x, pos.y, pos.z, rot.y, m_fSpeed);
+			m_nNumMove = 10;
+			break;
+		}
+	}
+
+	// 座標確認
+	float fHeight = CMeshField::GetHeight(m_Object.pos);
+
+	if (fHeight > m_Object.pos.y)
+	{
+		m_Object.pos.y = fHeight;
+	}
+
+	m_Object.pos = pos;
+	m_Object.rot = rot;
+
+	CManager::GetDebugProc()->Print("\n-------------------------------------------------------\n");
+	CManager::GetDebugProc()->Print("エディット操作方法 ---------------\n");
+	CManager::GetDebugProc()->Print("配置【ENTER】: 移動 【↑,↓,←,→】: 回転【P, I】: 移動方法変更【F4】\n");
+	CManager::GetDebugProc()->Print("保存【F9】\n");
+	CManager::GetDebugProc()->Print("配置物変更【LSHIFT, LCTRL】: 高さ移動【RSHIFT, RCTRL\n移動量変更【9, 0】: 削除範囲変更【7, 8】\n");
+	CManager::GetDebugProc()->Print("座標【%f, %f, %f】: 向き【%f】 : 移動量【%f】\n", pos.x, pos.y, pos.z, rot.y, m_fSpeed);
 
 }
 
@@ -321,7 +348,7 @@ void CEditor::Draw(void)
 
 	if (pFileData != NULL)
 	{// モデルが使用されている場合
-	 //ワールドマトリックスの初期化
+		//ワールドマトリックスの初期化
 		D3DXMatrixIdentity(&m_Object.mtxWorld);
 
 		//向きを反映

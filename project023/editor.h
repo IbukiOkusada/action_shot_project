@@ -43,7 +43,8 @@ public:	// 誰でもアクセス可能
 	void Update(void);
 	void Draw(void);
 	void Save(void);
-	bool GetUse(void) { return m_bUse; }
+	bool GetActive(void) { return m_bUse; }
+	bool GetMeshActive(void) { return m_bMesh; }
 
 private:	// 自分だけがアクセス可能
 	

@@ -91,7 +91,7 @@ FIELDSET
 	ROT = 0 0 0
 	BLOCK = 54 54
 	SIZE = 33.35 35
-	UPDOWN = data\\TXT\\mesh.txt
+	UPDOWN = data\\TXT\\sand.txt
 END_FIELDSET
 
 FIELDSET
@@ -116,6 +116,7 @@ FIELDSET
 	ROT = 0 0 0
 	BLOCK = 20 27
 	SIZE = 80 70
+	UPDOWN = data\\TXT\\mesh.txt
 END_FIELDSET
 
 FIELDSET
