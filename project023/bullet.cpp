@@ -265,7 +265,7 @@ void CBullet::Controller(void)
 	D3DXVECTOR3 pos = GetPosition();	// À•W‚ðŽæ“¾
 	CMeshField *pMesh = CGame::GetMeshField();
 	D3DXVECTOR3 nor = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	float fHeight = CGame::GetMeshField()->GetHeight(GetPosition(), nor);
+	float fHeight = CMeshField::GetHeight(GetPosition());
 
 	if (m_nType == TYPE_GRAVITY)
 	{

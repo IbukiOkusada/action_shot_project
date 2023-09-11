@@ -1,8 +1,8 @@
-﻿  game.cpp
+﻿  meshcylinder.cpp
   コード生成しています。
-  2 of 824 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
+  3 of 828 functions ( 0.4%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    6 functions had inline decision re-evaluated but remain unchanged
+    2 functions had inline decision re-evaluated but remain unchanged
   コード生成が終了しました。
   project013.vcxproj -> C:\Users\student\Documents\Visual Studio 2015\Projects\C++DirectX\action_shot\project023\project013.exe
   project013.vcxproj -> C:\Users\student\Documents\Visual Studio 2015\Projects\C++DirectX\action_shot\project023\project013.pdb (Full PDB)

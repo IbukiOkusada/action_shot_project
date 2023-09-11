@@ -113,7 +113,7 @@ void CEffect::Update(void)
 	m_Info.fLife -= CManager::GetSlow()->Get();
 	CMeshField *pMesh = CGame::GetMeshField();
 	D3DXVECTOR3 nor = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	float fHeight = CGame::GetMeshField()->GetHeight(GetPosition(), nor);
+	float fHeight = CMeshField::GetHeight(GetPosition());
 
 	if (m_Info.fLife < 0)
 	{// Žõ–½‚ª‚È‚­‚È‚Á‚½ê‡

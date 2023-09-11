@@ -656,25 +656,25 @@ void CPlayer::Controller(void)
 	}
 
 	//êŠO”»’è
-	if (pos.x > 3980.0f)
+	if (pos.x > 3800.0f)
 	{
-		pos.x = 3980.0f;
+		pos.x = 3800.0f;
 		m_Info.move.x = 0.0f;
 	}
-	else if (pos.x < -3440.0f)
+	else if (pos.x < -4300.0f)
 	{
-		pos.x = -3440.0f;
+		pos.x = -4300.0f;
 		m_Info.move.x = 0.0f;
 	}
 
-	if (pos.z > 3600.0f)
+	if (pos.z > 3800.0f)
 	{
-		pos.z = 3600.0f;
+		pos.z = 3800.0f;
 		m_Info.move.z = 0.0f;
 	}
-	else if (pos.z < -3600.0f)
+	else if (pos.z < -3800.0f)
 	{
-		pos.z = -3600.0f;
+		pos.z = -3800.0f;
 		m_Info.move.z = 0.0f;
 	}
 

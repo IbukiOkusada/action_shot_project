@@ -10,7 +10,7 @@
 #include "renderer.h"
 
 // マクロ定義
-#define TEXTUREFILE_DATA	"data\\TEXTURE\\sky.jpg"		//テクスチャデータ
+#define TEXTUREFILE_DATA	"data\\TEXTURE\\sky000.jpg"		//テクスチャデータ
 
 //==========================================================
 // コンストラクタ
@@ -50,7 +50,10 @@ void CMeshDome::Uninit(void)
 //==========================================================
 void CMeshDome::Update(void)
 {
+	D3DXVECTOR3 rot = GetRotation();
+	rot.y += 0.001f;
 
+	SetRotation(rot);
 }
 
 //==========================================================

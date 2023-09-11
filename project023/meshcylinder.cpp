@@ -16,7 +16,7 @@
 //==========================================================
 // コンストラクタ
 //==========================================================
-CMeshCylinder::CMeshCylinder() : CObjectMesh(5)
+CMeshCylinder::CMeshCylinder() : CObjectMesh(3)
 {
 
 }

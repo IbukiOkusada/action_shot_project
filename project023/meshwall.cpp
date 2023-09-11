@@ -75,7 +75,7 @@ void CMeshWall::SetVtxInfo(void)
 	{
 		//í∏ì_ç¿ïW
 		m_pVtx[nCntpVtx].pos.x = -(m_fWidth * nNumWidth) + (nCntpVtx % (nNumWidth + 1) * (m_fWidth * 2));
-		m_pVtx[nCntpVtx].pos.y = ((m_fHeight * 2) * nNumHeight) + ((nCntpVtx / (nNumHeight + 1) * (-m_fHeight * 2)));
+		m_pVtx[nCntpVtx].pos.y = ((m_fHeight * 2) * nNumHeight) + ((nCntpVtx / (nNumWidth + 1) * (-m_fHeight * 2)));
 		m_pVtx[nCntpVtx].pos.z = 0.0f;
 
 		//ñ@ê¸

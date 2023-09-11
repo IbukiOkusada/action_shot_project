@@ -101,7 +101,7 @@ void CScore::Update(void)
 	if (nNum <= 0)
 	{
 		Set(nNum);
-		CManager::GetFade()->Set(CScene::MODE_RESULT);
+		//CManager::GetFade()->Set(CScene::MODE_RESULT);
 	}
 	else
 	{

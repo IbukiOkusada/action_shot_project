@@ -105,8 +105,11 @@ void CEnemyManager::Spawn(int nSetNum)
 			}
 		}
 
-		SetPos = pArea->GetPosition();
-		pArea->SetHot(true);
+		if (pArea != NULL)
+		{
+			SetPos = pArea->GetPosition();
+			pArea->SetHot(true);
+		}
 	}
 
 	// “G‚Ì”z’u

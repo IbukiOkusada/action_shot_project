@@ -411,47 +411,56 @@ void CEditor::Save(void)
 		"#モデル情報\n"
 		"#----------------------------------------------\n\n");
 
-	//for (int nCntPri = 0; nCntPri < NUM_PRIORITY - 2; nCntPri++)
-	//{
-	//	for (int nCntObj = 0; nCntObj < MAX_OBJECT; nCntObj++)
-	//	{
-	//		CObject *pObj = CObject::GetObjectA(nCntPri, nCntObj);
-	//		if (pObj == NULL)
-	//		{//使用されている場合
-	//			continue;
-	//		}
+	for (int nCntPri = 0; nCntPri < NUM_PRIORITY - 2; nCntPri++)
+	{
+		CObject *pObj = CObject::GetTop(nCntPri);
 
-	//		if (pObj->GetType() != CObject::TYPE_MODEL)
-	//		{// モデル以外
-	//			continue;
-	//		}
+		while (pObj != NULL)
+		{
+			CObject *pObjNext = pObj->GetNext();
 
-	//		int nType = pObj->GetModelType();
+			if (pObj == NULL)
+			{//使用されている場合
+				pObj = pObjNext;
+				continue;
+			}
 
-	//		if (nType == -1)
-	//		{
-	//			continue;
-	//		}
+			if (pObj->GetType() != CObject::TYPE_MODEL)
+			{// モデル以外
+				pObj = pObjNext;
+				continue;
+			}
 
-	//		// ファイル読み込みモデルの番号取得
-	//		char *pChar = CManager::GetModelFile()->GetFileName(nType);
-	//		nType = CManager::GetFileLoad()->GetModelNum(pChar);
+			int nType = pObj->GetModelType();
 
-	//		if (nType == -1)
-	//		{
-	//			continue;
-	//		}
+			if (nType == -1)
+			{
+				pObj = pObjNext;
+				continue;
+			}
 
-	//		ROT = D3DXVECTOR3(pObj->GetRotation().x / D3DX_PI * 180, pObj->GetRotation().y / D3DX_PI * 180, pObj->GetRotation().z / D3DX_PI * 180);
+			// ファイル読み込みモデルの番号取得
+			char *pChar = CManager::GetModelFile()->GetFileName(nType);
+			nType = CManager::GetScene()->GetFileLoad()->GetModelNum(pChar);
 
-	//		fprintf(pFile, "MODELSET\n");
-	//		fprintf(pFile, "	TYPE = %d\n", nType);
-	//		fprintf(pFile, "	POS = %.1f %.1f %.1f\n", pObj->GetPosition().x, pObj->GetPosition().y, pObj->GetPosition().z);
-	//		fprintf(pFile, "	ROT = %.1f %.1f %.1f\n", ROT.x, ROT.y, ROT.z);
-	//		fprintf(pFile, "	SHADOW = 1		#使用しない場合は0\n");
-	//		fprintf(pFile, "END_MODELSET\n\n");
-	//	}
-	//}
+			if (nType == -1)
+			{
+				pObj = pObjNext;
+				continue;
+			}
+
+			ROT = D3DXVECTOR3(pObj->GetRotation().x / D3DX_PI * 180, pObj->GetRotation().y / D3DX_PI * 180, pObj->GetRotation().z / D3DX_PI * 180);
+
+			fprintf(pFile, "MODELSET\n");
+			fprintf(pFile, "	TYPE = %d\n", nType);
+			fprintf(pFile, "	POS = %.1f %.1f %.1f\n", pObj->GetPosition().x, pObj->GetPosition().y, pObj->GetPosition().z);
+			fprintf(pFile, "	ROT = %.1f %.1f %.1f\n", ROT.x, ROT.y, ROT.z);
+			fprintf(pFile, "	SHADOW = 1		#使用しない場合は0\n");
+			fprintf(pFile, "END_MODELSET\n\n");
+
+			pObj = pObjNext;
+		}
+	}
 
 	//ファイルを閉じる
 	fclose(pFile);

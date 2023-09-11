@@ -34,10 +34,10 @@
 //===============================================
 // マクロ定義
 //===============================================
-#define START_TIME	(150)	// 制限時間
+#define START_TIME	(90)	// 制限時間
 #define START_SCORE	(0)		// 開始スコア
 #define MAP_SIZE	(100.0f)	// マップサイズ
-#define STARTSET_NUMENEMY	(2)	// 開始時に配置する敵の数
+#define STARTSET_NUMENEMY	(30)	// 開始時に配置する敵の数
 
 //===============================================
 // 静的メンバ変数
@@ -104,8 +104,6 @@ HRESULT CGame::Init(void)
 	CMeshCylinder::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 17000.0f, 100.0f, 3, 10, 10);
 	m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 0.0f, 3500.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f),
 		"data\\TXT\\motion_body.txt", "data\\TXT\\motion_leg.txt", 1);
-
-	//CMeshBalloon::Create(D3DXVECTOR3(1000.0f, 100.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 10.0f, 10.0f, 3, 20, 20);
 
 	// スコアの生成
 	m_pScore = CScore::Create(D3DXVECTOR3(400.0f, 50.0f, 0.0f));

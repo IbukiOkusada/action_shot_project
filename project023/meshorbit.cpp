@@ -451,8 +451,8 @@ void CMeshOrbit::SetNone(void)
 
 	pMtxWorld->_11 = 1.0f;
 	pMtxWorld->_13 = 0.0f;
-	//pMtxWorld->_21 = 0.0f;
-	//pMtxWorld->_23 = 0.0f;
+	pMtxWorld->_21 = 0.0f;
+	pMtxWorld->_23 = 0.0f;
 	pMtxWorld->_31 = 0.0f;
 	pMtxWorld->_33 = 1.0f;
 

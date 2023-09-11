@@ -73,6 +73,11 @@ void CObjectX::Draw(void)
 	D3DMATERIAL9 matDef;					//現在のマテリアル保存用
 	D3DXMATERIAL *pMat;						//マテリアルデータへのポインタ
 
+	//アルファテストを有効にする
+	pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
+	pDevice->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATER);
+	pDevice->SetRenderState(D3DRS_ALPHAREF, 10);
+
 	if (pFileData != NULL)
 	{// モデルが使用されている場合
 		//ワールドマトリックスの初期化
@@ -111,6 +116,11 @@ void CObjectX::Draw(void)
 		//保存していたマテリアルを戻す
 		pDevice->SetMaterial(&matDef);
 	}
+
+	//アルファテストを無効にする
+	pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
+	pDevice->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_ALWAYS);
+	pDevice->SetRenderState(D3DRS_ALPHAREF, 255);
 }
 
 //==========================================================

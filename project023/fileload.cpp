@@ -358,7 +358,7 @@ void CFileLoad::LoadMeshWallData(FILE *pFile)
 	}
 
 	//フィールドの配置
-	CMeshWall::Create(pos, rot, fWidth, fHeight, GetTextureFileName(nIdx), nWidth, nHeight);
+	CMeshWall::Create(pos, D3DXToRadian(rot), fWidth, fHeight, GetTextureFileName(nIdx), nWidth, nHeight);
 }
 
 //==========================================================
@@ -429,7 +429,7 @@ void CFileLoad::LoadMeshFieldData(FILE *pFile)
 	}
 
 	//フィールドの配置
-	CMeshField *pMesh = CMeshField::Create(pos, rot, fWidth, fHeight, GetTextureFileName(nIdx), nWidth, nHeight);
+	CMeshField *pMesh = CMeshField::Create(pos, D3DXToRadian(rot), fWidth, fHeight, GetTextureFileName(nIdx), nWidth, nHeight);
 
 	if (CGame::GetMeshField() == NULL && CManager::GetMode() == CScene::MODE_GAME)
 	{
