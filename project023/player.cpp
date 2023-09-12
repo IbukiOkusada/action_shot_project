@@ -680,10 +680,10 @@ void CPlayer::Controller(void)
 
 	// 最低ライン判定
 	m_bJump = true;
-	if (pos.y < 0.0f)
+	if (pos.y < -30.0f)
 	{
 		m_Info.move.y = 0.0f;
-		pos.y = 0.0f;
+		pos.y = -30.0f;
 		m_bJump = false;
 	}
 
@@ -710,7 +710,7 @@ void CPlayer::Controller(void)
 	// 影の座標更新
 	if (pShadow != NULL)
 	{
-		pShadow->SetPosition(D3DXVECTOR3(m_pBody->GetParts(0)->GetMtxWorld()->_41, 0.0f, m_pBody->GetParts(0)->GetMtxWorld()->_43));
+		pShadow->SetPosition(D3DXVECTOR3(m_pBody->GetParts(0)->GetMtxWorld()->_41, fHeight + 0.01f, m_pBody->GetParts(0)->GetMtxWorld()->_43));
 	}
 
 

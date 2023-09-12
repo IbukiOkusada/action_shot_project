@@ -9,7 +9,7 @@ SCRIPT			# この行は絶対消さないこと！
 #------------------------------------------------------------------------------
 # テクスチャ数
 #------------------------------------------------------------------------------
-NUM_TEXTURE = 17
+NUM_TEXTURE = 18
 
 #------------------------------------------------------------------------------
 # テクスチャファイル名
@@ -31,11 +31,12 @@ TEXTURE_FILENAME = data/TEXTURE/block003.jpg			# [13]商店街奥壁
 TEXTURE_FILENAME = data/TEXTURE/field008.jpg			# [14]商店街道路
 TEXTURE_FILENAME = data/TEXTURE/block004.jpg			# [15]商店街道路
 TEXTURE_FILENAME = data/TEXTURE/field009.jpg			# [16]商店街道路
+TEXTURE_FILENAME = data/TEXTURE/field010.jpg			# [17]商店街道路
 
 #------------------------------------------------------------------------------
 # モデル数
 #------------------------------------------------------------------------------
-NUM_MODEL = 24
+NUM_MODEL = 25
 
 #------------------------------------------------------------------------------
 # モデルファイル名
@@ -64,6 +65,7 @@ MODEL_FILENAME = data/MODEL/shop005.x			# [20]ブランコ
 MODEL_FILENAME = data/MODEL/fance002.x			# [21]ブランコ
 MODEL_FILENAME = data/MODEL/fountain000.x		# [22]ブランコ
 MODEL_FILENAME = data/MODEL/flower000.x			# [23]ブランコ
+MODEL_FILENAME = data/MODEL/fance003.x			# [24]ブランコ
 
 #------------------------------------------------------------------------------
 # カメラ情報
@@ -128,15 +130,39 @@ FIELDSET
 	ROT = 0 0 0
 	BLOCK = 100 100
 	SIZE = 13 18
-	UPDOWN = data/TXT/mesh.txt
+	UPDOWN = data/TXT/park.txt
+END_FIELDSET
+
+FIELDSET
+	TEXTYPE = 17
+	POS = -2250.0 0.0 2900.0
+	ROT = 0 0 0
+	BLOCK = 10 20
+	SIZE = 70 72.5
 END_FIELDSET
 
 FIELDSET
 	TEXTYPE = 4
-	POS = -2250.0 0.0 3000.0
+	POS = -2250.0 0.0 3700.0
 	ROT = 0 0 0
-	BLOCK = 10 10
-	SIZE = 80 155
+	BLOCK = 2 10
+	SIZE = 50 155
+END_FIELDSET
+
+FIELDSET
+	TEXTYPE = 4
+	POS = -750.0 0.0 2900.0
+	ROT = 0 0 0
+	BLOCK = 10 1
+	SIZE = 70 50
+END_FIELDSET
+
+FIELDSET
+	TEXTYPE = 4
+	POS = -3750.0 0.0 2900.0
+	ROT = 0 0 0
+	BLOCK = 10 1
+	SIZE = 70 50
 END_FIELDSET
 
 FIELDSET
@@ -185,14 +211,6 @@ FIELDSET
 	ROT = 0 0 0
 	BLOCK = 10 2
 	SIZE = 65 50
-END_FIELDSET
-
-FIELDSET
-	TEXTYPE = 3
-	POS = -1425.0 0.0 1550.0
-	ROT = 0 0 0
-	BLOCK = 10 10
-	SIZE = 65 52.5
 END_FIELDSET
 
 FIELDSET
@@ -449,6 +467,15 @@ FIELDSET
 	ROT = 0 0 0
 	BLOCK = 2 20
 	SIZE = 50 77.5
+END_FIELDSET
+
+FIELDSET
+	TEXTYPE = 3
+	POS = -1425.0 0.0 1550.0
+	ROT = 0 0 0
+	BLOCK = 10 10
+	SIZE = 65 52.5
+	UPDOWN = data/TXT/mesh.txt
 END_FIELDSET
 
 WALLSET
@@ -2075,6 +2102,162 @@ MODELSET
 	TYPE = 11
 	POS = -2618.5 0.0 1832.2
 	ROT = 0.0 -0.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 3
+	POS = -750.0 0.0 2250.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+
+MODELSET
+	TYPE = 24
+	POS = -750.0 0.0 2400.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 3
+	POS = -750.0 0.0 2550.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 24
+	POS = -750.0 0.0 2700.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 1
+	POS = -750.0 0.0 2850.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 24
+	POS = -750.0 0.0 3000.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 2
+	POS = -750.0 0.0 3150.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 24
+	POS = -750.0 0.0 3300.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 1
+	POS = -750.0 0.0 3450.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 24
+	POS = -750.0 0.0 3600.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 3
+	POS = -750.0 0.0 3750.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 3
+	POS = -3750.0 0.0 2250.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+
+MODELSET
+	TYPE = 24
+	POS = -3750.0 0.0 2400.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 3
+	POS = -3750.0 0.0 2550.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 24
+	POS = -3750.0 0.0 2700.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 1
+	POS = -3750.0 0.0 2850.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 24
+	POS = -3750.0 0.0 3000.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 2
+	POS = -3750.0 0.0 3150.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 24
+	POS = -3750.0 0.0 3300.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 1
+	POS = -3750.0 0.0 3450.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 24
+	POS = -3750.0 0.0 3600.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 3
+	POS = -3750.0 0.0 3750.0
+	ROT = 0.0 90.0 0.0
 	SHADOW = 1		#使用しない場合は0
 END_MODELSET
 
