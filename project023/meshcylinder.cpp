@@ -16,7 +16,7 @@
 //==========================================================
 // コンストラクタ
 //==========================================================
-CMeshCylinder::CMeshCylinder() : CObjectMesh(3)
+CMeshCylinder::CMeshCylinder(int nPriority) : CObjectMesh(nPriority)
 {
 
 }
@@ -134,8 +134,8 @@ CMeshCylinder *CMeshCylinder::Create(const D3DXVECTOR3 pos, const D3DXVECTOR3 ro
 	CMeshCylinder *pMeshWall = NULL;	// メッシュフィールドのポインタ
 	CTexture *pTexture = CManager::GetTexture();	// テクスチャへのポインタ
 
-													// メモリの確保
-	pMeshWall = new CMeshCylinder;
+	// メモリの確保
+	pMeshWall = new CMeshCylinder(3);
 
 	if (pMeshWall != NULL)
 	{// 確保できた場合
@@ -181,7 +181,7 @@ void CMeshCylinder::SetSize(float fLength, float fHeight)
 //==========================================================
 // コンストラクタ
 //==========================================================
-CMeshSmake::CMeshSmake()
+CMeshSmake::CMeshSmake(int nPriority) : CMeshCylinder(nPriority)
 {
 	m_col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 	m_tex = D3DXVECTOR2(0.0f, 0.0f);
@@ -290,7 +290,7 @@ CMeshSmake *CMeshSmake::Create(const D3DXVECTOR3 pos, const D3DXVECTOR3 rot,
 	CTexture *pTexture = CManager::GetTexture();	// テクスチャへのポインタ
 
 	// メモリの確保
-	pMeshWall = new CMeshSmake;
+	pMeshWall = new CMeshSmake(5);
 
 	if (pMeshWall != NULL)
 	{// 確保できた場合

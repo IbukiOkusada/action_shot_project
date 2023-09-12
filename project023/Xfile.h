@@ -16,7 +16,7 @@ class CXFile
 {
 private:	// 自分だけがアクセス可能な定数定義
 
-	const static int MAX_FILE = 64;		// モデルファイルの最大数
+	const static int MAX_FILE = 128;		// モデルファイルの最大数
 	const static int MAX_NAME = 256;	// ファイル名文字数
 
 public:	// 誰でもアクセス可能な定義

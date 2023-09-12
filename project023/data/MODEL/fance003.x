@@ -1763,7 +1763,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\Users\\student\\Documents\\Visual Studio 2015\\Projects\\C++DirectX\\action_shot\\project023\\data\\TEXTURE\\fance001.jpg";
+    "data\\TEXTURE\\fance001.jpg";
    }
   }
   Material {
@@ -1772,7 +1772,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.240000;0.240000;0.240000;;
    TextureFilename {
-    "C:\\Users\\student\\Documents\\Visual Studio 2015\\Projects\\C++DirectX\\action_shot\\project023\\data\\TEXTURE\\block005.jpg";
+    "data\\TEXTURE\\block005.jpg";
    }
   }
  }

@@ -17,7 +17,8 @@ class CMeshCylinder : public CObjectMesh
 {
 public:		// 誰でもアクセス可能
 
-	CMeshCylinder();	// コンストラクタ
+	//CMeshCylinder();	// コンストラクタ
+	CMeshCylinder(int nPriority = 2);
 	~CMeshCylinder();	// デストラクタ
 
 	// メンバ関数
@@ -50,7 +51,7 @@ class CMeshSmake : public CMeshCylinder
 {
 public:		// 誰でもアクセス可能
 
-	CMeshSmake();	// コンストラクタ
+	CMeshSmake(int nPriority = 5);	// コンストラクタ
 	~CMeshSmake();	// デストラクタ
 
 	// メンバ関数
