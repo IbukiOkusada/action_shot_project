@@ -12,7 +12,7 @@
 #include "meshfield.h"
 
 // マクロ定義
-#define NEXTWAVECNT	(20)	// 各wave開始カウント
+#define NEXTWAVECNT	(2)	// 各wave開始カウント
 
 //==========================================================
 // コンストラクタ
@@ -36,6 +36,8 @@ CEnemyManager::~CEnemyManager()
 //==========================================================
 HRESULT CEnemyManager::Init(void)
 {
+	CEnemy::Create("data\\TXT\\motion_murabito.txt");
+
 	// 現在の最大人数を覚える
 	m_nMaxEnemy = CObject::GetNumEnemAll();
 
@@ -65,7 +67,7 @@ void CEnemyManager::Update(void)
 	if (pTime->GetAnim() == 0 && pTime->GetNum() % NEXTWAVECNT == 0 && pTime->GetNum() < pTime->GetStartNum() && pTime->GetNum() > 0)
 	{// 次のウェーブ
 		// 出現
-		int NextNumEnemy = (int)(CObject::GetNumEnemAll() * 1.3f);
+		int NextNumEnemy = CObject::GetNumEnemAll() + 6;
 		Spawn(NextNumEnemy);
 	}
 }
@@ -75,53 +77,12 @@ void CEnemyManager::Update(void)
 //==========================================================
 void CEnemyManager::Spawn(int nSetNum)
 {
-	int nSetArea = rand() % NUM_AREA;	// 配置場所をランダムで指定
-	D3DXVECTOR3 SetPos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-
-	// 配置場所を指定されたエリアに設定
-	{
-		int nCnt = 0;
-
-		// 床の描画
-		CMeshField *pMesh = CMeshField::GetTop();	// 先頭を取得
-		CMeshField *pArea = NULL;;
-
-		while (pMesh != NULL)
-		{// 使用されている間繰り返し
-			CMeshField *pMeshNext = pMesh->GetNext();	// 次を保持
-
-			if (nCnt == nSetArea)
-			{// 設置エリア
-				pArea = pMesh;
-			}
-
-			pMesh->SetHot(false);
-			pMesh = pMeshNext;	// 次に移動
-			nCnt++;
-
-			if (nCnt >= NUM_AREA)
-			{
-				break;
-			}
-		}
-
-		if (pArea != NULL)
-		{
-			SetPos = pArea->GetPosition();
-			pArea->SetHot(true);
-		}
-	}
-
 	// 敵の配置
 	while (1)
 	{
 		if (CObject::GetNumEnemAll() < nSetNum)
 		{
-			int nRand = rand() % 201 - 100;
-			float fRot = D3DX_PI * ((float)nRand * 0.01f);
-
-			CEnemy::Create(D3DXVECTOR3(SetPos.x + rand() % 300 - 150, 0.0f, SetPos.z + rand() % 300 - 150), D3DXVECTOR3(0.0f, fRot, 0.0f),
-				D3DXVECTOR3(-sinf(fRot) * 4.0f, 0.0f, -cosf(fRot) * 4.0f), "data\\TXT\\motion_murabito.txt");
+			CEnemy::Create("data\\TXT\\motion_murabito.txt");
 		}
 		else
 		{

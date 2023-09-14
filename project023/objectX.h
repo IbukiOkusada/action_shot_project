@@ -24,10 +24,10 @@ public:	// 誰でもアクセス可能
 	~CObjectX();	// デストラクタ
 
 	// メンバ関数
-	HRESULT Init(void);
-	void Uninit(void);
-	void Update(void);
-	void Draw(void);
+	virtual HRESULT Init(void);
+	virtual void Uninit(void);
+	virtual void Update(void);
+	virtual void Draw(void);
 	void BindFile(int nIdx);
 
 	static CObjectX *Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, const char *pFileName, const int nPriority = 4);

@@ -19,7 +19,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="car.cpp" />
+    <ClCompile Include="car_manager.cpp" />
     <ClCompile Include="enemy_manager.cpp" />
+    <ClCompile Include="enemy_route.cpp" />
     <ClCompile Include="meshballoon.cpp" />
     <ClCompile Include="billboard.cpp" />
     <ClCompile Include="block.cpp" />
@@ -80,7 +83,10 @@
     <ClCompile Include="Xfile.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="car.h" />
+    <ClInclude Include="car_manager.h" />
     <ClInclude Include="enemy_manager.h" />
+    <ClInclude Include="enemy_route.h" />
     <ClInclude Include="meshballoon.h" />
     <ClInclude Include="billboard.h" />
     <ClInclude Include="block.h" />

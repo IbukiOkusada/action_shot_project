@@ -29,6 +29,7 @@ class CTime;
 class CPlayer;
 class CFileLoad;
 class CEditor;
+class CEnemyRoute;
 
 //===============================================
 // シーンクラスの定義
@@ -61,6 +62,7 @@ public:
 	virtual CPlayer *GetPlayer(void) { return NULL; }
 	virtual CFileLoad *GetFileLoad(void) { return NULL; }
 	virtual CEditor *GetEditor(void) { return NULL; }
+	virtual CEnemyRoute *GetEnemyRoute(void) { return NULL; }
 	void SetMode(MODE mode) { m_mode = mode; }
 	MODE GetMode(void) { return m_mode; }
 

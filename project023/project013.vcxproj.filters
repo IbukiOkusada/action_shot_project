@@ -63,6 +63,9 @@
     <ClCompile Include="wet.cpp" />
     <ClCompile Include="billboard.cpp" />
     <ClCompile Include="precompile.cpp" />
+    <ClCompile Include="car.cpp" />
+    <ClCompile Include="car_manager.cpp" />
+    <ClCompile Include="enemy_route.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="billboard.h" />
@@ -122,5 +125,8 @@
     <ClInclude Include="wet.h" />
     <ClInclude Include="Xfile.h" />
     <ClInclude Include="precompile.h" />
+    <ClInclude Include="car.h" />
+    <ClInclude Include="car_manager.h" />
+    <ClInclude Include="enemy_route.h" />
   </ItemGroup>
 </Project>

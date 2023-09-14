@@ -23,6 +23,8 @@ class CMeshField;
 class CPause;
 class CThermo;
 class CEnemyManager;
+class CCarManager;
+class CEnemyRoute;
 
 //===============================================
 // ゲームクラスの定義(派生クラス)
@@ -52,23 +54,27 @@ public:
 	static CPause *GetPause(void);
 	CEditor *GetEditor(void);
 	CMapCamera *GetMapCamera(void) { return m_pMapCamera; }
+	CEnemyRoute *GetEnemyRoute(void) { return m_pEnemyRoute; }
 	void DataReset(void);
 	void EnemySet(void);
+	void CarSet(void);
 
 private:
 
-	CFileLoad *m_pFileLoad;		// ファイル読み込みのポインタ
-	static CScore *m_pScore;			// スコアのポインタ
-	CTime *m_pTime;				// タイムのポインタ
-	CPlayer *m_pPlayer;			// プレイヤーのポインタ
-	static CSlow *m_pSlow;				// スローのポインタ
+	CFileLoad *m_pFileLoad;			// ファイル読み込みのポインタ
+	static CScore *m_pScore;		// スコアのポインタ
+	CTime *m_pTime;					// タイムのポインタ
+	CPlayer *m_pPlayer;				// プレイヤーのポインタ
+	static CSlow *m_pSlow;			// スローのポインタ
 	static CMeshField *m_pMeshField;	// メッシュフィールドのポインタ
-	static CPause *m_pPause;			// ポーズのポインタ
-	CEditor *m_pEditor;			// エディターのポインタ
-	CMapCamera *m_pMapCamera;			// ミニマップ用カメラ
-	CThermo *m_pMapThermo;				// マップ全体の温度表示
-	CEnemyManager *m_pEnemyManager;		// エネミーマネージャーのポインタ
-	int m_nMaxEnemy;					// 現在のエネミー最大数
+	static CPause *m_pPause;		// ポーズのポインタ
+	CEditor *m_pEditor;				// エディターのポインタ
+	CMapCamera *m_pMapCamera;		// ミニマップ用カメラ
+	CThermo *m_pMapThermo;			// マップ全体の温度表示
+	CEnemyManager *m_pEnemyManager;	// エネミーマネージャーのポインタ
+	CCarManager *m_pCarManager;		// カーマネージャーのポインタ
+	CEnemyRoute *m_pEnemyRoute;		// 敵の順路管理のポインタ
+	int m_nMaxEnemy;				// 現在のエネミー最大数
 };
 
 #endif

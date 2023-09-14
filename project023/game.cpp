@@ -30,11 +30,13 @@
 #include "editor.h"
 #include "thermo.h"
 #include "enemy_manager.h"
+#include "car_manager.h"
+#include "enemy_route.h"
 
 //===============================================
 // マクロ定義
 //===============================================
-#define START_TIME	(120)	// 制限時間
+#define START_TIME	(420)	// 制限時間
 #define START_SCORE	(0)		// 開始スコア
 #define MAP_SIZE	(100.0f)	// マップサイズ
 #define STARTSET_NUMENEMY	(30)	// 開始時に配置する敵の数
@@ -52,6 +54,7 @@ CPause *CGame::m_pPause = NULL;		// ポーズのポインタ
 //===============================================
 CGame::CGame()
 {
+	// 値のクリア
 	m_pMapCamera = NULL;
 	m_pMapThermo = NULL;
 	m_nMaxEnemy = 0;
@@ -60,6 +63,7 @@ CGame::CGame()
 	m_pPlayer = NULL;
 	m_pFileLoad = NULL;
 	m_pEditor = NULL;
+	m_pCarManager = NULL;
 }
 
 //===============================================
@@ -102,7 +106,7 @@ HRESULT CGame::Init(void)
 	// オブジェクト生成
 	CMeshDome::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 20000.0f, 10.0f, 3, 10, 10);
 	CMeshCylinder::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 17000.0f, 100.0f, 3, 10, 10);
-	m_pPlayer = CPlayer::Create(D3DXVECTOR3(0.0f, 0.0f, 3500.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f),
+	m_pPlayer = CPlayer::Create(D3DXVECTOR3(-3900.0f, 0.0f, 3700.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f),
 		"data\\TXT\\motion_body.txt", "data\\TXT\\motion_leg.txt", 1);
 
 	// スコアの生成
@@ -159,10 +163,17 @@ HRESULT CGame::Init(void)
 			viewport.MinZ = 0.0f;
 			viewport.MaxZ = 0.1f;
 			m_pMapCamera->Init();
-			m_pMapCamera->SetLength(10000.0f);
+			m_pMapCamera->SetLength(11500.0f);
 			m_pMapCamera->SetRotation(D3DXVECTOR3(0.0f, D3DX_PI * 0.5f, 0.00001f));
 			m_pMapCamera->SetViewPort(viewport);
 		}
+	}
+
+	// 敵順路管理を生成
+	if (m_pEnemyRoute == NULL)
+	{
+		m_pEnemyRoute = new CEnemyRoute;
+		m_pEnemyRoute->Init();
 	}
 
 	// エネミーマネージャーを生成
@@ -170,7 +181,14 @@ HRESULT CGame::Init(void)
 	{
 		m_pEnemyManager = new CEnemyManager;
 		m_pEnemyManager->Init();
-		m_pEnemyManager->Spawn(STARTSET_NUMENEMY);
+		//m_pEnemyManager->Spawn(STARTSET_NUMENEMY);
+	}
+
+	// カーマネージャーを生成
+	if (m_pCarManager == NULL)
+	{
+		m_pCarManager = new CCarManager;
+		m_pCarManager->Init();
 	}
 
 	return S_OK;
@@ -196,6 +214,23 @@ void CGame::Uninit(void)
 		delete m_pEnemyManager;
 		m_pEnemyManager = NULL;
 	}
+
+	// カーマネージャー
+	if (m_pCarManager == NULL)
+	{
+		m_pCarManager->Uninit();
+		delete m_pCarManager;
+		m_pCarManager = NULL;
+	}
+
+	// 敵順路管理
+	if (m_pEnemyRoute == NULL)
+	{
+		m_pEnemyRoute->Uninit();
+		delete m_pEnemyRoute;
+		m_pEnemyRoute = NULL;
+	}
+
 
 	// スコア
 	if (m_pScore != NULL)
@@ -294,7 +329,16 @@ void CGame::Update(void)
 		m_pTime->Update();
 		if (m_pTime->GetNum() <= 0)
 		{// 時間切れ
-			CManager::GetFade()->Set(CScene::MODE_RESULT);
+			m_pTime->Set(START_TIME);
+			//CManager::GetFade()->Set(CScene::MODE_RESULT);
+		}
+		else
+		{
+			// 敵の配置管理
+			EnemySet();
+
+			// 車の配置管理
+			CarSet();
 		}
 	}
 
@@ -325,9 +369,6 @@ void CGame::Update(void)
 
 	// 更新処理
 	CScene::Update();
-
-	// 敵の配置管理
-	EnemySet();
 }
 
 //===============================================
@@ -443,5 +484,16 @@ void CGame::EnemySet(void)
 	if (m_pEnemyManager != NULL)
 	{
 		m_pEnemyManager->Update();
+	}
+}
+
+//===================================================
+// 車の配置
+//===================================================
+void CGame::CarSet(void)
+{
+	if (m_pCarManager != NULL)
+	{
+		m_pCarManager->Update();
 	}
 }

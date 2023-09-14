@@ -38,7 +38,7 @@ public:	// 誰でもアクセス可能
 		TYPE_EFFECT,	// エフェクト
 		TYPE_BLOCK,		// ブロック
 		TYPE_MODEL,		// モデル
-		TYPE_ENEMYSPAWN,	// エネミー生成モデル
+		TYPE_CAR,		// 車　
 		TYPE_PAUSE,		// ポーズ画面
 		TYPE_MAP,		// マップ表示
 		TYPE_MAX

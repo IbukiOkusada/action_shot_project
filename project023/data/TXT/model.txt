@@ -36,7 +36,7 @@ TEXTURE_FILENAME = data/TEXTURE/field010.jpg			# [17]商店街道路
 #------------------------------------------------------------------------------
 # モデル数
 #------------------------------------------------------------------------------
-NUM_MODEL = 33
+NUM_MODEL = 34
 
 #------------------------------------------------------------------------------
 # モデルファイル名
@@ -73,7 +73,8 @@ MODEL_FILENAME = data/MODEL/seesaw000.x			# [28]ブランコ
 MODEL_FILENAME = data/MODEL/slide.x				# [29]ブランコ
 MODEL_FILENAME = data/MODEL/fance005.x			# [30]ブランコ
 MODEL_FILENAME = data/MODEL/bench000.x			# [31]ブランコ
-MODEL_FILENAME = data/MODEL/streetlamp.x			# [32]ブランコ
+MODEL_FILENAME = data/MODEL/streetlamp.x		# [32]ブランコ
+MODEL_FILENAME = data/MODEL/shrubbery000.x		# [32]ブランコ
 
 #------------------------------------------------------------------------------
 # カメラ情報
@@ -3250,6 +3251,174 @@ MODELSET
 	TYPE = 19
 	POS = 875 0.0 -615.0
 	ROT = 0.0 180.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 33
+	POS = 2300.0 0.0 -1200.0
+	ROT = 0.0 0.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 33
+	POS = 2300.0 0.0 -2600.0
+	ROT = 0.0 180.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 33
+	POS = 2300.0 0.0 -3300.0
+	ROT = 0.0 0.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 27
+	POS = 2150 0.0 -950.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 27
+	POS = 2150 0.0 -1150.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 27
+	POS = 2150.0 0.0 -1350.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 27
+	POS = 2450 0.0 -950.0
+	ROT = 0.0 -90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 27
+	POS = 2450 0.0 -1150.0
+	ROT = 0.0 -90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 27
+	POS = 2450.0 0.0 -1350.0
+	ROT = 0.0 -90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 27
+	POS = 2150 0.0 -2350.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 27
+	POS = 2150 0.0 -2550.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 27
+	POS = 2150.0 0.0 -2750.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 27
+	POS = 2450 0.0 -2350.0
+	ROT = 0.0 -90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 27
+	POS = 2450 0.0 -2550.0
+	ROT = 0.0 -90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 27
+	POS = 2450.0 0.0 -2750.0
+	ROT = 0.0 -90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 27
+	POS = 2150 0.0 -3100.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 27
+	POS = 2150 0.0 -3300.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 27
+	POS = 2150.0 0.0 -3500.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 27
+	POS = 2450 0.0 -3100.0
+	ROT = 0.0 -90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 27
+	POS = 2450 0.0 -3300.0
+	ROT = 0.0 -90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 27
+	POS = 2450.0 0.0 -3500.0
+	ROT = 0.0 -90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 32
+	POS = 2300.0 0.0 -2950.0
+	ROT = 0.0 -90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 32
+	POS = 2300.0 0.0 -2250.0
+	ROT = 0.0 90.0 0.0
+	SHADOW = 1		#使用しない場合は0
+END_MODELSET
+
+MODELSET
+	TYPE = 32
+	POS = 2300.0 0.0 -1550.0
+	ROT = 0.0 90.0 0.0
 	SHADOW = 1		#使用しない場合は0
 END_MODELSET
 

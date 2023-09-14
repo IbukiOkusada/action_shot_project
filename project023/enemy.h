@@ -9,6 +9,10 @@
 
 #include "main.h"
 #include "object.h"
+#include "enemy_route.h"
+
+// マクロ定義
+#define NUM_ROUTE	(27+14 )
 
 // 前方宣言
 class CCharacter;
@@ -69,6 +73,7 @@ public:	// 誰でもアクセス可能
 	void Draw(void);
 	static CEnemy *Create(const D3DXVECTOR3 pos, const D3DXVECTOR3 rot, const D3DXVECTOR3 move,
 		const char *pBodyName, const int nPriority = 4);
+	static CEnemy *Create(const char *pBodyName, const int nPriority = 4);
 	void Hit(float fDamage);
 	void SetState(void);
 	STATE GetState(void) { return m_state; }
@@ -101,9 +106,9 @@ private:	// 自分だけがアクセス可能
 	void SetThermo(void);
 
 	// メンバ変数
+	static const char *m_apFileName[NUM_ROUTE];
 	static const int m_aParticleCounter[STATE_MAX];
 	CCharacter *m_pBody;	// 上半身
-	float m_fMoveCnt;		// 移動カウント
 	float m_fStateCnt;		// 状態管理カウント
 	INFO m_Info;			// 自分自身の情報
 	bool m_bMove;			// 移動したかどうか
@@ -116,6 +121,8 @@ private:	// 自分だけがアクセス可能
 	STATE m_state;			// 状態管理
 	CObject *m_pLockOn;		// ロックオン
 	CThermo *m_pThermo;		// 温度表示
+	CEnemyRoute::Route *m_pRoute;	// 順路のポインタ
+	int m_nTargetPoint;		// 目標の地点
 };
 
 #endif

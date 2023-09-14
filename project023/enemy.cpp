@@ -41,6 +41,51 @@
 #define LEAVEMOVE		(3.0f)	// 退場時の移動量
 #define COOLDOWNCNT		(160)	// 退場前待機カウント
 
+const char *CEnemy::m_apFileName[NUM_ROUTE]
+{
+	"data\\TXT\\enemy\\walk\\route000.txt",
+	"data\\TXT\\enemy\\walk\\route001.txt",
+	"data\\TXT\\enemy\\walk\\route002.txt",
+	"data\\TXT\\enemy\\walk\\route003.txt",
+	"data\\TXT\\enemy\\walk\\route004.txt",
+	"data\\TXT\\enemy\\walk\\route005.txt",
+	"data\\TXT\\enemy\\walk\\route006.txt",
+	"data\\TXT\\enemy\\walk\\route007.txt",
+	"data\\TXT\\enemy\\walk\\route008.txt",
+	"data\\TXT\\enemy\\walk\\route009.txt",
+	"data\\TXT\\enemy\\walk\\route010.txt",
+	"data\\TXT\\enemy\\walk\\route011.txt",
+	"data\\TXT\\enemy\\walk\\route012.txt",
+	"data\\TXT\\enemy\\walk\\route013.txt",
+	"data\\TXT\\enemy\\walk\\route014.txt",
+	"data\\TXT\\enemy\\walk\\route015.txt",
+	"data\\TXT\\enemy\\walk\\route016.txt",
+	"data\\TXT\\enemy\\walk\\route017.txt",
+	"data\\TXT\\enemy\\walk\\route018.txt",
+	"data\\TXT\\enemy\\walk\\route019.txt",
+	"data\\TXT\\enemy\\walk\\route020.txt",
+	"data\\TXT\\enemy\\walk\\route021.txt",
+	"data\\TXT\\enemy\\walk\\route022.txt",
+	"data\\TXT\\enemy\\walk\\route023.txt",
+	"data\\TXT\\enemy\\walk\\route024.txt",
+	"data\\TXT\\enemy\\walk\\route025.txt",
+	"data\\TXT\\enemy\\walk\\route026.txt",
+	"data\\TXT\\enemy\\park\\route000.txt",
+	"data\\TXT\\enemy\\park\\route001.txt",
+	"data\\TXT\\enemy\\park\\route002.txt",
+	"data\\TXT\\enemy\\park\\route003.txt",
+	"data\\TXT\\enemy\\park\\route004.txt",
+	"data\\TXT\\enemy\\park\\route005.txt",
+	"data\\TXT\\enemy\\park\\route006.txt",
+	"data\\TXT\\enemy\\park\\route007.txt",
+	"data\\TXT\\enemy\\park\\route008.txt",
+	"data\\TXT\\enemy\\park\\route009.txt",
+	"data\\TXT\\enemy\\park\\route010.txt",
+	"data\\TXT\\enemy\\park\\route011.txt",
+	"data\\TXT\\enemy\\park\\route012.txt",
+	"data\\TXT\\enemy\\park\\route013.txt",
+};
+
 //===============================================
 // 静的メンバ変数宣言
 //===============================================
@@ -75,6 +120,8 @@ CEnemy::CEnemy(int nPriOrity)
 	m_Interval.fDamage = 0;
 	m_pLockOn = NULL;
 	m_pThermo = NULL;
+	m_pRoute = NULL;
+	m_nTargetPoint = 0;
 }
 
 //===============================================
@@ -90,7 +137,6 @@ CEnemy::~CEnemy()
 //===============================================
 HRESULT CEnemy::Init(void)
 {
-	
 	return S_OK;
 }
 
@@ -114,14 +160,12 @@ HRESULT CEnemy::Init(const char *pName)
 		}
 	}
 
-	m_fMoveCnt = (float)(rand() % 1000);
 	m_fLife = (float)(rand() % STATE_LINE) + 0.1f;
 
 	// 温度表示の生成
 	if (m_pThermo == NULL)
 	{
 		m_pThermo = CThermo::Create();
-
 	}
 
 	return S_OK;
@@ -232,6 +276,13 @@ void CEnemy::Update(void)
 
 	// 温度表示設定
 	SetThermo();
+
+	if (m_nTargetPoint >= m_pRoute->nNumPoint)
+	{
+		m_state = STATE_DEFCOOL;
+		m_fStateCnt = LEAVECNT;
+		m_nTargetPoint = 0;
+	}
 }
 
 
@@ -311,29 +362,114 @@ CEnemy *CEnemy::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 move, const
 }
 
 //===============================================
+// 生成
+//===============================================
+CEnemy *CEnemy::Create(const char *pBodyName, const int nPriority)
+{
+	CEnemy *pEnemy = NULL;
+	CXFile *pModelFile = CManager::GetModelFile();
+
+	// オブジェクト2Dの生成
+	pEnemy = new CEnemy(nPriority);
+
+	if (pEnemy != NULL)
+	{// 生成できた場合
+
+	 // 初期化処理
+		pEnemy->Init(pBodyName);
+
+		// 種類の設定
+		pEnemy->SetType(TYPE_ENEMY);
+
+		// 順路の設定
+		pEnemy->m_pRoute = CManager::GetScene()->GetEnemyRoute()->SetAddress(m_apFileName[rand() % NUM_ROUTE]);
+
+		// 設定
+		pEnemy->SetPosition(pEnemy->m_pRoute->StartPos);
+		pEnemy->SetRotation(pEnemy->m_pRoute->StartRot);
+
+		// 影の設定
+		pEnemy->m_pShadow = CShadow::Create(pEnemy->GetPosition(), 30.0f, 30.0f);
+
+		float fRotDest;	//現在の移動量、目標の移動方向、目標までの差分
+
+		fRotDest = atan2f(pEnemy->m_Info.pos.x - pEnemy->m_pRoute->pPoint[pEnemy->m_nTargetPoint].x,
+			pEnemy->m_Info.pos.z - pEnemy->m_pRoute->pPoint[pEnemy->m_nTargetPoint].z);	//目標への向き
+		pEnemy->m_Info.rot.y = fRotDest;
+
+		D3DXVECTOR3 vec;
+		vec.x = pEnemy->m_pRoute->pPoint[pEnemy->m_nTargetPoint].x - pEnemy->m_Info.pos.x;
+		vec.y = pEnemy->m_pRoute->pPoint[pEnemy->m_nTargetPoint].y - pEnemy->m_Info.pos.y;
+		vec.z = pEnemy->m_pRoute->pPoint[pEnemy->m_nTargetPoint].z - pEnemy->m_Info.pos.z;
+
+		D3DXVec3Normalize(&vec, &vec);	// ベクトルを正規化する
+
+		pEnemy->m_Info.move.x = vec.x * pEnemy->m_pRoute->fMove;
+		pEnemy->m_Info.move.y = vec.y * pEnemy->m_pRoute->fMove;
+		pEnemy->m_Info.move.z = vec.z * pEnemy->m_pRoute->fMove;
+		pEnemy->m_Info.posOld = pEnemy->m_Info.pos;
+	}
+	else
+	{// 生成に失敗した場合
+		return NULL;
+	}
+
+	return pEnemy;
+}
+
+//===============================================
 // 操作処理
 //===============================================
 void CEnemy::Controller(void)
 {
 	// 設定された移動量を加算する
-	if (m_fMoveCnt > 0.0f)
-	{
-		m_fMoveCnt -= CManager::GetSlow()->Get();
+	m_pBody->GetMotion()->BlendSet(1);
 
-		m_Info.pos += m_Info.move * CManager::GetSlow()->Get();
-
-		m_pBody->GetMotion()->BlendSet(1);
-	}
-	else
+	if (m_pRoute != NULL)
 	{
-		m_pBody->GetMotion()->BlendSet(0);
+		m_Info.pos += m_Info.move;
+
+		if ((m_Info.posOld.x >= m_pRoute->pPoint[m_nTargetPoint].x && m_Info.pos.x < m_pRoute->pPoint[m_nTargetPoint].x) ||
+			(m_Info.pos.x > m_pRoute->pPoint[m_nTargetPoint].x && m_Info.posOld.x <= m_pRoute->pPoint[m_nTargetPoint].x) ||
+			(m_Info.posOld.z >= m_pRoute->pPoint[m_nTargetPoint].z && m_Info.pos.z < m_pRoute->pPoint[m_nTargetPoint].z) ||
+			(m_Info.pos.z > m_pRoute->pPoint[m_nTargetPoint].z && m_Info.posOld.z <= m_pRoute->pPoint[m_nTargetPoint].z))
+		{
+			m_Info.pos = m_pRoute->pPoint[m_nTargetPoint];
+			m_nTargetPoint++;
+
+			if (m_nTargetPoint < m_pRoute->nNumPoint && m_state != STATE_DEFCOOL)
+			{
+				float fRotDest;	//現在の移動量、目標の移動方向、目標までの差分
+
+				fRotDest = atan2f(m_Info.pos.x - m_pRoute->pPoint[m_nTargetPoint].x,
+					m_Info.pos.z - m_pRoute->pPoint[m_nTargetPoint].z);	//目標への向き
+				m_Info.rot.y = fRotDest;
+
+				D3DXVECTOR3 vec;
+				vec.x = m_pRoute->pPoint[m_nTargetPoint].x - m_Info.pos.x;
+				vec.y = m_pRoute->pPoint[m_nTargetPoint].y - m_Info.pos.y;
+				vec.z = m_pRoute->pPoint[m_nTargetPoint].z - m_Info.pos.z;
+
+				D3DXVec3Normalize(&vec, &vec);	// ベクトルを正規化する
+
+				m_Info.move.x = vec.x * m_pRoute->fMove;
+				m_Info.move.y = vec.y * m_pRoute->fMove;
+				m_Info.move.z = vec.z * m_pRoute->fMove;
+				m_Info.posOld = m_Info.pos;
+			}
+		}
 	}
 
 	D3DXVECTOR3 nor;
 	float fHeight = CMeshField::GetHeight(m_Info.pos);
-	m_Info.pos.y = fHeight;
 
+	if (m_Info.move.y == 0.0f)
+	{
+		m_Info.pos.y = fHeight;
+	}
 
+	SetPosition(m_Info.pos);
+	SetRotation(m_Info.rot);
 	SetCol();
 }
 
@@ -371,7 +507,6 @@ void CEnemy::SetState(void)
 	{// 0以下
 		m_state = STATE_COOLDOWN;
 		m_fStateCnt = COOLDOWNCNT;
-		m_fMoveCnt = 0.0f;
 
 		CParticle::Create(D3DXVECTOR3(GetMtx()->_41,
 			GetMtx()->_42,
@@ -431,7 +566,7 @@ void CEnemy::SetParticle(void)
 		return;
 	}
 
-	switch (m_state)
+	/*switch (m_state)
 	{
 	case STATE_NORMAL:
 		CParticle::Create(D3DXVECTOR3(m_pBody->GetParts(3)->GetMtxWorld()->_41,
@@ -461,7 +596,7 @@ void CEnemy::SetParticle(void)
 			m_pBody->GetParts(3)->GetMtxWorld()->_42 + 12.0f,
 			m_pBody->GetParts(3)->GetMtxWorld()->_43),
 			CEffect::TYPE_HEATHAZE);
-	}
+	}*/
 }
 
 //===============================================
@@ -516,12 +651,6 @@ void CEnemy::UpdateNormal(void)
 	if (m_fStateCnt < STATE_CNT)
 	{
 		m_fStateCnt += CManager::GetSlow()->Get();
-
-		if (GetPosition().x > 2900.0f || GetPosition().x < -2900.0f ||
-			GetPosition().z > 2900.0f || GetPosition().z < -2900.0f)
-		{
-			m_fMoveCnt = 0;
-		}
 	}
 
 	// 体温設定
@@ -544,12 +673,6 @@ void CEnemy::UpdateCool(void)
 {
 	m_fStateCnt -= CManager::GetSlow()->Get();
 
-	if (GetPosition().x > 2900.0f || GetPosition().x < -2900.0f ||
-		GetPosition().z > 2900.0f || GetPosition().z < -2900.0f)
-	{
-		m_fMoveCnt = 0;
-	}
-
 	if (m_fStateCnt <= 0.0f)
 	{// 遷移タイマー規定値
 		Uninit();
@@ -570,22 +693,11 @@ void CEnemy::UpdateCoolDown(void)
 	{
 		m_state = STATE_NORMAL;
 		m_fStateCnt = LEAVECNT;
-		m_fMoveCnt = LEAVECNT;
 		m_fLife = 0.1f;
 
 		if (pPlayer != NULL)
 		{
 			pPlayer->AddSlowTime();
-
-			// 向きを変更する
-			D3DXVECTOR3 rot = GetRotation();
-			rot.y = (float)(rand() % 628 - 314) * 0.01f;
-
-			// 向きに合わせた移動量に変更
-			m_Info.move.x = -sinf(rot.y) * LEAVEMOVE;
-			m_Info.move.z = -cosf(rot.y) * LEAVEMOVE;
-
-			SetRotation(rot);
 		}
 	}
 }
@@ -621,12 +733,6 @@ void CEnemy::UpdateDown(void)
 {
 	m_fStateCnt -= CManager::GetSlow()->Get();
 
-	if (GetPosition().x > 2900.0f || GetPosition().x < -2900.0f ||
-		GetPosition().z > 2900.0f || GetPosition().z < -2900.0f)
-	{
-		m_fMoveCnt = 0;
-	}
-
 	if (m_fStateCnt <= 0.0f)
 	{// 遷移タイマー規定値
 		Uninit();
@@ -638,6 +744,7 @@ void CEnemy::UpdateDown(void)
 //===============================================
 void CEnemy::SetBodyTemp(void)
 {
+	return;
 	// ダメージインターバル
 	if (m_Interval.fDamage > 0)
 	{
