@@ -30,6 +30,8 @@ CTitle::CTitle()
 	m_nTimer = 0;
 	m_pFileLoad = NULL;
 	m_bClick = false;
+	m_fMoveCol = 0.01f;
+	m_col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 //===============================================
@@ -47,8 +49,13 @@ HRESULT CTitle::Init(void)
 {
 	CObject2D *p = CObject2D::Create(7);
 	p->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\title_logo.png"));
-	p->SetPosition(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.3f, 0.0f));
-	p->SetSize(SCREEN_WIDTH * 0.35f, SCREEN_HEIGHT * 0.3f);
+	p->SetPosition(D3DXVECTOR3(SCREEN_WIDTH * 0.525f, SCREEN_HEIGHT * 0.3f, 0.0f));
+	p->SetSize(SCREEN_WIDTH * 0.45f, SCREEN_HEIGHT * 0.4f);
+
+	m_pEnter = CObject2D::Create(7);
+	m_pEnter->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\title_enter.png"));
+	m_pEnter->SetPosition(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.8f, 0.0f));
+	m_pEnter->SetSize(SCREEN_WIDTH * 0.2f, SCREEN_HEIGHT * 0.1f);
 
 	// オブジェクト生成
 	CMeshDome::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 20000.0f, 10.0f, 3, 10, 10);
@@ -101,12 +108,11 @@ void CTitle::Update(void)
 
 		if (m_bClick == false)
 		{
+			m_col.a = 1.0f;
 			m_bClick = true;
 			CManager::GetSound()->Play(CSound::LABEL_SE_CLICK);
 		}
 	}
-
-	CScene::Update();
 
 	if (CManager::GetFade()->GetState() == CFade::STATE_NONE)
 	{
@@ -117,6 +123,31 @@ void CTitle::Update(void)
 			CManager::GetFade()->Set(CScene::MODE_RANKING);
 		}
 	}
+
+	if (m_bClick == false)
+	{
+		m_col.a -= m_fMoveCol;
+
+		if (m_col.a > 1.0f || m_col.a < 0.0f)
+		{
+			m_fMoveCol *= -1.0f;
+		}
+	}
+	else
+	{
+		m_fMoveCol += 1.0f;
+
+		if (m_fMoveCol > 2)
+		{
+			m_fMoveCol = 0.0f;
+
+			m_col.a = (float)((int)m_col.a ^ 1);
+		}
+	}
+
+	m_pEnter->SetCol(m_col);
+
+	CScene::Update();
 }
 
 //===============================================

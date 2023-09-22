@@ -93,13 +93,13 @@ HRESULT CRanking::Init(void)
 	{
 		if (m_apScore[nCntRank] == NULL)
 		{
-			p = CObject2D::Create();
+			p = CObject2D::Create(7);
 			p->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\ranking001.png"));
 			p->SetPosition(D3DXVECTOR3(350.0f, 250.0f + nCntRank * 100.0f, 0.0f));
 			p->SetSize(30, 50);
 			p->SetVtx(nCntRank + 1, 10, 1);
 
-			m_apScore[nCntRank] = CScore::Create(D3DXVECTOR3(450.0f, 250.0f + nCntRank * 100.0f, 0.0f));
+			m_apScore[nCntRank] = CScore::Create(D3DXVECTOR3(450.0f, 250.0f + nCntRank * 100.0f, 0.0f), 8);
 			m_apScore[nCntRank]->Set(aScore[nCntRank]);
 
 			if (m_nRank == nCntRank)

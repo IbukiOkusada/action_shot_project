@@ -10,6 +10,7 @@
 #include "manager.h"
 
 class CFileLoad;
+class CObject2D;
 
 //===============================================
 // タイトルクラスの定義(派生クラス)
@@ -33,6 +34,10 @@ private:
 	CFileLoad *m_pFileLoad;			// ファイル読み込みのポインタ
 	int m_nTimer;	// 自動遷移タイマー
 	bool m_bClick;
+	CObject2D *m_pEnter;
+	D3DXCOLOR m_col;
+	int m_nCounter;
+	float m_fMoveCol;
 };
 
 #endif

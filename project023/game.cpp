@@ -113,7 +113,7 @@ HRESULT CGame::Init(void)
 		"data\\TXT\\motion_body.txt", "data\\TXT\\motion_leg.txt", 1);
 
 	// スコアの生成
-	m_pScore = CScore::Create(D3DXVECTOR3(250.0f, 50.0f, 0.0f));
+	m_pScore = CScore::Create(D3DXVECTOR3(250.0f, 50.0f, 0.0f), 3);
 	m_pScore->Set(START_SCORE);
 
 	// タイムの生成
@@ -217,15 +217,17 @@ void CGame::Uninit(void)
 	}
 
 	// エネミーマネージャー
-	if (m_pEnemyManager == NULL)
+	if (m_pEnemyManager != NULL)
 	{
+		CResult::SetSuv(m_pEnemyManager->GetSuv());
+		CResult::SetDead(m_pEnemyManager->GetDead());
 		m_pEnemyManager->Uninit();
 		delete m_pEnemyManager;
 		m_pEnemyManager = NULL;
 	}
 
 	// カーマネージャー
-	if (m_pCarManager == NULL)
+	if (m_pCarManager != NULL)
 	{
 		m_pCarManager->Uninit();
 		delete m_pCarManager;
@@ -233,7 +235,7 @@ void CGame::Uninit(void)
 	}
 
 	// 敵順路管理
-	if (m_pEnemyRoute == NULL)
+	if (m_pEnemyRoute != NULL)
 	{
 		m_pEnemyRoute->Uninit();
 		delete m_pEnemyRoute;
@@ -244,7 +246,6 @@ void CGame::Uninit(void)
 	// スコア
 	if (m_pScore != NULL)
 	{
-		CResult::SetScore(m_pScore->GetNum());
 		m_pScore->Uninit();
 		delete m_pScore;	// メモリの開放
 		m_pScore = NULL;	// 使用していない状態にする

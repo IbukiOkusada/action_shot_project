@@ -22,8 +22,8 @@
 //===============================================
 // 静的メンバ変数
 //===============================================
-CScore *CResult::m_pScore = NULL;
-int CResult::m_nScore = 0;
+int CResult::m_nSuvNum = 0;
+int CResult::m_nDeadNum = 0;
 
 //===============================================
 // コンストラクタ
@@ -48,10 +48,64 @@ HRESULT CResult::Init(void)
 {
 	CObject2D *p = CObject2D::Create(7);
 	p->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\result_logo.png"));
-	p->SetPosition(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.25f, 0.0f));
+	p->SetPosition(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.15f, 0.0f));
 	p->SetSize(SCREEN_WIDTH * 0.2f, SCREEN_HEIGHT * 0.1f);
-	m_pScore = CScore::Create(D3DXVECTOR3(500.0f, 500.0f, 0.0f));
-	m_pScore->Set(m_nScore);
+
+	for (int nCnt = 0; nCnt < SCORE_MAX; nCnt++)
+	{
+		m_apScore[nCnt] = CScore::Create(D3DXVECTOR3(700.0f, 300.0f + nCnt * 150.0f, 0.0f), 8);
+
+		switch (nCnt)
+		{
+		case SCORE_SUV:
+			m_apScore[nCnt]->Set(m_nSuvNum * 1000);
+			break;
+
+		case SCORE_DEAD:
+			m_apScore[nCnt]->Set(m_nDeadNum * 1000);
+			break;
+
+		case SCORE_ALL:
+			m_apScore[nCnt]->Set(m_nSuvNum * 1000 + m_nDeadNum * -1000);
+			break;
+		}
+	}
+
+	for (int nCnt = 0; nCnt < SCORE_ALL; nCnt++)
+	{
+		m_apNum[nCnt] = CScore::Create(D3DXVECTOR3(370.0f, 300.0f + nCnt * 150.0f, 0.0f), 3);
+
+		switch (nCnt)
+		{
+		case SCORE_SUV:
+			m_apNum[nCnt]->Set(m_nSuvNum);
+			break;
+
+		case SCORE_DEAD:
+			m_apNum[nCnt]->Set(m_nDeadNum);
+			break;
+		}
+	}
+
+	p = CObject2D::Create(7);
+	p->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\resultminus.png"));
+	p->SetPosition(D3DXVECTOR3(630.0f, 300.0f + 150.0f, 0.0f));
+	p->SetSize(SCREEN_WIDTH * 0.05f, SCREEN_HEIGHT * 0.05f);
+
+	p = CObject2D::Create(7);
+	p->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\resultdead.png"));
+	p->SetPosition(D3DXVECTOR3(230.0f, 280.0f + 150.0f, 0.0f));
+	p->SetSize(SCREEN_WIDTH * 0.1f, SCREEN_HEIGHT * 0.1f);
+
+	p = CObject2D::Create(7);
+	p->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\resultsuv.png"));
+	p->SetPosition(D3DXVECTOR3(230.0f, 280.0f, 0.0f));
+	p->SetSize(SCREEN_WIDTH * 0.1f, SCREEN_HEIGHT * 0.1f);
+
+	p = CObject2D::Create(7);
+	p->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\resultfont.png"));
+	p->SetPosition(D3DXVECTOR3(400.0f, 600.0f, 0.0f));
+	p->SetSize(SCREEN_WIDTH * 0.2f, SCREEN_HEIGHT * 0.1f);
 
 	// オブジェクト生成
 	m_pMeshSky = CMeshDome::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 20000.0f, 10.0f, 3, 10, 10);
@@ -79,15 +133,23 @@ HRESULT CResult::Init(void)
 //===============================================
 void CResult::Uninit(void)
 {
-	m_nScore = 0;
+	m_nSuvNum = 0;
+	m_nDeadNum = 0;
 
 	// スコア
-	if (m_pScore != NULL)
+	for (int nCnt = 0; nCnt < SCORE_MAX; nCnt++)
 	{
-		CRanking::SetScore(m_pScore->GetNum());
-		m_pScore->Uninit();
-		delete m_pScore;	// メモリの開放
-		m_pScore = NULL;	// 使用していない状態にする
+		if (m_apScore[nCnt] != NULL)
+		{
+			if (nCnt == SCORE_ALL)
+			{
+				CRanking::SetScore(m_apScore[nCnt]->GetNum());
+			}
+
+			m_apScore[nCnt]->Uninit();
+			delete m_apScore[nCnt];	// メモリの開放
+			m_apScore[nCnt] = NULL;	// 使用していない状態にする
+		}
 	}
 
 	if (m_pFileLoad != NULL)

@@ -52,7 +52,16 @@ HRESULT CScore::Init(void)
 	// テクスチャの読み込み
 	m_nIdxTexture = pTexture->Regist(CTexture::GetFileName(CTexture::TYPE_SCORE));
 
-	for (int nCnt = 0; nCnt < NUM_SCORE; nCnt++)
+	if (m_nDesit > NUM_SCORE)
+	{
+		m_nDesit = NUM_SCORE;
+	}
+	else if (m_nDesit <= 0)
+	{
+		m_nDesit = 1;
+	}
+
+	for (int nCnt = 0; nCnt < m_nDesit; nCnt++)
 	{
 		CNumber *pNum = m_apNumber[nCnt];	// 数字のポインタ
 
@@ -64,8 +73,7 @@ HRESULT CScore::Init(void)
 
 			if (m_apNumber[nCnt] != NULL)
 			{// 使用している場合
-				m_apNumber[nCnt]->GetObject2D()->BindTexture(m_nIdxTexture);
-				
+				m_apNumber[nCnt]->GetObject2D()->BindTexture(m_nIdxTexture);			
 			}
 		}
 	}
@@ -112,7 +120,7 @@ void CScore::Update(void)
 //===============================================
 // 生成
 //===============================================
-CScore *CScore::Create(D3DXVECTOR3 pos)
+CScore *CScore::Create(D3DXVECTOR3 pos, const int nDegit)
 {
 	CScore *pBg = NULL;
 
@@ -121,6 +129,8 @@ CScore *CScore::Create(D3DXVECTOR3 pos)
 
 	if (pBg != NULL)
 	{// 生成できた場合
+
+		pBg->m_nDesit = nDegit;
 
 		pBg->m_pos = pos;
 
@@ -170,10 +180,10 @@ void CScore::SetValue(void)
 	}
 
 	//スコアを各配列に格納
-	for (int nCnt = 0; nCnt < NUM_SCORE; nCnt++)
+	for (int nCnt = 0; nCnt < m_nDesit; nCnt++)
 	{
 		// 現在の桁の値を求める
-		int nNum = m_nNum % (int)pow(10, (NUM_SCORE - nCnt)) / (int)pow(10, (NUM_SCORE - nCnt) - 1);
+		int nNum = m_nNum % (int)pow(10, (m_nDesit - nCnt)) / (int)pow(10, (m_nDesit - nCnt) - 1);
 
 		if (m_apNumber[nCnt] != NULL)
 		{// 使用されている場合

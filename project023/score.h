@@ -13,7 +13,7 @@
 class CNumber;
 
 // マクロ定義
-#define NUM_SCORE	(3)	// スコアの桁数
+#define NUM_SCORE	(8)	// スコアの桁数
 
 //==========================================================
 // テクスチャスライドオブジェクト(2D)のクラス定義(派生クラス)
@@ -29,7 +29,7 @@ public:	// ここから関数(誰でもアクセス可能)
 	HRESULT Init(void);
 	void Uninit(void);
 	void Update(void);
-	static CScore *Create(D3DXVECTOR3 pos);
+	static CScore *Create(D3DXVECTOR3 pos, const int nDegit = NUM_SCORE);
 
 	// メンバ関数
 	void Add(int nValue);
@@ -49,7 +49,7 @@ private:	// 自分だけがアクセス可能
 	D3DXVECTOR3 m_pos;	// 座標
 	int m_nNum;	// 現在の値
 	int m_nIdxTexture;	// テクスチャ番号
-	
+	int m_nDesit;	// 桁数
 };
 
 #endif

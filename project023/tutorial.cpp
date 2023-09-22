@@ -203,7 +203,7 @@ void CTutorial::Uninit(void)
 	}
 
 	// エネミーマネージャー
-	if (m_pEnemyManager == NULL)
+	if (m_pEnemyManager != NULL)
 	{
 		m_pEnemyManager->Uninit();
 		delete m_pEnemyManager;
@@ -211,7 +211,7 @@ void CTutorial::Uninit(void)
 	}
 
 	// カーマネージャー
-	if (m_pCarManager == NULL)
+	if (m_pCarManager != NULL)
 	{
 		m_pCarManager->Uninit();
 		delete m_pCarManager;
@@ -219,18 +219,16 @@ void CTutorial::Uninit(void)
 	}
 
 	// 敵順路管理
-	if (m_pEnemyRoute == NULL)
+	if (m_pEnemyRoute != NULL)
 	{
 		m_pEnemyRoute->Uninit();
 		delete m_pEnemyRoute;
 		m_pEnemyRoute = NULL;
 	}
 
-
 	// スコア
 	if (m_pScore != NULL)
 	{
-		CResult::SetScore(m_pScore->GetNum());
 		m_pScore->Uninit();
 		delete m_pScore;	// メモリの開放
 		m_pScore = NULL;	// 使用していない状態にする

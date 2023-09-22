@@ -36,6 +36,8 @@ public:		// 誰でもアクセス可能
 	void Spawn(int nSetNum);
 	void AddDead(void) { m_nDeadCounter++; }
 	void AddSuv(void) { m_nSuvCounter++; }
+	int GetSuv(void) { return m_nSuvCounter; }
+	int GetDead(void) { return m_nDeadCounter; }
 
 private:	// 自分だけがアクセス可能
 

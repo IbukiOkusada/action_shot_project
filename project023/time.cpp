@@ -115,7 +115,7 @@ void CTime::Update(void)
 {
 	m_fAnimTimer += CManager::GetSlow()->Get();
 
-	if (m_fAnimTimer >= 15)
+	if (m_fAnimTimer >= 12)
 	{// 60フレーム立った
 		m_fAnimTimer = 0;	// カウンターリセット
 		Add(1);
