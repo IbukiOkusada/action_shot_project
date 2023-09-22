@@ -12,7 +12,7 @@
 #include "enemy_route.h"
 
 // マクロ定義
-#define NUM_ROUTE	(27+14 )
+#define NUM_ROUTE	(27 + 14 )
 
 // 前方宣言
 class CCharacter;
@@ -104,6 +104,7 @@ private:	// 自分だけがアクセス可能
 	void UpdateHeat(void);
 	void SetBodyTemp(void);
 	void SetThermo(void);
+	void SetMove(void);
 
 	// メンバ変数
 	static const char *m_apFileName[NUM_ROUTE];
@@ -111,7 +112,8 @@ private:	// 自分だけがアクセス可能
 	CCharacter *m_pBody;	// 上半身
 	float m_fStateCnt;		// 状態管理カウント
 	INFO m_Info;			// 自分自身の情報
-	bool m_bMove;			// 移動したかどうか
+	bool m_bRescue;			// 移動したかどうか
+	float m_fStateMoveMul;		// 状態加味した移動量倍率
 	float m_fRotMove;		// 現在の角度
 	float m_fRotDiff;		// 目的の角度
 	float m_fRotDest;		// 角度計算

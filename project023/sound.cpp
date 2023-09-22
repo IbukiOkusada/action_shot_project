@@ -12,10 +12,29 @@
 // サウンドの情報
 const CSound::SOUNDINFO CSound::m_aSoundInfo[LABEL_MAX] =
 {
-	{ "data/BGM/bgm000.wav", -1 },		// BGM0
-	{ "data/SE/break.wav", 0 },			// コンボ
-	{ "data/SE/star.wav", 0 },			// コンボ
-};
+	{ "data/BGM/title.wav", -1 },		// BGMタイトル
+	{ "data/BGM/tutorial.wav", -1 },	// BGMチュートリアル
+	{ "data/BGM/game.wav", -1 },		// BGMゲーム
+	{ "data/BGM/result.wav", -1 },		// BGMリザルト
+	{ "data/BGM/ranking.wav", -1 },		// BGMランキング
+	{ "data/SE/click.wav", 0 },			// Enter
+	{ "data/SE/walk.wav", 0 },			// 移動音
+	{ "data/SE/jump.wav", 0 },			// ジャンプ音
+	{ "data/SE/land.wav", 0 },			// 着地音
+	{ "data/SE/watergun.wav", 0 },		// 水鉄砲発射
+	{ "data/SE/shower.wav", 0 },		// シャワー発射
+	{ "data/SE/zone.wav", 0 },			// ゾーンに入った
+	{ "data/SE/zonegun.wav", 0 },		// ゾーン中水鉄砲発射
+	{ "data/SE/waterballoon.wav", 0 },	// 水風船膨らみ
+	{ "data/SE/balloondetch.wav", 0 },	// 水風船発射
+	{ "data/SE/balloondrop.wav", 0 },	// 水風船着地
+	{ "data/SE/balloonsplash.wav", 0 },	// 水風船爆発
+	{ "data/SE/waterhit.wav", 0 },		// 命中音
+	{ "data/SE/evaporation.wav", 0 },	// 水蒸気の煙
+	{ "data/SE/crash.wav", 0 },	// 車と衝突
+	{ "data/SE/lockon.wav", 0 },	// 車と衝突
+
+};										
 
 //=============================================================================
 // コンストラクタ

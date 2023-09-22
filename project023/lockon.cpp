@@ -15,6 +15,7 @@
 #include "slow.h"
 #include "enemy.h"
 #include "character.h"
+#include "sound.h"
 
 // マクロ定義
 #define MULTIDEF_SIZE	(50.0f)		// デフォルトサイズ
@@ -406,6 +407,7 @@ void CLockOn::LockOn(void)
 			SetPosition(D3DXVECTOR3(pOldObj->GetPosition().x, pOldObj->GetPosition().y + 30.0f, pOldObj->GetPosition().z));
 			if (m_pObj != pEnemy)
 			{
+				CManager::GetSound()->Play(CSound::LABEL_SE_LOCKON);
 				SetSize(START_SIZE, START_SIZE);
 				SetCol(D3DXCOLOR(GetCol().r, GetCol().g, GetCol().b, 0.3f));
 			}
@@ -415,6 +417,7 @@ void CLockOn::LockOn(void)
 		}
 		else
 		{// スローしている
+			CManager::GetSound()->Play(CSound::LABEL_SE_LOCKON);
 			m_bLock = false;
 			SetSize(0.0f, 0.0f);
 			m_pObj = NULL;

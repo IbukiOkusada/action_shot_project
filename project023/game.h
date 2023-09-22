@@ -25,6 +25,7 @@ class CThermo;
 class CEnemyManager;
 class CCarManager;
 class CEnemyRoute;
+class CMeshDome;
 
 //===============================================
 // ゲームクラスの定義(派生クラス)
@@ -55,11 +56,15 @@ public:
 	CEditor *GetEditor(void);
 	CMapCamera *GetMapCamera(void) { return m_pMapCamera; }
 	CEnemyRoute *GetEnemyRoute(void) { return m_pEnemyRoute; }
+	CCarManager *GetCarManager(void) { return m_pCarManager; }
+	CEnemyManager *GetEnemyManager(void) { return m_pEnemyManager; }
+
+private:
+
 	void DataReset(void);
 	void EnemySet(void);
 	void CarSet(void);
-
-private:
+	void SkySet(void);
 
 	CFileLoad *m_pFileLoad;			// ファイル読み込みのポインタ
 	static CScore *m_pScore;		// スコアのポインタ
@@ -74,6 +79,7 @@ private:
 	CEnemyManager *m_pEnemyManager;	// エネミーマネージャーのポインタ
 	CCarManager *m_pCarManager;		// カーマネージャーのポインタ
 	CEnemyRoute *m_pEnemyRoute;		// 敵の順路管理のポインタ
+	CMeshDome *m_pMeshDome;			// メッシュドームのポインタ
 	int m_nMaxEnemy;				// 現在のエネミー最大数
 };
 

@@ -41,40 +41,65 @@ NUM_MODEL = 34
 #------------------------------------------------------------------------------
 # モデルファイル名
 #------------------------------------------------------------------------------
-MODEL_FILENAME = data/MODEL/sandbox_border.x	# [0]ドラム缶(緑)
-MODEL_FILENAME = data/MODEL/tree000.x			# [1]ドラム缶(オレンジ)
-MODEL_FILENAME = data/MODEL/tree001.x			# [2]コンテナ
-MODEL_FILENAME = data/MODEL/tree002.x			# [3]ベンチ
-MODEL_FILENAME = data/MODEL/fance001.x			# [4]外枠柵下
-MODEL_FILENAME = data/MODEL/fance000.x			# [5]外枠柵上
-MODEL_FILENAME = data/MODEL/stage000.x			# [6]1m
-MODEL_FILENAME = data/MODEL/stage001.x			# [7]2m
-MODEL_FILENAME = data/MODEL/stage002.x			# [8]3m
-MODEL_FILENAME = data/MODEL/stage003.x			# [9]4m
-MODEL_FILENAME = data/MODEL/stage004.x			# [10]5m
-MODEL_FILENAME = data/MODEL/tree003.x			# [11]ブランコ
-MODEL_FILENAME = data/MODEL/shop000.x			# [12]ブランコ
-MODEL_FILENAME = data/MODEL/roof000.x			# [13]ブランコ
-MODEL_FILENAME = data/MODEL/roof001.x			# [14]ブランコ
-MODEL_FILENAME = data/MODEL/shop001.x			# [15]ブランコ
-MODEL_FILENAME = data/MODEL/shop002.x			# [16]ブランコ
-MODEL_FILENAME = data/MODEL/shop003.x			# [17]ブランコ
-MODEL_FILENAME = data/MODEL/shop004.x			# [18]ブランコ
-MODEL_FILENAME = data/MODEL/station000.x		# [19]ブランコ
-MODEL_FILENAME = data/MODEL/shop005.x			# [20]ブランコ
-MODEL_FILENAME = data/MODEL/fance002.x			# [21]ブランコ
-MODEL_FILENAME = data/MODEL/fountain000.x		# [22]ブランコ
-MODEL_FILENAME = data/MODEL/flower000.x			# [23]ブランコ
-MODEL_FILENAME = data/MODEL/fance003.x			# [24]ブランコ
-MODEL_FILENAME = data/MODEL/fance004.x			# [25]ブランコ
+MODEL_FILENAME = data/MODEL/sandbox_border.x	# [0]砂場
+VTXMAX = 300.0 0.0 300.0
+VTXMIN = -300.0 0.0 -300.0
+MODEL_FILENAME = data/MODEL/tree000.x			# [1]木
+VTXMAX = 20.0 300.0 20.0
+VTXMIN = -20.0 0.0 -20.0
+
+MODEL_FILENAME = data/MODEL/tree001.x			# [2]木
+VTXMAX = 20.0 300.0 20.0
+VTXMIN = -20.0 0.0 -20.0
+
+MODEL_FILENAME = data/MODEL/tree002.x			# [3]木
+VTXMAX = 20.0 300.0 20.0
+VTXMIN = -20.0 0.0 -20.0
+
+MODEL_FILENAME = data/MODEL/fance001.x			# [4]フェンス上
+MODEL_FILENAME = data/MODEL/fance000.x			# [5]フェンス下
+MODEL_FILENAME = data/MODEL/stage000.x			# [6]ステージ
+MODEL_FILENAME = data/MODEL/stage001.x			# [7]ステージ
+MODEL_FILENAME = data/MODEL/stage002.x			# [8]ステージ
+MODEL_FILENAME = data/MODEL/stage003.x			# [9]ステージ
+MODEL_FILENAME = data/MODEL/stage004.x			# [10]ステージ
+MODEL_FILENAME = data/MODEL/tree003.x			# [11]木
+VTXMAX = 220.0 550.0 45.0
+VTXMIN = -230.0 0.0 -53.0
+
+MODEL_FILENAME = data/MODEL/shop000.x			# [12]店
+MODEL_FILENAME = data/MODEL/roof000.x			# [13]商店街天井
+MODEL_FILENAME = data/MODEL/roof001.x			# [14]商店街柱
+MODEL_FILENAME = data/MODEL/shop001.x			# [15]店
+MODEL_FILENAME = data/MODEL/shop002.x			# [16]店
+MODEL_FILENAME = data/MODEL/shop003.x			# [17]店
+MODEL_FILENAME = data/MODEL/shop004.x			# [18]店
+MODEL_FILENAME = data/MODEL/station000.x		# [19]地下鉄駅
+MODEL_FILENAME = data/MODEL/shop005.x			# [20]店
+MODEL_FILENAME = data/MODEL/fance002.x			# [21]柵
+MODEL_FILENAME = data/MODEL/fountain000.x		# [22]噴水
+VTXMAX = 250.0 30.0 225.0
+VTXMIN = -260.0 0.0 -225.0
+MODEL_FILENAME = data/MODEL/flower000.x			# [23]花壇
+VTXMAX = 135.0 10.0 60.0
+
+MODEL_FILENAME = data/MODEL/fance003.x			# [24]石柵石
+VTXMAX = 103.0 40.0 20.0
+VTXMIN = -103.0 0.0 -20.0
+MODEL_FILENAME = data/MODEL/fance004.x			# [25]公園前柵
 MODEL_FILENAME = data/MODEL/swing000.x			# [26]ブランコ
-MODEL_FILENAME = data/MODEL/bench001.x			# [27]ブランコ
-MODEL_FILENAME = data/MODEL/seesaw000.x			# [28]ブランコ
-MODEL_FILENAME = data/MODEL/slide.x				# [29]ブランコ
-MODEL_FILENAME = data/MODEL/fance005.x			# [30]ブランコ
-MODEL_FILENAME = data/MODEL/bench000.x			# [31]ブランコ
-MODEL_FILENAME = data/MODEL/streetlamp.x		# [32]ブランコ
-MODEL_FILENAME = data/MODEL/shrubbery000.x		# [32]ブランコ
+MODEL_FILENAME = data/MODEL/bench001.x			# [27]ベンチ
+MODEL_FILENAME = data/MODEL/seesaw000.x			# [28]シーソー
+MODEL_FILENAME = data/MODEL/slide.x				# [29]滑り台
+MODEL_FILENAME = data/MODEL/fance005.x			# [30]ブランコ柵
+MODEL_FILENAME = data/MODEL/bench000.x			# [31]噴水近くベンチ
+VTXMAX = 50.0 30.0 227.0
+VTXMIN = -60.0 0.0 -270.0
+MODEL_FILENAME = data/MODEL/streetlamp.x		# [32]街灯
+VTXMAX = 20.0 350.0 5.0
+VTXMIN = -20.0 0.0 -15.0
+MODEL_FILENAME = data/MODEL/shrubbery000.x		# [32]商店街仕切り
+VTXMAX = 118.0 290.0 350.0
 
 #------------------------------------------------------------------------------
 # カメラ情報
@@ -355,7 +380,7 @@ WALLSET
 	TEXTYPE = 13
 	POS = 700 0.0 -3350.0
 	ROT = 0 90 0
-	BLOCK = 9 10
+	BLOCK = 11 10
 	SIZE = 30 45
 END_WALLSET
 
@@ -363,7 +388,7 @@ WALLSET
 	TEXTYPE = 15
 	POS = 700 0.0 -2450.0
 	ROT = 0 90 0
-	BLOCK = 9 10
+	BLOCK = 11 10
 	SIZE = 30 45
 END_WALLSET
 
@@ -371,7 +396,7 @@ WALLSET
 	TEXTYPE = 13
 	POS = 1000 0.0 -3350.0
 	ROT = 0 -90 0
-	BLOCK = 9 10
+	BLOCK = 11 10
 	SIZE = 30 45
 END_WALLSET
 
@@ -379,7 +404,7 @@ WALLSET
 	TEXTYPE = 15
 	POS = 1000 0.0 -2450.0
 	ROT = 0 -90 0
-	BLOCK = 9 10
+	BLOCK = 11 10
 	SIZE = 30 45
 END_WALLSET
 
@@ -403,7 +428,7 @@ WALLSET
 	TEXTYPE = 15
 	POS = 850 0.0 -2000.0
 	ROT = 0 180 0
-	BLOCK = 9 10
+	BLOCK = 11 10
 	SIZE = 30 15
 END_WALLSET
 
@@ -2304,7 +2329,7 @@ END_MODELSET
 
 MODELSET
 	TYPE = 1
-	POS = -2300.0 0.0 2280.0
+	POS = -2300.0 0.0 2230.0
 	ROT = 0.0 0.0 0.0
 	SHADOW = 1		#使用しない場合は0
 END_MODELSET
@@ -2318,7 +2343,7 @@ END_MODELSET
 
 MODELSET
 	TYPE = 3
-	POS = -2600.0 0.0 2280.0
+	POS = -2600.0 0.0 2230.0
 	ROT = 0.0 0.0 0.0
 	SHADOW = 1		#使用しない場合は0
 END_MODELSET
@@ -2332,7 +2357,7 @@ END_MODELSET
 
 MODELSET
 	TYPE = 2
-	POS = -2900.0 0.0 2280.0
+	POS = -2900.0 0.0 2230.0
 	ROT = 0.0 0.0 0.0
 	SHADOW = 1		#使用しない場合は0
 END_MODELSET
@@ -2346,7 +2371,7 @@ END_MODELSET
 
 MODELSET
 	TYPE = 1
-	POS = -3200.0 0.0 2280.0
+	POS = -3200.0 0.0 2230.0
 	ROT = 0.0 0.0 0.0
 	SHADOW = 1		#使用しない場合は0
 END_MODELSET
@@ -2360,7 +2385,7 @@ END_MODELSET
 
 MODELSET
 	TYPE = 2
-	POS = -3500.0 0.0 2280.0
+	POS = -3500.0 0.0 2230.0
 	ROT = 0.0 0.0 0.0
 	SHADOW = 1		#使用しない場合は0
 END_MODELSET

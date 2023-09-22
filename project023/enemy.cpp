@@ -27,6 +27,8 @@
 #include "meshcylinder.h"
 #include "target.h"
 #include "thermo.h"
+#include "enemy_manager.h"
+#include "sound.h"
 
 //===============================================
 // マクロ定義
@@ -41,6 +43,9 @@
 #define LEAVEMOVE		(3.0f)	// 退場時の移動量
 #define COOLDOWNCNT		(160)	// 退場前待機カウント
 
+//===============================================
+// ファイル名
+//===============================================
 const char *CEnemy::m_apFileName[NUM_ROUTE]
 {
 	"data\\TXT\\enemy\\walk\\route000.txt",
@@ -122,6 +127,8 @@ CEnemy::CEnemy(int nPriOrity)
 	m_pThermo = NULL;
 	m_pRoute = NULL;
 	m_nTargetPoint = 0;
+	m_fStateMoveMul = 0.0f;
+	m_bRescue = false;
 }
 
 //===============================================
@@ -156,11 +163,12 @@ HRESULT CEnemy::Init(const char *pName)
 		if (m_pBody->GetMotion() != NULL)
 		{
 			// 初期モーションの設定
-			m_pBody->GetMotion()->InitSet(1);
+			m_pBody->GetMotion()->InitSet(0);
 		}
 	}
 
 	m_fLife = (float)(rand() % STATE_LINE) + 0.1f;
+	m_fStateMoveMul = 1.0f;
 
 	// 温度表示の生成
 	if (m_pThermo == NULL)
@@ -277,11 +285,19 @@ void CEnemy::Update(void)
 	// 温度表示設定
 	SetThermo();
 
-	if (m_nTargetPoint >= m_pRoute->nNumPoint)
+	if (m_pRoute != NULL)
 	{
-		m_state = STATE_DEFCOOL;
-		m_fStateCnt = LEAVECNT;
-		m_nTargetPoint = 0;
+		if (m_nTargetPoint >= m_pRoute->nNumPoint)
+		{
+			m_state = STATE_DEFCOOL;
+			m_fStateCnt = LEAVECNT;
+			m_nTargetPoint = 0;
+
+			if (m_bRescue == true && CManager::GetMode() == CScene::MODE_GAME)
+			{
+				CManager::GetScene()->GetEnemyManager()->AddSuv();
+			}
+		}
 	}
 }
 
@@ -352,6 +368,12 @@ CEnemy *CEnemy::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 move, const
 
 		// ビルボードの設定
 		//pEnemy->m_pBillState = CObjectBillboard::Create();
+
+		if (CManager::GetMode() == CScene::MODE_TUTORIAL)
+		{
+			pEnemy->m_fLife = MAX_LIFE - 1.0f;
+			pEnemy->m_state = STATE_HOT;
+		}
 	}
 	else
 	{// 生成に失敗した場合
@@ -382,7 +404,18 @@ CEnemy *CEnemy::Create(const char *pBodyName, const int nPriority)
 		pEnemy->SetType(TYPE_ENEMY);
 
 		// 順路の設定
-		pEnemy->m_pRoute = CManager::GetScene()->GetEnemyRoute()->SetAddress(m_apFileName[rand() % NUM_ROUTE]);
+		if (CManager::GetMode() != CScene::MODE_TUTORIAL)
+		{
+			pEnemy->m_pRoute = CManager::GetScene()->GetEnemyRoute()->SetAddress(m_apFileName[rand() % NUM_ROUTE]);
+			pEnemy->m_pBody->GetMotion()->Set(1);
+		}
+		else
+		{
+			pEnemy->m_pRoute = CManager::GetScene()->GetEnemyRoute()->SetAddress(m_apFileName[rand() % 4 + 27]);
+			pEnemy->m_pBody->GetMotion()->Set(1);
+			pEnemy->m_fLife = MAX_LIFE - 1.0f;
+			pEnemy->m_state = STATE_HEAT;
+		}
 
 		// 設定
 		pEnemy->SetPosition(pEnemy->m_pRoute->StartPos);
@@ -422,9 +455,6 @@ CEnemy *CEnemy::Create(const char *pBodyName, const int nPriority)
 //===============================================
 void CEnemy::Controller(void)
 {
-	// 設定された移動量を加算する
-	m_pBody->GetMotion()->BlendSet(1);
-
 	if (m_pRoute != NULL)
 	{
 		m_Info.pos += m_Info.move;
@@ -439,23 +469,7 @@ void CEnemy::Controller(void)
 
 			if (m_nTargetPoint < m_pRoute->nNumPoint && m_state != STATE_DEFCOOL)
 			{
-				float fRotDest;	//現在の移動量、目標の移動方向、目標までの差分
-
-				fRotDest = atan2f(m_Info.pos.x - m_pRoute->pPoint[m_nTargetPoint].x,
-					m_Info.pos.z - m_pRoute->pPoint[m_nTargetPoint].z);	//目標への向き
-				m_Info.rot.y = fRotDest;
-
-				D3DXVECTOR3 vec;
-				vec.x = m_pRoute->pPoint[m_nTargetPoint].x - m_Info.pos.x;
-				vec.y = m_pRoute->pPoint[m_nTargetPoint].y - m_Info.pos.y;
-				vec.z = m_pRoute->pPoint[m_nTargetPoint].z - m_Info.pos.z;
-
-				D3DXVec3Normalize(&vec, &vec);	// ベクトルを正規化する
-
-				m_Info.move.x = vec.x * m_pRoute->fMove;
-				m_Info.move.y = vec.y * m_pRoute->fMove;
-				m_Info.move.z = vec.z * m_pRoute->fMove;
-				m_Info.posOld = m_Info.pos;
+				SetMove();
 			}
 		}
 	}
@@ -485,6 +499,8 @@ void CEnemy::Hit(float fDamage)
 		if (m_fLife < 0)
 		{
 			m_fLife = 0;
+			// 状態設定
+			SetState();
 		}
 
 		if (m_state != STATE_DEFCOOL)
@@ -502,11 +518,16 @@ void CEnemy::Hit(float fDamage)
 //===============================================
 void CEnemy::SetState(void)
 {
+	STATE stateOld = m_state;
+
 	// 残り体力によって状態を設定
 	if (m_fLife <= 0)
 	{// 0以下
+		m_bRescue = true;
 		m_state = STATE_COOLDOWN;
 		m_fStateCnt = COOLDOWNCNT;
+		CManager::GetSound()->Play(CSound::LABEL_SE_SMAKE);
+		m_pBody->GetMotion()->BlendSet(1);
 
 		CParticle::Create(D3DXVECTOR3(GetMtx()->_41,
 			GetMtx()->_42,
@@ -525,14 +546,38 @@ void CEnemy::SetState(void)
 	else if (m_fLife < STATE_LINE * STATE_HOT)
 	{//あともう少し
 		m_state = STATE_NORMAL;
+
+		if (m_state != stateOld && CManager::GetMode() != CScene::MODE_TUTORIAL)
+		{
+			// 初期モーションの設定
+			m_pBody->GetMotion()->BlendSet(1);
+				m_fStateMoveMul = 1.0f;
+			SetMove();
+		}
 	}
 	else if (m_fLife >= STATE_LINE * STATE_HOT && m_fLife < STATE_LINE * STATE_HEAT)
 	{// まだ残っている
 		m_state = STATE_HOT;
+
+		if (m_state != stateOld && CManager::GetMode() != CScene::MODE_TUTORIAL)
+		{
+			// 初期モーションの設定
+			m_pBody->GetMotion()->BlendSet(2);
+			m_fStateMoveMul = 0.5f;
+			SetMove();
+		}
 	}
 	else if (m_fLife >= STATE_LINE * STATE_HEAT && m_state == STATE_HOT)
 	{// ほとんど残っている
 		m_state = STATE_HEAT;
+
+		if (m_state != stateOld && CManager::GetMode() != CScene::MODE_TUTORIAL)
+		{
+			// 初期モーションの設定
+			m_pBody->GetMotion()->BlendSet(3);
+			m_fStateMoveMul = 0.0f;
+			SetMove();
+		}
 	}
 }
 
@@ -566,37 +611,37 @@ void CEnemy::SetParticle(void)
 		return;
 	}
 
-	/*switch (m_state)
+	switch (m_state)
 	{
 	case STATE_NORMAL:
-		CParticle::Create(D3DXVECTOR3(m_pBody->GetParts(3)->GetMtxWorld()->_41,
-			m_pBody->GetParts(3)->GetMtxWorld()->_42,
-			m_pBody->GetParts(3)->GetMtxWorld()->_43),
+		CParticle::Create(D3DXVECTOR3(m_pBody->GetParts(2)->GetMtxWorld()->_41,
+			m_pBody->GetParts(2)->GetMtxWorld()->_42 + 12.0f,
+			m_pBody->GetParts(2)->GetMtxWorld()->_43),
 			CEffect::TYPE_SWEAT);
 		break;
 
 	case STATE_HOT:
-		CParticle::Create(D3DXVECTOR3(m_pBody->GetParts(3)->GetMtxWorld()->_41,
-			m_pBody->GetParts(3)->GetMtxWorld()->_42,
-			m_pBody->GetParts(3)->GetMtxWorld()->_43),
+		CParticle::Create(D3DXVECTOR3(m_pBody->GetParts(2)->GetMtxWorld()->_41,
+			m_pBody->GetParts(2)->GetMtxWorld()->_42 + 12.0f,
+			m_pBody->GetParts(2)->GetMtxWorld()->_43),
 			CEffect::TYPE_SWEAT);
 		break;
 
 	case STATE_HEAT:
-		CParticle::Create(D3DXVECTOR3(m_pBody->GetParts(3)->GetMtxWorld()->_41,
-			m_pBody->GetParts(3)->GetMtxWorld()->_42 + 12.0f,
-			m_pBody->GetParts(3)->GetMtxWorld()->_43),
+		CParticle::Create(D3DXVECTOR3(m_pBody->GetParts(2)->GetMtxWorld()->_41,
+			m_pBody->GetParts(2)->GetMtxWorld()->_42 + 12.0f,
+			m_pBody->GetParts(2)->GetMtxWorld()->_43),
 			CEffect::TYPE_HEAT);
 		break;
 	}
 
-	for (int nCnt = 0; nCnt < m_state + 1; nCnt++)
+	for (int nCnt = 0; nCnt < m_state; nCnt++)
 	{
-		CParticle::Create(D3DXVECTOR3(m_pBody->GetParts(3)->GetMtxWorld()->_41,
-			m_pBody->GetParts(3)->GetMtxWorld()->_42 + 12.0f,
-			m_pBody->GetParts(3)->GetMtxWorld()->_43),
+		CParticle::Create(D3DXVECTOR3(m_pBody->GetParts(2)->GetMtxWorld()->_41,
+			m_pBody->GetParts(2)->GetMtxWorld()->_42 + 12.0f,
+			m_pBody->GetParts(2)->GetMtxWorld()->_43),
 			CEffect::TYPE_HEATHAZE);
-	}*/
+	}
 }
 
 //===============================================
@@ -697,7 +742,14 @@ void CEnemy::UpdateCoolDown(void)
 
 		if (pPlayer != NULL)
 		{
-			pPlayer->AddSlowTime();
+			if (CManager::GetMode() != CScene::MODE_TUTORIAL)
+			{
+				pPlayer->AddSlowTime();
+			}
+			else
+			{
+				pPlayer->AddSlowTime(100);
+			}
 		}
 	}
 }
@@ -714,6 +766,8 @@ void CEnemy::UpdateHeat(void)
 	{// 限界まで来た場合
 		m_state = STATE_DOWN;
 		m_fStateCnt = LEAVECNT;
+		// 初期モーションの設定
+		m_pBody->GetMotion()->BlendSet(4);
 	}
 
 	// パーティクルインターバル
@@ -735,6 +789,10 @@ void CEnemy::UpdateDown(void)
 
 	if (m_fStateCnt <= 0.0f)
 	{// 遷移タイマー規定値
+		if (CManager::GetMode() == CScene::MODE_GAME)
+		{
+			CManager::GetScene()->GetEnemyManager()->AddDead();
+		}
 		Uninit();
 	}
 }
@@ -744,11 +802,15 @@ void CEnemy::UpdateDown(void)
 //===============================================
 void CEnemy::SetBodyTemp(void)
 {
-	return;
 	// ダメージインターバル
 	if (m_Interval.fDamage > 0)
 	{
 		m_Interval.fDamage -= CManager::GetSlow()->Get();
+	}
+
+	if (CManager::GetMode() == CScene::MODE_TUTORIAL)
+	{
+		return;
 	}
 
 	if (m_state != STATE_DEFCOOL)
@@ -766,7 +828,7 @@ void CEnemy::SetBodyTemp(void)
 		if (m_Interval.fHot >= HOTINTERVAL)
 		{
 			m_Interval.fHot = 0;
-			m_fLife += CManager::GetSlow()->Get();
+			m_fLife += CManager::GetSlow()->Get() * 2.5f;
 
 			if (m_fLife > MAX_LIFE)
 			{
@@ -790,7 +852,7 @@ void CEnemy::SetThermo(void)
 	}
 
 	// 体温に合わせて色を設定
-	D3DXCOLOR thermoCol = D3DXCOLOR(0.9f, 0.25f, 0.25f, 1.0f);	// 温度表示の色
+	D3DXCOLOR thermoCol = D3DXCOLOR(0.7f, 0.15f, 0.15f, 1.0f);	// 温度表示の色
 	thermoCol.a = (float)(m_fLife / MAX_LIFE) * 0.7f;
 	m_pThermo->SetColor(thermoCol);
 
@@ -801,4 +863,33 @@ void CEnemy::SetThermo(void)
 
 	// サイズ設定
 	m_pThermo->SetpVtx(1450.0f, 1450.0f);
+}
+
+//===============================================
+// 温度表示設定
+//===============================================
+void CEnemy::SetMove(void)
+{
+	float fRotDest;	//現在の移動量、目標の移動方向、目標までの差分
+
+	if (m_pRoute == NULL)
+	{
+		return;
+	}
+
+	fRotDest = atan2f(m_Info.pos.x - m_pRoute->pPoint[m_nTargetPoint].x,
+		m_Info.pos.z - m_pRoute->pPoint[m_nTargetPoint].z);	//目標への向き
+	m_Info.rot.y = fRotDest;
+
+	D3DXVECTOR3 vec;
+	vec.x = m_pRoute->pPoint[m_nTargetPoint].x - m_Info.pos.x;
+	vec.y = m_pRoute->pPoint[m_nTargetPoint].y - m_Info.pos.y;
+	vec.z = m_pRoute->pPoint[m_nTargetPoint].z - m_Info.pos.z;
+
+	D3DXVec3Normalize(&vec, &vec);	// ベクトルを正規化する
+
+	m_Info.move.x = vec.x * m_pRoute->fMove * m_fStateMoveMul;
+	m_Info.move.y = vec.y * m_pRoute->fMove * m_fStateMoveMul;
+	m_Info.move.z = vec.z * m_pRoute->fMove * m_fStateMoveMul;
+	m_Info.posOld = m_Info.pos;
 }

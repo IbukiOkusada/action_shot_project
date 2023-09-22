@@ -1,6 +1,6 @@
 //==========================================================
 //
-// メッシュシリンダーの処理 [meshcylinder.cpp]
+// メッシュドームの処理 [meshdome.cpp]
 // Author : Ibuki Okusada
 //
 //==========================================================
@@ -86,9 +86,9 @@ void CMeshDome::SetVtxInfo(void)
 	int nNumWidth = GetNumWidth();		// 幅枚数を取得
 	int nNumHeight = GetNumHeight();	// 高さ枚数を取得
 	D3DXVECTOR3 pos = GetPosition();	// 座標
-	D3DXVECTOR3 vecDir;	//設定変更用ベクトル
+	D3DXVECTOR3 vecDir;					// 設定変更用ベクトル
 
-						//頂点座標の設定(左奥から右手前に向かって頂点情報を設定する
+	// 頂点座標の設定(左奥から右手前に向かって頂点情報を設定する
 	for (int nCntVtx = 0; nCntVtx < nVertex; nCntVtx++)
 	{
 		float fRot = m_fRot * (nCntVtx % (nNumWidth + 1));
@@ -197,4 +197,39 @@ void CMeshDome::SetSize(float fLength, float fHeight)
 
 	// 頂点情報設定
 	SetVtxInfo();
+}
+
+//==========================================================
+// 色設定
+//==========================================================
+void CMeshDome::SetColor(float fDiff)
+{
+	int nVertex = GetVertex();			// 頂点数を取得
+	int nNumWidth = GetNumWidth();		// 幅枚数を取得
+	int nNumHeight = GetNumHeight();	// 高さ枚数を取得
+	D3DXVECTOR3 pos = GetPosition();	// 座標
+	D3DXVECTOR3 vecDir;					// 設定変更用ベクトル
+
+	// 頂点座標の設定(左奥から右手前に向かって頂点情報を設定する
+	for (int nCntVtx = 0; nCntVtx < nVertex; nCntVtx++)
+	{
+		if (fDiff >= 0.0f && fDiff < 0.5f)
+		{
+			//色
+			m_pVtx[nCntVtx].col = D3DXCOLOR(0.1f + fDiff * 2, 0.1f + fDiff * 2, 0.1f + fDiff * 2, 1.0f);
+		}
+		else if (fDiff >= 0.75f && fDiff < 0.875f)
+		{
+			//色
+			m_pVtx[nCntVtx].col = D3DXCOLOR(1.0f - (fDiff - 0.75f) * 2.0f, 1.0f - (fDiff - 0.75f) * 4, 1.0f - (fDiff - 0.75f) * 4, 1.0f);
+		}
+		else if (fDiff >= 0.875f && fDiff < 1.0f)
+		{
+			//色
+			m_pVtx[nCntVtx].col = D3DXCOLOR(0.75f - (fDiff - 0.875f) * 7.0f, 1.0f - (fDiff - 0.75f) * 4, 1.0f - (fDiff - 0.75f) * 4, 1.0f);
+		}
+	}
+
+	// 頂点設定
+	SetVtx();
 }

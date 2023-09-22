@@ -1,6 +1,7 @@
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\project013.pch
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\vc140.pdb
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\vc140.idb
+c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\precompile.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\object3d.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\objectx.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\particle.obj
@@ -56,9 +57,13 @@ c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\pr
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\fade.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\fileload.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\filter.obj
+c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\car.obj
+c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\car_manager.obj
+c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\enemy_route.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\project013.ilk
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\project013.exe
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\project013.pdb
+c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\enemy.obj.enc
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\project013.tlog\cl.command.1.tlog
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\project013.tlog\cl.read.1.tlog
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\project013.tlog\cl.write.1.tlog

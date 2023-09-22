@@ -156,7 +156,7 @@ void CBullet::Update(void)
 		if (Collision(pos, CObject::TYPE_ENEMY) == true)
 		{// 当たった場合
 			//スコアの加算
-			CManager::GetSound()->Play(CSound::LABEL_SE_BREAK);
+			CManager::GetSound()->Play(CSound::LABEL_SE_HIT);
 
 			return;	// 終了しているため返す
 		}

@@ -31,6 +31,8 @@ public:	// 誰でもアクセス可能
 	void BindFile(int nIdx);
 
 	static CObjectX *Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, const char *pFileName, const int nPriority = 4);
+	static bool Collision(D3DXVECTOR3 &pos, D3DXVECTOR3 &posOld, D3DXVECTOR3 &move, D3DXVECTOR3 vtxMin, D3DXVECTOR3 vtxMax);
+	void SetRotSize(D3DXVECTOR3 &SetMax, D3DXVECTOR3 &SetMin, D3DXVECTOR3 vtxMax, D3DXVECTOR3 vtxMin, float fRot);
 
 	// メンバ関数(設定)
 	void SetPosition(const D3DXVECTOR3 pos);
@@ -49,6 +51,10 @@ private:	// 自分だけがアクセス可能
 	D3DMATERIAL9 SetSlowCol(D3DMATERIAL9 *pMat);
 
 	// メンバ変数
+	static CObjectX *m_pTop;	// 先頭のオブジェクトへのポインタ
+	static CObjectX *m_pCur;	// 最後尾のオブジェクトへのポインタ
+	CObjectX *m_pPrev;	// 前のオブジェクトへのポインタ
+	CObjectX *m_pNext;	// 次のオブジェクトへのポインタ
 	D3DXVECTOR3 m_pos;		//位置
 	D3DXVECTOR3 m_rot;		//向き
 	D3DXMATRIX m_mtxWorld;	//ワールドマトリックス

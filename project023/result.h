@@ -10,6 +10,8 @@
 #include "manager.h"
 
 class CScore;
+class CFileLoad;
+class CMeshDome;
 
 //===============================================
 // タイトルクラスの定義(派生クラス)
@@ -34,6 +36,8 @@ public:
 
 private:
 
+	CFileLoad *m_pFileLoad;			// ファイル読み込みのポインタ
+	CMeshDome *m_pMeshSky;		// 空用
 	static CScore *m_pScore;
 	static int m_nScore;
 };

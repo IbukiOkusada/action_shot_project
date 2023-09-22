@@ -35,10 +35,15 @@ public:		// 誰でもアクセス可能
 
 	// メンバ関数(設定)
 	void SetSize(float fWidth, float fHeight);
+	static void Collision(D3DXVECTOR3 &pos, D3DXVECTOR3 &posOld);
 
 private:	// 自分だけがアクセス可能
 
 	// メンバ関数
+	static CMeshWall *m_pTop;	// 先頭のオブジェクトへのポインタ
+	static CMeshWall *m_pCur;	// 最後尾のオブジェクトへのポインタ
+	CMeshWall *m_pPrev;	// 前のオブジェクトへのポインタ
+	CMeshWall *m_pNext;	// 次のオブジェクトへのポインタ
 	float m_fWidth;		// 幅
 	float m_fHeight;	// 高さ
 };

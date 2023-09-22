@@ -18,7 +18,7 @@
 //==========================================================
 CMeshCylinder::CMeshCylinder(int nPriority) : CObjectMesh(nPriority)
 {
-
+	
 }
 
 //==========================================================
@@ -290,7 +290,7 @@ CMeshSmake *CMeshSmake::Create(const D3DXVECTOR3 pos, const D3DXVECTOR3 rot,
 	CTexture *pTexture = CManager::GetTexture();	// テクスチャへのポインタ
 
 	// メモリの確保
-	pMeshWall = new CMeshSmake(5);
+	pMeshWall = new CMeshSmake(6);
 
 	if (pMeshWall != NULL)
 	{// 確保できた場合

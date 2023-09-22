@@ -9,6 +9,8 @@
 
 #include "manager.h"
 
+class CFileLoad;
+
 //===============================================
 // タイトルクラスの定義(派生クラス)
 //===============================================
@@ -28,7 +30,9 @@ public:
 
 private:
 
+	CFileLoad *m_pFileLoad;			// ファイル読み込みのポインタ
 	int m_nTimer;	// 自動遷移タイマー
+	bool m_bClick;
 };
 
 #endif

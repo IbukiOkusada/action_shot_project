@@ -11,6 +11,7 @@
 
 // 前方宣言
 class CNumber;
+class CObject2D;
 
 //==========================================================
 // テクスチャスライドオブジェクト(2D)のクラス定義(派生クラス)
@@ -31,11 +32,13 @@ public:	// ここから関数(誰でもアクセス可能)
 	// メンバ関数
 	void Add(int nValue);
 	void Set(int nValue);
+	void SetMax(int nValue) { m_nMaxNum = nValue; }
 
 	// メンバ関数(取得)
 	int GetNum(void) { return m_nNum; }
 	int GetStartNum(void) { return m_nSetNum; }
 	float GetAnim(void) { return m_fAnimTimer; }
+	float GetDiff(void) { return m_fDiff; }
 
 private:	// 自分だけがアクセス可能
 
@@ -47,12 +50,14 @@ private:	// 自分だけがアクセス可能
 
 	// メンバ変数
 	CNumber *m_apNumber[NUM_PLACE];			// 数字のポインタ
+	CObject2D *m_pSun;	// 太陽
 	D3DXVECTOR3 m_pos;	// 座標
 	int m_nNum;	// 現在の値
 	int m_nSetNum;	// 設定値
+	int m_nMaxNum;	// 最大値
 	float m_fAnimTimer;	// 1秒カウント
+	float m_fDiff;	// 現在と最大値の差分
 	int m_nIdxTexture;	// テクスチャ番号
-	
 };
 
 #endif

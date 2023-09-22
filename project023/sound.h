@@ -19,9 +19,27 @@ public:	// 誰でもアクセス可能な定義
 	// 種類列挙
 	typedef enum
 	{
-		LABEL_BGM000 = 0,	// BGMゲーム
-		LABEL_SE_BREAK,		// 破壊音
-		LABEL_SE_GET,		// 取得音
+		LABEL_BGM_TITLE = 0,	// BGMタイトル
+		LABEL_BGM_TUTORIAL,		// BGMチュートリアル
+		LABEL_BGM_GAME,			// BGMゲーム
+		LABEL_BGM_RESULT,		// BGMリザルト
+		LABEL_BGM_RANKING,		// BGMランキング
+		LABEL_SE_CLICK,			// Enter
+		LABEL_SE_MOVE,			// 移動音
+		LABEL_SE_JUMP,			// ジャンプ音
+		LABEL_SE_LAND,			// 着地音
+		LABEL_SE_WATERGUN,		// 水鉄砲発射
+		LABEL_SE_SHW,			// シャワー発射
+		LABEL_SE_ZONE,			// ゾーンに入った
+		LABEL_SE_ZONEGUN,		// ゾーン中水鉄砲発射
+		LABEL_SE_BALLOONUP,		// 水風船膨らみ
+		LABEL_SE_BALLOONSHOT,	// 水風船発射
+		LABEL_SE_BALLOONLAND,	// 水風船着地
+		LABEL_SE_BALLOONSPLASH,	// 水風船爆発
+		LABEL_SE_HIT,			// 命中音
+		LABEL_SE_SMAKE,			// 水蒸気の煙
+		LABEL_SE_CARHIT,		// 車と衝突
+		LABEL_SE_LOCKON,		// ロックオン
 		LABEL_MAX,
 	} LABEL;
 

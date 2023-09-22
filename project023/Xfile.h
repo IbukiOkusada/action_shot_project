@@ -16,7 +16,7 @@ class CXFile
 {
 private:	// 自分だけがアクセス可能な定数定義
 
-	const static int MAX_FILE = 128;		// モデルファイルの最大数
+	const static int MAX_FILE = 256;	// モデルファイルの最大数
 	const static int MAX_NAME = 256;	// ファイル名文字数
 
 public:	// 誰でもアクセス可能な定義
@@ -49,6 +49,8 @@ public:	// 誰でもアクセス可能
 	// メンバ関数
 	 int Regist(const char *pFileName);
 	 void Unload(void);
+	 void SetSizeVtxMax(int nIdx, D3DXVECTOR3 vtxMax) { m_apModelFileData[nIdx]->filedata.vtxMax = vtxMax; }
+	 void SetSizeVtxMin(int nIdx, D3DXVECTOR3 vtxMin) { m_apModelFileData[nIdx]->filedata.vtxMin = vtxMin; }
 
 	 // メンバ関数(取得)
 	 FileData *SetAddress(int nIdx);

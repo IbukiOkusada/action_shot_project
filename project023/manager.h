@@ -30,6 +30,8 @@ class CPlayer;
 class CFileLoad;
 class CEditor;
 class CEnemyRoute;
+class CCarManager;
+class CEnemyManager;
 
 //===============================================
 // シーンクラスの定義
@@ -42,6 +44,7 @@ public:
 	enum MODE
 	{
 		MODE_TITLE = 0,	// タイトル画面
+		MODE_TUTORIAL,	// チュートリアル画面
 		MODE_GAME,		// ゲーム画面
 		MODE_RESULT,	// リザルト画面
 		MODE_RANKING,	// ランキング画面
@@ -63,6 +66,8 @@ public:
 	virtual CFileLoad *GetFileLoad(void) { return NULL; }
 	virtual CEditor *GetEditor(void) { return NULL; }
 	virtual CEnemyRoute *GetEnemyRoute(void) { return NULL; }
+	virtual CCarManager *GetCarManager(void) { return NULL; }
+	virtual CEnemyManager *GetEnemyManager(void) { return NULL; }
 	void SetMode(MODE mode) { m_mode = mode; }
 	MODE GetMode(void) { return m_mode; }
 

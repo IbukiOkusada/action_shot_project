@@ -394,7 +394,7 @@ void CObjectMesh::SetSlowCol(void)
 	for (int nCntVtx = 0; nCntVtx < m_nVertex; nCntVtx++)
 	{
 		D3DXCOLOR col = m_pVtx[nCntVtx].col;
-		m_pVtx[nCntVtx].col = D3DXCOLOR(GetSlowMul, GetSlowMul, col.b, col.a);
+		m_pVtx[nCntVtx].col = D3DXCOLOR(GetSlowMul, GetSlowMul, GetSlowMul, col.a);
 		pVtx[nCntVtx].col = (D3DXCOLOR)m_pVtx[nCntVtx].col;
 	}
 

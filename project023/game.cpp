@@ -32,14 +32,16 @@
 #include "enemy_manager.h"
 #include "car_manager.h"
 #include "enemy_route.h"
+#include "sound.h"
 
 //===============================================
 // マクロ定義
 //===============================================
-#define START_TIME	(420)	// 制限時間
+#define START_TIME	(60 * 4)	// 制限時間
 #define START_SCORE	(0)		// 開始スコア
 #define MAP_SIZE	(100.0f)	// マップサイズ
 #define STARTSET_NUMENEMY	(30)	// 開始時に配置する敵の数
+#define MAX_TIME	(60 * 20)	// 最大時間
 
 //===============================================
 // 静的メンバ変数
@@ -64,6 +66,7 @@ CGame::CGame()
 	m_pFileLoad = NULL;
 	m_pEditor = NULL;
 	m_pCarManager = NULL;
+	m_pMeshDome = NULL;
 }
 
 //===============================================
@@ -104,21 +107,22 @@ HRESULT CGame::Init(void)
 	}
 
 	// オブジェクト生成
-	CMeshDome::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 20000.0f, 10.0f, 3, 10, 10);
+	m_pMeshDome = CMeshDome::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 20000.0f, 10.0f, 3, 10, 10);
 	CMeshCylinder::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 17000.0f, 100.0f, 3, 10, 10);
 	m_pPlayer = CPlayer::Create(D3DXVECTOR3(-3900.0f, 0.0f, 3700.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f),
 		"data\\TXT\\motion_body.txt", "data\\TXT\\motion_leg.txt", 1);
 
 	// スコアの生成
-	m_pScore = CScore::Create(D3DXVECTOR3(400.0f, 50.0f, 0.0f));
+	m_pScore = CScore::Create(D3DXVECTOR3(250.0f, 50.0f, 0.0f));
 	m_pScore->Set(START_SCORE);
 
 	// タイムの生成
-	m_pTime = CTime::Create(D3DXVECTOR3(800.0f, 50.0f, 0.0f));
+	m_pTime = CTime::Create(D3DXVECTOR3(600.0f, 100.0f, 0.0f));
 	m_pTime->Set(START_TIME);
+	m_pTime->SetMax(MAX_TIME);
 
 	CObject2D *pUi = CObject2D::Create(7);
-	pUi->SetPosition(D3DXVECTOR3(560.0f, 65.0f, 0.0f));
+	pUi->SetPosition(D3DXVECTOR3(410.0f, 65.0f, 0.0f));
 	pUi->SetSize(25, 30);
 	pUi->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\target000.png"));
 
@@ -190,6 +194,11 @@ HRESULT CGame::Init(void)
 		m_pCarManager = new CCarManager;
 		m_pCarManager->Init();
 	}
+
+	// スポットライトをオン
+	CManager::GetLight()->EnablePointLight(true);
+
+	CManager::GetSound()->Play(CSound::LABEL_BGM_GAME);
 
 	return S_OK;
 }
@@ -284,6 +293,7 @@ void CGame::Uninit(void)
 	m_pPlayer = NULL;	// プレイヤーのポインタ
 	m_pMeshField = NULL;
 	m_pFileLoad = NULL;
+	m_pMeshDome = NULL;
 }
 
 //===============================================
@@ -327,10 +337,11 @@ void CGame::Update(void)
 	if (m_pTime != NULL)
 	{
 		m_pTime->Update();
-		if (m_pTime->GetNum() <= 0)
+		if (m_pTime->GetNum() >= MAX_TIME)
 		{// 時間切れ
-			m_pTime->Set(START_TIME);
-			//CManager::GetFade()->Set(CScene::MODE_RESULT);
+			//m_pTime->Set(START_TIME);
+
+			CManager::GetFade()->Set(CScene::MODE_RESULT);
 		}
 		else
 		{
@@ -339,6 +350,9 @@ void CGame::Update(void)
 
 			// 車の配置管理
 			CarSet();
+
+			// 空の色変更
+			SkySet();
 		}
 	}
 
@@ -365,6 +379,23 @@ void CGame::Update(void)
 	if (CManager::GetSlow()->Get() == 1.0f && CManager::GetSlow()->GetOld() != 1.0f)
 	{
 		CLockOn::MultiDeath();
+	}
+
+	if (m_pPlayer != NULL)
+	{
+		if (m_pTime->GetDiff() <= 0.25f || m_pTime->GetDiff() >= 0.8f)
+		{
+
+			CManager::GetLight()->SetPositonPointLight(m_pPlayer->GetPosition());
+		}
+		else if(m_pTime->GetDiff() == 0.25f)
+		{
+			CManager::GetLight()->EnablePointLight(false);
+		}
+		else if (m_pTime->GetDiff() == 0.8f)
+		{
+			CManager::GetLight()->EnablePointLight(true);
+		}
 	}
 
 	// 更新処理
@@ -495,5 +526,17 @@ void CGame::CarSet(void)
 	if (m_pCarManager != NULL)
 	{
 		m_pCarManager->Update();
+	}
+}
+
+//===================================================
+// 空の色設定
+//===================================================
+void CGame::SkySet(void)
+{
+	if (m_pMeshDome != NULL)
+	{
+		m_pMeshDome->SetColor(m_pTime->GetDiff());
+		CManager::GetLight()->SetLight(m_pTime->GetDiff());
 	}
 }

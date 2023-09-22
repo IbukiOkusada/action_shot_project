@@ -12,6 +12,11 @@
 #include "input.h"
 #include "fade.h"
 #include "score.h"
+#include "meshcylinder.h"
+#include "meshdome.h"
+#include "fileload.h"
+#include "light.h"
+#include "sound.h"
 
 //===============================================
 // マクロ定義
@@ -60,11 +65,28 @@ HRESULT CRanking::Init(void)
 	// ランクイン確認
 	RankIn(&aScore[0], m_nScore);
 
+	// オブジェクト生成
+	CMeshDome::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 20000.0f, 10.0f, 3, 10, 10);
+	CMeshCylinder::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 17000.0f, 100.0f, 3, 10, 10);
+
+	// 外部ファイル読み込みの生成
+	if (m_pFileLoad == NULL)
+	{// 使用していない場合
+		m_pFileLoad = new CFileLoad;
+
+		if (m_pFileLoad != NULL)
+		{
+			m_pFileLoad->Init();
+			m_pFileLoad->OpenFile("data\\TXT\\model.txt");
+		}
+	}
+
+
 	// ロゴの生成
-	CObject2D *p = CObject2D::Create();
+	CObject2D *p = CObject2D::Create(7);
 	p->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\ranking_logo.png"));
 	p->SetPosition(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.15f, 0.0f));
-	p->SetSize(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f);
+	p->SetSize(SCREEN_WIDTH * 0.3f, SCREEN_HEIGHT * 0.15f);
 
 	// 順位分スコアの生成
 	for (int nCntRank = 0; nCntRank < NUM_RANK; nCntRank++)
@@ -87,6 +109,10 @@ HRESULT CRanking::Init(void)
 		}
 	}
 
+	CManager::GetLight()->SetLight(0.49f);
+
+	CManager::GetSound()->Play(CSound::LABEL_BGM_RANKING);
+
 	return S_OK;
 }
 
@@ -103,6 +129,14 @@ void CRanking::Uninit(void)
 			delete m_apScore[nCntRank];	// メモリの開放
 			m_apScore[nCntRank] = NULL;	// 使用していない状態にする
 		}
+	}
+
+	if (m_pFileLoad != NULL)
+	{
+		m_pFileLoad->Uninit();
+
+		delete m_pFileLoad;		// メモリの開放
+		m_pFileLoad = NULL;
 	}
 
 	m_nScore = 0;
@@ -236,8 +270,7 @@ void CRanking::RankIn(int *pScore, int nResult)
 		{
 			if (pScore[nCntRank] == nResult)
 			{
-				m_nRank = nCntRank;	// ランクインした順位を保存
-				
+				m_nRank = nCntRank;	// ランクインした順位を保存			
 				break;
 			}
 		}

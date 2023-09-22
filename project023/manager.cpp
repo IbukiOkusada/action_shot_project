@@ -18,6 +18,7 @@
 #include "game.h"
 #include "title.h"
 #include "result.h"
+#include "tutorial.h"
 #include "fade.h"
 #include "object.h"
 #include "ranking.h"
@@ -207,8 +208,6 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 
 	// モードの生成
 	SetMode(CScene::MODE_TITLE);
-
-	m_pSound->Play(CSound::LABEL_BGM000);
 
 	return S_OK;
 }
@@ -483,6 +482,9 @@ void CManager::DataReset(void)
 		m_pModelFile = NULL;	// 使用していない状態にする
 	}
 
+	// ポイントライトを無効にする
+	m_pLight->EnablePointLight(false);
+
 	//フェードの削除
 	m_pFade = NULL;
 
@@ -575,6 +577,10 @@ CScene *CScene::Create(MODE mode)
 	{
 	case MODE_TITLE:
 		pScene = new CTitle;
+		break;
+
+	case MODE_TUTORIAL:
+		pScene = new CTutorial;
 		break;
 
 	case MODE_GAME:

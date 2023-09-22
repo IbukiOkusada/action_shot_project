@@ -10,6 +10,7 @@
 #include "debugproc.h"
 #include "shadow.h"
 #include "texture.h"
+#include "slow.h"
 
 //==========================================================
 // コンストラクタ
@@ -21,6 +22,7 @@ CCar::CCar() : CObjectX(3)
 	m_pPrev = NULL;
 	m_pNext = NULL;
 	m_pShadow = NULL;
+	m_posOld = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 }
 
 //==========================================================
@@ -62,8 +64,9 @@ void CCar::Uninit(void)
 //==========================================================
 void CCar::Update(void)
 {
+	m_posOld = GetPosition();
 	D3DXVECTOR3 pos = GetPosition();
-	pos += m_move;
+	pos += m_move * CManager::GetSlow()->Get();
 	SetPosition(pos);
 
 	if (m_pShadow != NULL)
@@ -98,6 +101,7 @@ CCar *CCar::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, const char *pFileName, cons
 
 		// 座標
 		pObjectX->SetPosition(pos);
+		pObjectX->SetOldPos(pos);
 
 		// 向き
 		pObjectX->SetRotation(rot);

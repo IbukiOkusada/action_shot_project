@@ -66,6 +66,7 @@
     <ClCompile Include="car.cpp" />
     <ClCompile Include="car_manager.cpp" />
     <ClCompile Include="enemy_route.cpp" />
+    <ClCompile Include="tutorial.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="billboard.h" />
@@ -128,5 +129,6 @@
     <ClInclude Include="car.h" />
     <ClInclude Include="car_manager.h" />
     <ClInclude Include="enemy_route.h" />
+    <ClInclude Include="tutorial.h" />
   </ItemGroup>
 </Project>

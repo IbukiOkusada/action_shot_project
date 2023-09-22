@@ -11,12 +11,30 @@
 // マクロ定義
 #define TEXTUREFILE_DATA	"data\\TEXTURE\\welltile.png"		//テクスチャデータ
 
+// 静的メンバ変数宣言
+CMeshWall *CMeshWall::m_pTop = NULL;	// 先頭のオブジェクトへのポインタ
+CMeshWall *CMeshWall::m_pCur = NULL;	// 最後尾のオブジェクトへのポインタ
+
 //==========================================================
 // コンストラクタ
 //==========================================================
 CMeshWall::CMeshWall()
 {
+	m_pNext = NULL;
+	m_pPrev = NULL;
 
+	// 自分自身をリストに追加
+	if (m_pTop != NULL)
+	{// 先頭が存在している場合
+		m_pCur->m_pNext = this;	// 現在最後尾のオブジェクトのポインタにつなげる
+		m_pPrev = m_pCur;
+		m_pCur = this;	// 自分自身が最後尾になる
+	}
+	else
+	{// 存在しない場合
+		m_pTop = this;	// 自分自身が先頭になる
+		m_pCur = this;	// 自分自身が最後尾になる
+	}
 }
 
 //==========================================================
@@ -40,6 +58,45 @@ HRESULT CMeshWall::Init(void)
 //==========================================================
 void CMeshWall::Uninit(void)
 {
+	// リストから自分自身を削除する
+	if (m_pTop == this)
+	{// 自身が先頭
+		if (m_pNext != NULL)
+		{// 次が存在している
+			m_pTop = m_pNext;	// 次を先頭にする
+			m_pNext->m_pPrev = NULL;	// 次の前のポインタを覚えていないようにする
+		}
+		else
+		{// 存在していない
+			m_pTop = NULL;	// 先頭がない状態にする
+			m_pCur = NULL;	// 最後尾がない状態にする
+		}
+	}
+	else if (m_pCur == this)
+	{// 自身が最後尾
+		if (m_pPrev != NULL)
+		{// 次が存在している
+			m_pCur = m_pPrev;			// 前を最後尾にする
+			m_pPrev->m_pNext = NULL;	// 前の次のポインタを覚えていないようにする
+		}
+		else
+		{// 存在していない
+			m_pTop = NULL;	// 先頭がない状態にする
+			m_pCur = NULL;	// 最後尾がない状態にする
+		}
+	}
+	else
+	{
+		if (m_pNext != NULL)
+		{
+			m_pNext->m_pPrev = m_pPrev;	// 自身の次に前のポインタを覚えさせる
+		}
+		if (m_pPrev != NULL)
+		{
+			m_pPrev->m_pNext = m_pNext;	// 自身の前に次のポインタを覚えさせる
+		}
+	}
+
 	//頂点バッファの廃棄
 	CObjectMesh::Uninit();
 }
@@ -128,7 +185,6 @@ CMeshWall *CMeshWall::Create(const D3DXVECTOR3 pos, const D3DXVECTOR3 rot, float
 	return pMeshWall;
 }
 
-
 //==========================================================
 // 幅設定
 //==========================================================
@@ -140,4 +196,77 @@ void CMeshWall::SetSize(float fWidth, float fHeight)
 
 	// 頂点情報設定
 	SetVtxInfo();
+}
+
+//==========================================================
+// 当たり判定
+//==========================================================
+void CMeshWall::Collision(D3DXVECTOR3 &pos, D3DXVECTOR3 &posOld)
+{
+	CMeshWall *pObj = m_pTop;
+	bool bCollision = false;		//当たったかどうか判定
+
+	while (pObj != NULL)
+	{
+		CMeshWall *pObjNext = pObj->m_pNext;
+
+		if (pObj->GetHeight() <= 30.0f && pObj->GetNumHeight() == 1)
+		{
+			pObj = pObjNext;
+			continue;
+		}
+
+		if (pObj->GetRotation().y == 0.0f * D3DX_PI || pObj->GetRotation().y == 0.0f * -D3DX_PI)
+		{//壁が正面を向いている場合(Z軸がマイナスの方を見ている)
+			if (
+				pos.y <= pObj->GetPosition().y + pObj->GetHeight() * 2 * pObj->GetNumHeight() &&
+				pos.x >= pObj->GetPosition().x - pObj->GetWidth() * pObj->GetNumWidth() &&
+				pos.x <= pObj->GetPosition().x + pObj->GetWidth() * pObj->GetNumWidth() &&
+				posOld.z <= pObj->GetPosition().z &&
+				pos.z > pObj->GetPosition().z)
+			{//当たっている場合
+				pos.z = pObj->GetPosition().z;
+			}
+		}
+		if (pObj->GetRotation().y == 0.5f * D3DX_PI)
+		{//壁が右を向いている場合(X軸がプラスの方を見ている)
+
+			if (
+				pos.y < pObj->GetPosition().y + pObj->GetHeight() * 2 * pObj->GetNumHeight() &&
+				pos.z >= pObj->GetPosition().z - pObj->GetWidth() * pObj->GetNumWidth() &&
+				pos.z <= pObj->GetPosition().z + pObj->GetWidth() * pObj->GetNumWidth() &&
+				posOld.x <= pObj->GetPosition().x &&
+				pos.x > pObj->GetPosition().x)
+			{//当たっている場合
+				pos.x = pObj->GetPosition().x;
+			}
+		}
+		if (pObj->GetRotation().y == -0.5f * D3DX_PI)
+		{//壁が左を向いている場合(X軸がマイナスの方を見ている)
+			if (
+				pos.y < pObj->GetPosition().y + pObj->GetHeight() * 2 * pObj->GetNumHeight() &&
+				pos.z >= pObj->GetPosition().z - pObj->GetWidth() * pObj->GetNumWidth() &&
+				pos.z <= pObj->GetPosition().z + pObj->GetWidth() * pObj->GetNumWidth() &&
+				posOld.x >= pObj->GetPosition().x &&
+				pos.x < pObj->GetPosition().x)
+			{//当たっている場合
+				pos.x = pObj->GetPosition().x;
+			}
+
+		}
+		if (pObj->GetRotation().y == 1.0f * D3DX_PI || pObj->GetRotation().y == 1.0f * -D3DX_PI)
+		{//壁が奥を向いている場合(Z軸がプラスの方を見ている)
+			if (
+				pos.y < pObj->GetPosition().y + pObj->GetHeight() * 2 * pObj->GetNumHeight()  &&
+				pos.x >= pObj->GetPosition().x - pObj->GetWidth() * pObj->GetNumWidth() &&
+				pos.x <= pObj->GetPosition().x + pObj->GetWidth() * pObj->GetNumWidth() &&
+				posOld.z >= pObj->GetPosition().z &&
+				pos.z < pObj->GetPosition().z)
+			{//当たっている場合
+				pos.z = pObj->GetPosition().z;
+			}
+		}
+
+		pObj = pObjNext;
+	}
 }

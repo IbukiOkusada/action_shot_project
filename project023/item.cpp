@@ -84,7 +84,7 @@ void CItem::Update(void)
 {
 	if (Collision(GetPosition()) == true)
 	{// “–‚½‚Á‚½ê‡
-		CManager::GetSound()->Play(CSound::LABEL_SE_GET);
+		
 		return;
 	}
 	// À•WXV

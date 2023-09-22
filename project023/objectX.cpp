@@ -13,12 +13,32 @@
 #include "enemy.h"
 #include "slow.h"
 
+// 静的メンバ変数宣言
+CObjectX *CObjectX::m_pTop = NULL;	// 先頭のオブジェクトへのポインタ
+CObjectX *CObjectX::m_pCur = NULL;	// 最後尾のオブジェクトへのポインタ
+
 //==========================================================
 // コンストラクタ
 //==========================================================
 CObjectX::CObjectX(int nPriority) : CObject(nPriority)
 {
 	m_nIdxModel = -1;
+
+	m_pNext = NULL;
+	m_pPrev = NULL;
+
+	// 自分自身をリストに追加
+	if (m_pTop != NULL)
+	{// 先頭が存在している場合
+		m_pCur->m_pNext = this;	// 現在最後尾のオブジェクトのポインタにつなげる
+		m_pPrev = m_pCur;
+		m_pCur = this;	// 自分自身が最後尾になる
+	}
+	else
+	{// 存在しない場合
+		m_pTop = this;	// 自分自身が先頭になる
+		m_pCur = this;	// 自分自身が最後尾になる
+	}
 }
 
 //==========================================================
@@ -48,6 +68,45 @@ HRESULT CObjectX::Init(void)
 //==========================================================
 void CObjectX::Uninit(void)
 {
+	// リストから自分自身を削除する
+	if (m_pTop == this)
+	{// 自身が先頭
+		if (m_pNext != NULL)
+		{// 次が存在している
+			m_pTop = m_pNext;	// 次を先頭にする
+			m_pNext->m_pPrev = NULL;	// 次の前のポインタを覚えていないようにする
+		}
+		else
+		{// 存在していない
+			m_pTop = NULL;	// 先頭がない状態にする
+			m_pCur = NULL;	// 最後尾がない状態にする
+		}
+	}
+	else if (m_pCur == this)
+	{// 自身が最後尾
+		if (m_pPrev != NULL)
+		{// 次が存在している
+			m_pCur = m_pPrev;			// 前を最後尾にする
+			m_pPrev->m_pNext = NULL;	// 前の次のポインタを覚えていないようにする
+		}
+		else
+		{// 存在していない
+			m_pTop = NULL;	// 先頭がない状態にする
+			m_pCur = NULL;	// 最後尾がない状態にする
+		}
+	}
+	else
+	{
+		if (m_pNext != NULL)
+		{
+			m_pNext->m_pPrev = m_pPrev;	// 自身の次に前のポインタを覚えさせる
+		}
+		if (m_pPrev != NULL)
+		{
+			m_pPrev->m_pNext = m_pNext;	// 自身の前に次のポインタを覚えさせる
+		}
+	}
+
 	// 廃棄
 	Release();
 }
@@ -235,4 +294,162 @@ D3DMATERIAL9 CObjectX::SetSlowCol(D3DMATERIAL9 *pMat)
 	mat.Emissive = D3DXCOLOR(mat.Emissive.r * GetSlowMul, mat.Emissive.r * GetSlowMul, mat.Emissive.b, mat.Emissive.a);
 
 	return mat;
+}
+
+//==========================================================
+// 当たり判定
+//==========================================================
+bool CObjectX::Collision(D3DXVECTOR3 &pos, D3DXVECTOR3 &posOld, D3DXVECTOR3 &move, D3DXVECTOR3 vtxMin, D3DXVECTOR3 vtxMax)
+{
+	CObjectX *pObj = m_pTop;	// 先頭取得
+	CXFile *pFile = CManager::GetModelFile();
+	bool bLand = true;	// 着地したか否か
+
+	while (pObj != NULL)
+	{
+		CObjectX *pObjNext = pObj->m_pNext;
+		D3DXVECTOR3 vtxObjMax = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		D3DXVECTOR3 vtxObjMin = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+
+		// 向きを反映
+		pObj->SetRotSize(vtxObjMax,
+			vtxObjMin,
+			pFile->GetMax(pObj->GetIdx()),
+			pFile->GetMin(pObj->GetIdx()),
+			pObj->m_rot.y);
+
+		if (pObj->GetType() != TYPE_MODEL)
+		{
+			pObj = pObjNext;
+			continue;
+		}
+
+		if (pos.y + vtxMax.y > pObj->m_pos.y + vtxObjMin.y
+			&& pos.y + vtxMin.y <= pObj->m_pos.y + vtxObjMax.y)
+		{//プレイヤーとモデルが同じ高さにある
+			if (posOld.x + vtxMin.x >= pObj->m_pos.x + vtxObjMax.x
+				&& pos.x + vtxMin.x < pObj->m_pos.x + vtxObjMax.x
+				&& pos.z + vtxMax.z > pObj->m_pos.z + vtxObjMin.z
+				&& pos.z + vtxMin.z < pObj->m_pos.z + vtxObjMax.z)
+			{//右から左にめり込んだ
+				pos.x = pObj->m_pos.x + vtxObjMax.x - vtxMin.x + 0.1f;
+				//move.x = 0.0f;
+			}
+			else if (posOld.x + vtxMax.x <= pObj->m_pos.x + vtxObjMin.x
+				&& pos.x + vtxMax.x > pObj->m_pos.x + vtxObjMin.x
+				&& pos.z + vtxMax.z > pObj->m_pos.z + vtxObjMin.z
+				&& pos.z + vtxMin.z < pObj->m_pos.z + vtxObjMax.z)
+			{//左から右にめり込んだ
+				//位置を戻す
+				pos.x = pObj->m_pos.x + vtxObjMin.x - vtxMax.x - 0.1f;
+				//move.x = 0.0f;
+			}
+			else if (posOld.z + vtxMin.z >= pObj->m_pos.z + vtxObjMax.z
+				&& pos.z + vtxMin.z < pObj->m_pos.z + vtxObjMax.z
+				&& pos.x + vtxMax.x > pObj->m_pos.x + vtxObjMin.x
+				&& pos.x + vtxMin.x < pObj->m_pos.x + vtxObjMax.x)
+			{//奥から手前にめり込んだ
+				//位置を戻す
+				pos.z = pObj->m_pos.z + vtxObjMax.z - vtxMin.z + 0.1f;
+				//move.z = 0.0f;
+			}
+			else if (posOld.z + vtxMax.z <= pObj->m_pos.z + vtxObjMin.z
+				&& pos.z + vtxMax.z > pObj->m_pos.z + vtxObjMin.z
+				&& pos.x + vtxMax.x > pObj->m_pos.x + vtxObjMin.x
+				&& pos.x + vtxMin.x < pObj->m_pos.x + vtxObjMax.x)
+			{//手前から奥にめり込んだt
+				//位置を戻す
+				pos.z = pObj->m_pos.z + vtxObjMin.z - vtxMax.z - 0.1f;
+				//move.z = 0.0f;
+			}
+		}
+
+		if (pos.x + vtxMax.x > pObj->m_pos.x + vtxObjMin.x
+			&& pos.x + vtxMin.x < pObj->m_pos.x + vtxObjMax.x
+			&& pos.z + vtxMax.z > pObj->m_pos.z + vtxObjMin.z
+			&& pos.z + vtxMin.z < pObj->m_pos.z + vtxObjMax.z)
+		{//範囲内にある
+		 //上からの判定
+			if (posOld.y + vtxMin.y >= pObj->m_pos.y + vtxObjMax.y
+				&& pos.y + vtxMin.y < pObj->m_pos.y + vtxObjMax.y)
+			{//上からめり込んだ
+			 //上にのせる
+				pos.y = pObj->m_pos.y + vtxObjMax.y - vtxMin.y;
+				move.y = 0.0f;
+				bLand = false;
+			}
+		}
+
+		pObj = pObjNext;
+	}
+
+	return bLand;
+}
+
+//==========================================================
+// 当たり判定
+//==========================================================
+void CObjectX::SetRotSize(D3DXVECTOR3 &SetMax, D3DXVECTOR3 &SetMin, D3DXVECTOR3 vtxMax, D3DXVECTOR3 vtxMin, float fRot)
+{
+	//向きによって変更する
+	if (fRot == 0.0f || fRot == -0.0f)
+	{//左向き
+		//最大値反映
+		SetMax.x = vtxMax.x;	//x座標
+		SetMax.y = vtxMax.y;	//y座標
+		SetMax.z = vtxMax.z;	//z座標
+
+		//最小値反映
+		SetMin.x = vtxMin.x;	//x座標
+		SetMin.y = vtxMin.y;	//y座標
+		SetMin.z = vtxMin.z;	//z座標
+	}
+	if (fRot == D3DX_PI * 0.5f)
+	{//左向き
+		//最大値反映
+		SetMax.x = vtxMax.z;	//x座標
+		SetMax.y = vtxMax.y;	//y座標
+		SetMax.z = -vtxMin.x;	//z座標
+
+		//最小値反映
+		SetMin.x = vtxMin.z;	//x座標
+		SetMin.y = vtxMin.y;	//y座標
+		SetMin.z = -vtxMax.x;	//z座標
+	}
+	else if (fRot == -D3DX_PI * 0.5f)
+	{//右向き
+		//最大値反映
+		SetMax.x = -vtxMin.z;	//x座標
+		SetMax.y = vtxMax.y;	//y座標
+		SetMax.z = vtxMax.x;	//z座標
+
+		//最小値反映
+		SetMin.x = -vtxMax.z;	//x座標
+		SetMin.y = vtxMin.y;	//y座標
+		SetMin.z = vtxMin.x;	//z座標
+	}
+	else if (fRot == -D3DX_PI || fRot == D3DX_PI)
+	{//反転している場合
+		//高さ以外の最大値を最小値にする
+		SetMax.x = -vtxMin.x;	//x座標
+		SetMax.y = vtxMax.y;	//y座標
+		SetMax.z = -vtxMin.z;	//z座標
+
+		//高さ以外の最小値を最大値にする
+		SetMin.x = -vtxMax.x;	//x座標
+		SetMin.y = vtxMin.y;	//y座標
+		SetMin.z = -vtxMax.z;	//z座標
+	}
+	else
+	{//それ以外の場合
+		//最大値反映
+		SetMax.x = vtxMax.x;	//x座標
+		SetMax.y = vtxMax.y;	//y座標
+		SetMax.z = vtxMax.z;	//z座標
+
+		//最小値反映
+		SetMin.x = vtxMin.x;	//x座標
+		SetMin.y = vtxMin.y;	//y座標
+		SetMin.z = vtxMin.z;	//z座標
+	}
 }

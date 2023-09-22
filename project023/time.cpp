@@ -11,11 +11,14 @@
 #include "number.h"
 #include "object2D.h"
 #include "slow.h"
+#include "debugproc.h"
 
 // マクロ定義
-#define WIDTH	(30)	// 幅
-#define X_SPACE	(60)	// 横の移動量
-#define HEIGHT	(60)	// 高さ
+#define WIDTH	(60)	// 幅
+#define X_SPACE	(50)	// 横の移動量
+#define HEIGHT	(80)	// 高さ
+#define NUM_WIDTH	(20)
+#define NUM_HEIGHT	(40)
 
 //===============================================
 // コンストラクタ
@@ -28,10 +31,13 @@ CTime::CTime()
 		m_apNumber[nCnt] = NULL;
 	}
 
+	m_pSun = NULL;
 	m_pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_nNum = 0;
 	m_fAnimTimer = 0.0f;
 	m_nIdxTexture = -1;
+	m_nMaxNum = 0;
+	m_fDiff = 0.0f;
 }
 
 //===============================================
@@ -49,8 +55,18 @@ HRESULT CTime::Init(void)
 {
 	CTexture *pTexture = CManager::GetTexture();
 
+	m_pSun = CObject2D::Create(7);
+	m_pSun->BindTexture(pTexture->Regist("data\\TEXTURE\\timer000.png"));
+	m_pSun->SetLength((HEIGHT + WIDTH) * 2, (HEIGHT + WIDTH) * 2);
+	m_pSun->SetPosition(D3DXVECTOR3(m_pos.x + X_SPACE * 1.25f + NUM_WIDTH, m_pos.y - HEIGHT * 1.25f, 0.0f));
+	m_pSun->SetVtx();
+
 	// テクスチャの読み込み
 	m_nIdxTexture = pTexture->Regist(CTexture::GetFileName(CTexture::TYPE_TIMER));
+	CObject2D *pObj = CObject2D::Create(7);
+	pObj->SetPosition(D3DXVECTOR3(m_pos.x + X_SPACE * 1.0f + NUM_WIDTH * 1.75f, m_pos.y, 0.0f));
+	pObj->SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f));
+	pObj->SetSize(NUM_WIDTH * 2 + X_SPACE * 1.5f, NUM_HEIGHT);
 
 	for (int nCnt = 0; nCnt < NUM_PLACE; nCnt++)
 	{
@@ -60,7 +76,7 @@ HRESULT CTime::Init(void)
 		{// 使用していない場合
 			D3DXVECTOR3 pos = m_pos;	// 設定座標
 			pos.x += nCnt * X_SPACE;	// 横移動
-			m_apNumber[nCnt] = CNumber::Create(pos, WIDTH, HEIGHT);
+			m_apNumber[nCnt] = CNumber::Create(pos, NUM_WIDTH, NUM_HEIGHT);
 
 
 			if (m_apNumber[nCnt] != NULL)
@@ -99,10 +115,10 @@ void CTime::Update(void)
 {
 	m_fAnimTimer += CManager::GetSlow()->Get();
 
-	if (m_fAnimTimer >= 60)
+	if (m_fAnimTimer >= 15)
 	{// 60フレーム立った
 		m_fAnimTimer = 0;	// カウンターリセット
-		Add(-1);
+		Add(1);
 	}
 }
 
@@ -140,8 +156,24 @@ void CTime::Add(int nValue)
 	// 代入
 	m_nNum += nValue;
 
-	// 数値設定
-	SetValue();
+	if (m_nNum % 10 == 0)
+	{
+		// 数値設定
+		SetValue();
+	}
+
+	// 角度変更
+	float fRot = m_pSun->GetRotation().y;
+	m_fDiff = (float)(m_nNum - m_nSetNum) / (float)(m_nMaxNum - m_nSetNum);
+
+	fRot = m_fDiff * (-D3DX_PI * 2);
+
+	if (fRot < -D3DX_PI)
+	{
+		fRot += D3DX_PI * 2;
+	}
+	m_pSun->SetRotation(D3DXVECTOR3(0.0f, 0.0f, fRot));
+	m_pSun->SetVtx();
 }
 
 //===============================================
@@ -189,4 +221,3 @@ void CTime::SetValue(void)
 		}
 	}
 }
-

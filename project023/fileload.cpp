@@ -40,7 +40,8 @@
 #define LOAD_SIZE		"SIZE"					// サイズ
 #define LOAD_SHADOW		"SHADOW"				// 影
 #define LOAD_UPDOWN		"UPDOWN"				// 起伏
-
+#define LOAD_VTXMAX		"VTXMAX"				// 当たり判定最大
+#define LOAD_VTXMIN		"VTXMIN"				// 当たり判定最小
 
 //==========================================================
 // コンストラクタ
@@ -123,6 +124,7 @@ void CFileLoad::OpenFile(const char *pFileName)
 void CFileLoad::LoadFileData(FILE *pFile)
 {
 	char aStr[256];	//余分な文章読み込み用
+	int nModelIdx = -1;	// 当たり判定確認場所
 
 	while (1)
 	{
@@ -146,6 +148,17 @@ void CFileLoad::LoadFileData(FILE *pFile)
 		else if (strcmp(&aStr[0], MODELFILENAME_TXT) == 0)
 		{//モデルファイル名の場合
 			LoadModelFile(pFile);
+			nModelIdx++;
+		}
+
+		// サイズ確認
+		if (strcmp(&aStr[0], LOAD_VTXMAX) == 0)
+		{//テクスチャファイル名の場合
+			LoadVtxMaxData(pFile, nModelIdx);
+		}
+		else if (strcmp(&aStr[0], LOAD_VTXMIN) == 0)
+		{//モデルファイル名の場合
+			LoadVtxMinData(pFile, nModelIdx);
 		}
 
 		//配置情報確認
@@ -558,4 +571,36 @@ int CFileLoad::GetModelNum(const char *pFileName)
 	}
 
 	return nIdx;
+}
+
+//==========================================================
+// 成功
+//==========================================================
+void CFileLoad::LoadVtxMaxData(FILE *pFile, int nIdx)
+{
+	char aStr[256];	//余分な文章読み込み用
+	D3DXVECTOR3 VtxMax = CManager::GetModelFile()->GetMax(nIdx);
+
+	fscanf(pFile, "%s", &aStr[0]);	//(=)読み込み
+	fscanf(pFile, "%f", &VtxMax.x);	//x座標読み込み
+	fscanf(pFile, "%f", &VtxMax.y);	//y座標読み込み
+	fscanf(pFile, "%f", &VtxMax.z);	//z座標読み込み
+
+	CManager::GetModelFile()->SetSizeVtxMax(nIdx, VtxMax);
+}
+
+//==========================================================
+// 成功
+//==========================================================
+void CFileLoad::LoadVtxMinData(FILE *pFile, int nIdx)
+{
+	char aStr[256];	//余分な文章読み込み用
+	D3DXVECTOR3 VtxMin = CManager::GetModelFile()->GetMin(nIdx);
+
+	fscanf(pFile, "%s", &aStr[0]);	//(=)読み込み
+	fscanf(pFile, "%f", &VtxMin.x);	//x座標読み込み
+	fscanf(pFile, "%f", &VtxMin.y);	//y座標読み込み
+	fscanf(pFile, "%f", &VtxMin.z);	//z座標読み込み
+
+	CManager::GetModelFile()->SetSizeVtxMin(nIdx, VtxMin);
 }

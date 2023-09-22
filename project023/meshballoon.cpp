@@ -14,6 +14,7 @@
 #include "bullet.h"
 #include "wet.h"
 #include "particle.h"
+#include "sound.h"
 
 // マクロ定義
 #define TEXTUREFILE_DATA	"data\\TEXTURE\\balloon001.jpg"		//テクスチャデータ
@@ -80,7 +81,7 @@ void CMeshBalloon::Update(void)
 	// 移動
 	D3DXVECTOR3 pos = GetPosition();
 	D3DXVECTOR3 nor = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	float fHeight = CGame::GetMeshField()->GetHeight(GetPosition(), nor);
+	float fHeight = CMeshField::GetHeight(GetPosition());
 	m_move.y += GRAVITY * CManager::GetSlow()->Get();
 	pos += m_move * CManager::GetSlow()->Get();
 
@@ -90,6 +91,7 @@ void CMeshBalloon::Update(void)
 		m_move.y *= -0.6f;
 		m_move.x *= 0.5f;
 		m_move.z *= 0.5f;
+		CManager::GetSound()->Play(CSound::LABEL_SE_BALLOONLAND);
 
 		if (m_State == STATE_NONE)
 		{// 破裂前の場合
@@ -380,7 +382,7 @@ void CMeshBalloon::UpdateState(void)
 				pBullet->SetLife(300.0f);
 			}
 
-			float fHeight = CGame::GetMeshField()->GetHeight(GetPosition(), nor);
+			float fHeight = CMeshField::GetHeight(GetPosition());
 
 			// 濡れ跡の生成
 			CWet::Create(D3DXVECTOR3(GetPosition().x, fHeight + 0.05f, GetPosition().z), m_fLength, m_fLength);
@@ -393,6 +395,7 @@ void CMeshBalloon::UpdateState(void)
 			}
 
 			CParticle::Create(D3DXVECTOR3(GetPosition().x, fHeight + 0.05f, GetPosition().z), CEffect::TYPE_SMAKE);
+			CManager::GetSound()->Play(CSound::LABEL_SE_BALLOONSPLASH);
 
 			// 終了処理
 			Uninit();

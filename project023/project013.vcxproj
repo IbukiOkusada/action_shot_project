@@ -78,6 +78,7 @@
     <ClCompile Include="thermo.cpp" />
     <ClCompile Include="time.cpp" />
     <ClCompile Include="title.cpp" />
+    <ClCompile Include="tutorial.cpp" />
     <ClCompile Include="waist.cpp" />
     <ClCompile Include="wet.cpp" />
     <ClCompile Include="Xfile.cpp" />
@@ -140,6 +141,7 @@
     <ClInclude Include="thermo.h" />
     <ClInclude Include="time.h" />
     <ClInclude Include="title.h" />
+    <ClInclude Include="tutorial.h" />
     <ClInclude Include="waist.h" />
     <ClInclude Include="wet.h" />
     <ClInclude Include="Xfile.h" />

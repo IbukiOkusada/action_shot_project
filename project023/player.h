@@ -21,6 +21,7 @@ class CModel;
 class CLockOn;
 class CMeshOrbit;
 class CObject3D;
+class CCar;
 
 //==========================================================
 // プレイヤーのクラス定義(派生クラス)
@@ -149,6 +150,7 @@ private:	// 自分だけがアクセス可能
 	float m_fRotDest;		// 角度計算
 	CShadow *pShadow;		// 影
 	CLockOn *m_pLockon;		// ロックオン
+	CCar *m_pCar;
 	int m_aWepNum[WEAPON_MAX];						// 武器ファイル読み込み番号
 	static const D3DXVECTOR3 SetWepPos[WEAPON_MAX];	// 武器設定位置
 	static const int m_aWepTimer[ATK_MAX];			// 攻撃タイマー	

@@ -9,16 +9,20 @@
 #include "manager.h"
 #include "slow.h"
 #include "shadow.h"
+#include "Xfile.h"
+#include "sound.h"
 
 // マクロ定義
 #define LOAD_POSX	(-200.0f)	// 生成X座標
 #define LOAD_POSY	(-30.0f)	// 生成Y座標
 #define LOAD_POSZ	(-4200.0f)	// 生成Z座標
 #define MOVE_Z		(11.0f)		// Z移動量
-#define SPAWN_DEF	(160)		// 基本生成カウント
+#define SPAWN_DEF	(120)		// 基本生成カウント
 #define SPAWN_RAND	(180)		// ランダム分生成カウント
 
+//===============================================
 // 静的メンバ変数
+//===============================================
 const char *CCarManager::m_apFileName[MAX_CAR] = 
 {
 	"data\\MODEL\\car000.x",
@@ -29,7 +33,9 @@ const char *CCarManager::m_apFileName[MAX_CAR] =
 	"data\\MODEL\\car005.x",
 };
 
+//===============================================
 // 静的メンバ変数
+//===============================================
 const D3DXVECTOR2 CCarManager::m_aShadowSize[MAX_CAR] =
 {
 	{ 100.0f, 200.0f },
@@ -200,10 +206,20 @@ void CCarManager::Spawn(void)
 
 		int nRand = rand() % MAX_CAR;
 
+		CCar *pCar = NULL;
 		rot.y = D3DX_PI * nCnt;
-		CCar *pCar = CCar::Create(pos, rot, m_apFileName[nRand]);
-		pCar->SetMove(move);
-		pCar->GetShadow()->SetpVtx(m_aShadowSize[nRand].x, m_aShadowSize[nRand].y);
+		if (CManager::GetMode() != CScene::MODE_TUTORIAL)
+		{
+			pCar = CCar::Create(pos, rot, m_apFileName[nRand]);
+			pCar->SetMove(move);
+			pCar->GetShadow()->SetpVtx(m_aShadowSize[nRand].x, m_aShadowSize[nRand].y);
+		}
+		else
+		{
+			pCar = CCar::Create(pos, rot, m_apFileName[4]);
+			pCar->SetMove(move);
+			pCar->GetShadow()->SetpVtx(m_aShadowSize[4].x, m_aShadowSize[4].y);
+		}
 
 		// リストに設定
 		BindList(pCar, (LOAD)nCnt);
@@ -261,4 +277,128 @@ void CCarManager::Delete(void)
 			pCar = pCarNext;
 		}
 	}
+}
+
+//===============================================
+// 当たり判定
+//===============================================
+CCar *CCarManager::Collision(D3DXVECTOR3 &pos, D3DXVECTOR3 &posOld, D3DXVECTOR3 &move, D3DXVECTOR3 vtxMin, D3DXVECTOR3 vtxMax, bool *pJump)
+{
+	CXFile *pFile = CManager::GetModelFile();
+	bool bLand = true;	// 着地したか否か
+	*pJump = true;
+
+	// 車線分繰り返し
+	for (int nCnt = 0; nCnt < LOAD_MAX; nCnt++)
+	{
+		CCar *pCar = m_apTop[nCnt];
+
+		while (pCar != NULL)
+		{
+			CCar *pCarNext = pCar->GetNext();
+			D3DXVECTOR3 vtxObjMax = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+			D3DXVECTOR3 vtxObjMin = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+
+			// 向きを反映
+			pCar->SetRotSize(vtxObjMax,
+				vtxObjMin,
+				pFile->GetMax(pCar->GetIdx()),
+				pFile->GetMin(pCar->GetIdx()),
+				pCar->GetRotation().y);
+
+			if (pos.x + vtxMax.x > pCar->GetPosition().x + vtxObjMin.x
+				&& pos.x + vtxMin.x < pCar->GetPosition().x + vtxObjMax.x
+				&& pos.z + vtxMax.z > pCar->GetPosition().z + vtxObjMin.z
+				&& pos.z + vtxMin.z < pCar->GetPosition().z + vtxObjMax.z)
+			{//範囲内にある
+			 //上からの判定
+				if (posOld.y + vtxMin.y >= pCar->GetPosition().y + vtxObjMax.y
+					&& pos.y + vtxMin.y < pCar->GetPosition().y + vtxObjMax.y)
+				{//上からめり込んだ
+				 //上にのせる
+					pos.y = pCar->GetPosition().y + vtxObjMax.y - vtxMin.y;
+					pos += pCar->GetMove();
+					move.y = 0.0f;
+					*pJump = false;
+
+					return pCar;
+				}
+			}
+
+			if (pos.y + vtxMax.y > pCar->GetPosition().y + vtxObjMin.y
+				&& pos.y + vtxMin.y <= pCar->GetPosition().y + vtxObjMax.y)
+			{//プレイヤーとモデルが同じ高さにある
+				if (posOld.x + vtxMin.x >= pCar->GetPosition().x + vtxObjMax.x
+					&& pos.x + vtxMin.x < pCar->GetPosition().x + vtxObjMax.x
+					&& pos.z + vtxMax.z > pCar->GetPosition().z + vtxObjMin.z
+					&& pos.z + vtxMin.z < pCar->GetPosition().z + vtxObjMax.z)
+				{//右から左にめり込んだ
+					pos.x = pCar->GetPosition().x + vtxObjMax.x - vtxMin.x + 0.1f;
+					move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+					pos.y += 5.0f;
+					move.x = rand() % 20 * 0.1f + 15.0f;
+					move.y = 7.0f;
+					CManager::GetSound()->Play(CSound::LABEL_SE_CARHIT);
+
+					return NULL;
+				}
+				else if (posOld.x + vtxMax.x <= pCar->GetPosition().x + vtxObjMin.x
+					&& pos.x + vtxMax.x > pCar->GetPosition().x + vtxObjMin.x
+					&& pos.z + vtxMax.z > pCar->GetPosition().z + vtxObjMin.z
+					&& pos.z + vtxMin.z < pCar->GetPosition().z + vtxObjMax.z)
+				{//左から右にめり込んだ
+				 //位置を戻す
+					pos.x = pCar->GetPosition().x + vtxObjMin.x - vtxMax.x - 0.1f;
+					move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+					pos.y += 5.0f;
+					move.x = rand() % 20 * -0.1f + -15.0f;
+					move.y = 7.0f;
+					CManager::GetSound()->Play(CSound::LABEL_SE_CARHIT);
+					return NULL;
+				}
+				else if (((posOld.z + vtxMin.z >= pCar->GetPosition().z + vtxObjMax.z
+					&& pos.z + vtxMin.z < pCar->GetPosition().z + vtxObjMax.z) || (pos.z + vtxMin.z >= pCar->GetOldPos().z + vtxObjMax.z
+						&& pos.z + vtxMin.z < pCar->GetPosition().z + vtxObjMax.z))
+					&& (pos.x + vtxMax.x > pCar->GetPosition().x + vtxObjMin.x
+					&& pos.x + vtxMin.x < pCar->GetPosition().x + vtxObjMax.x))
+				{//奥から手前にめり込んだ
+					//位置を戻す
+					pos.z = pCar->GetPosition().z + vtxObjMax.z - vtxMin.z + 0.1f;
+					move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+					pos.y += 5.0f;
+					move.y = 7.0f;
+					move.x = rand() % (200 - 100) * 0.1f;
+					if (pCar->GetMove().z > 0.0f)
+					{
+						move.z = pCar->GetMove().z;
+					}
+					CManager::GetSound()->Play(CSound::LABEL_SE_CARHIT);
+					return NULL;
+				}
+				else if (((posOld.z + vtxMax.z <= pCar->GetPosition().z + vtxObjMin.z
+					&& pos.z + vtxMax.z > pCar->GetPosition().z + vtxObjMin.z) || (pos.z + vtxMax.z <= pCar->GetOldPos().z + vtxObjMin.z
+						&& pos.z + vtxMax.z > pCar->GetPosition().z + vtxObjMin.z))
+					&& (pos.x + vtxMax.x > pCar->GetPosition().x + vtxObjMin.x
+					&& pos.x + vtxMin.x < pCar->GetPosition().x + vtxObjMax.x))
+				{//手前から奥にめり込んだt
+					//位置を戻す
+					pos.z = pCar->GetPosition().z + vtxObjMin.z - vtxMax.z - 0.1f;
+					move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+					pos.y += 5.0f;
+					move.y = 7.0f;
+					move.x = rand() % (200 - 100) * 0.1f;
+					if(pCar->GetMove().z < 0.0f)
+					{
+						move.z = pCar->GetMove().z;
+					}
+					CManager::GetSound()->Play(CSound::LABEL_SE_CARHIT);
+					return NULL;
+				}
+			}
+
+			pCar = pCarNext;
+		}
+	}
+
+	return NULL;
 }

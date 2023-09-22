@@ -30,6 +30,11 @@
 #include "filter.h"
 #include "object2D.h"
 #include "meshballoon.h"
+#include "meshwall.h"
+#include "objectX.h"
+#include "car_manager.h"
+#include "car.h"
+#include "sound.h"
 
 //===============================================
 // マクロ定義
@@ -50,6 +55,8 @@
 #define NOCHARGE_CNT	(20)		// チャージまでのカウント数
 #define BALLOON_MOVE	(25.0f)		// 風船移動量
 #define BALLOON_WEIGHT	(150.0f)	// 最大重量
+#define WIDTH	(20.0f)		// 幅
+#define HEIGHT	(80.0f)		// 高さ
 
 //===============================================
 // 武器ごとの設定
@@ -154,6 +161,7 @@ CPlayer::CPlayer(int nPriOrity)
 	m_fAttackTimer = 0;
 	m_nAttackHand = 0;
 	m_fChargeCnt = 0;
+	m_pCar = NULL;
 
 	for (int nCnt = 0; nCnt < WEAPON_MAX; nCnt++)
 	{
@@ -496,6 +504,8 @@ CPlayer *CPlayer::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 move, con
 		// 向き設定
 		pPlayer->SetRotation(rot);
 
+		pPlayer->m_fRotDest = rot.y;
+
 		// 移動量設定
 		pPlayer->SetMove(move);
 
@@ -679,17 +689,37 @@ void CPlayer::Controller(void)
 	}
 
 	// 最低ライン判定
+	bool m_bOld = m_bJump;
 	m_bJump = true;
+	bool bOldJump;
+
+	// オブジェクトとの当たり判定
+	D3DXVECTOR3 vtxMax = D3DXVECTOR3(WIDTH, HEIGHT, WIDTH);
+	D3DXVECTOR3 vtxMin = D3DXVECTOR3(-WIDTH, 0.0f, -WIDTH);
+	m_bJump = CObjectX::Collision(pos, m_Info.posOld, m_Info.move, vtxMin, vtxMax);
+	bOldJump = m_bJump;
+
+	// 車との当たり判定
+	m_pCar = CManager::GetScene()->GetCarManager()->Collision(pos, m_Info.posOld, m_Info.move, vtxMin, vtxMax, &m_bJump);
+
+	if (bOldJump == false && m_bJump == true)
+	{
+		m_bJump = bOldJump;
+	}
+
+	// 壁との当たり判定
+	CMeshWall::Collision(pos, m_Info.posOld);
+
+	// 起伏との当たり判定
+	D3DXVECTOR3 nor = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	float fHeight = CMeshField::GetHeight(pos);
+
 	if (pos.y < -30.0f)
 	{
 		m_Info.move.y = 0.0f;
 		pos.y = -30.0f;
 		m_bJump = false;
 	}
-
-	// 起伏との当たり判定
-	D3DXVECTOR3 nor = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	float fHeight = CMeshField::GetHeight(pos);
 
 	if (fHeight > pos.y)
 	{// 
@@ -707,12 +737,17 @@ void CPlayer::Controller(void)
 		m_pLeg->GetMotion()->BlendSet(LMOTION_JUMP);
 	}
 
+
+	if (m_bOld == true && m_bJump == false)
+	{
+		CManager::GetSound()->Play(CSound::LABEL_SE_LAND);
+	}
+
 	// 影の座標更新
 	if (pShadow != NULL)
 	{
 		pShadow->SetPosition(D3DXVECTOR3(m_pBody->GetParts(0)->GetMtxWorld()->_41, fHeight + 0.01f, m_pBody->GetParts(0)->GetMtxWorld()->_43));
 	}
-
 
 	// 頂点情報設定
 	SetRotation(rot);
@@ -722,7 +757,7 @@ void CPlayer::Controller(void)
 	if (m_pMapIcon != NULL)
 	{
 		m_pMapIcon->SetPosition(GetPosition());
-
+		m_pMapIcon->SetRotation(GetRotation());
 	}
 
 	pos = GetPosition();
@@ -842,6 +877,7 @@ void CPlayer::Slow(void)
 
 			if (m_bSlow == true)
 			{
+				CManager::GetSound()->Play(CSound::LABEL_SE_ZONE);
 				CManager::GetCamera()->SetOldRot(CManager::GetCamera()->GetRotation());
 				m_bAttack = false;
 
@@ -1091,6 +1127,7 @@ void CPlayer::Attack(void)
 				// 弾の発射
 				pBullet = CBullet::Create(D3DXVECTOR3(mtx._41, mtx._42, mtx._43),
 					D3DXVECTOR3(BulletMove.x, BulletMove.y, BulletMove.z), CBullet::TYPE_NONE);
+				CManager::GetSound()->Play(CSound::LABEL_SE_WATERGUN);
 
 				if (m_pLockon->GetLock() == true)
 				{// ロックオンしている
@@ -1182,6 +1219,7 @@ void CPlayer::Attack(void)
 			}
 
 			CParticle::Create(D3DXVECTOR3(mtx._41, mtx._42, mtx._43), CamRot, CEffect::TYPE_SHWBULLET);
+			CManager::GetSound()->Play(CSound::LABEL_SE_SHW);
 
 			break;
 		}
@@ -1229,8 +1267,15 @@ void CPlayer::Jump(void)
 				m_pBody->GetMotion()->BlendSet(BMOTION_JUMP);
 			}
 			m_pLeg->GetMotion()->BlendSet(LMOTION_JUMP);
+
 			m_Info.move.x += (0.0f - m_Info.move.x) * 0.25f;	//x座標
 			m_Info.move.z += (0.0f - m_Info.move.z) * 0.25f;	//x座標
+
+			if (m_pCar != NULL)
+			{
+				m_Info.move.x += m_pCar->GetMove().x * CManager::GetSlow()->Get();	//x座標
+				m_Info.move.z += m_pCar->GetMove().z * CManager::GetSlow()->Get();	//x座標
+			}
 		}
 	}
 }
@@ -1289,6 +1334,7 @@ void CPlayer::SlowShw(void)
 				m_pBalloon->AddLength(0.5f);
 				pos.x += -0.5f;
 				m_pBalloon->SetPosition(pos);
+				CManager::GetSound()->Play(CSound::LABEL_SE_BALLOONUP);
 			}
 		}
 	}
@@ -1333,6 +1379,8 @@ void CPlayer::SlowShw(void)
 				//pBullet->SetInerMove(D3DXVECTOR3(m_Info.move.x, 0.0f, m_Info.move.z));
 				pBullet->SetLife(300.0f);
 			}
+
+			CManager::GetSound()->Play(CSound::LABEL_SE_SHW);
 		}
 		else
 		{
@@ -1340,6 +1388,7 @@ void CPlayer::SlowShw(void)
 			if (m_pBalloon != NULL)
 			{
 				ShotBalloon();
+				CManager::GetSound()->Play(CSound::LABEL_SE_BALLOONSHOT);
 			}
 		}
 
@@ -1417,6 +1466,7 @@ void CPlayer::SlowGun(void)
 			pLock = pBulNext;	// 次に移動
 		}
 
+		CManager::GetSound()->Play(CSound::LABEL_SE_ZONEGUN);
 		m_bSlow = false;
 		m_nSlowTime = 0;
 	}
@@ -1486,6 +1536,7 @@ void CPlayer::Particle(void)
 			if (pMotion->GetNowFrame() == 0 && (pMotion->GetNowKey() == 0 || pMotion->GetNowKey() == 2))
 			{// 地面を蹴った
 				CParticle::Create(m_Info.pos, D3DXVECTOR3(m_Info.move.x, 0.0f, m_Info.move.z), CEffect::TYPE_DUST);
+				CManager::GetSound()->Play(CSound::LABEL_SE_MOVE);
 			}
 		}
 		else if (pMotion->GetNowMotion() == BMOTION_JUMP)
@@ -1494,6 +1545,7 @@ void CPlayer::Particle(void)
 			{// 地面を蹴った
 				CParticle::Create(D3DXVECTOR3(m_Info.pos.x, m_Info.posOld.y, m_Info.pos.z), m_Info.move, CEffect::TYPE_DUST);
 				CParticle::Create(m_Info.pos, m_Info.move, CEffect::TYPE_SWAP);
+				CManager::GetSound()->Play(CSound::LABEL_SE_JUMP);
 			}
 		}
 	}
