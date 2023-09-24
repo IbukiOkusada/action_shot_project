@@ -1,2 +1,4 @@
-﻿  project013.vcxproj -> C:\Users\student\Documents\Visual Studio 2015\Projects\C++DirectX\action_shot\project023\Debug\project013.exe
+﻿  title.cpp
+cl : コマンド ライン warning D9028: 簡易リビルド時のエラーです、通常のビルドに戻します
+  project013.vcxproj -> C:\Users\student\Documents\Visual Studio 2015\Projects\C++DirectX\action_shot\project023\Debug\project013.exe
   project013.vcxproj -> C:\Users\student\Documents\Visual Studio 2015\Projects\C++DirectX\action_shot\project023\Debug\project013.pdb (Full PDB)

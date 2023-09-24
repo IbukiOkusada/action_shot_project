@@ -17,6 +17,8 @@
 #include "fileload.h"
 #include "light.h"
 #include "sound.h"
+#include "camera.h"
+#include "car_manager.h"
 
 //===============================================
 // マクロ定義
@@ -66,7 +68,7 @@ HRESULT CRanking::Init(void)
 	RankIn(&aScore[0], m_nScore);
 
 	// オブジェクト生成
-	CMeshDome::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 20000.0f, 10.0f, 3, 10, 10);
+	CMeshDome *pMesh = CMeshDome::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 20000.0f, 10.0f, 3, 10, 10);
 	CMeshCylinder::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXVECTOR3(0.0f, 0.0f, 0.0f), 17000.0f, 100.0f, 3, 10, 10);
 
 	// 外部ファイル読み込みの生成
@@ -85,8 +87,8 @@ HRESULT CRanking::Init(void)
 	// ロゴの生成
 	CObject2D *p = CObject2D::Create(7);
 	p->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\ranking_logo.png"));
-	p->SetPosition(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.15f, 0.0f));
-	p->SetSize(SCREEN_WIDTH * 0.3f, SCREEN_HEIGHT * 0.15f);
+	p->SetPosition(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.125f, 0.0f));
+	p->SetSize(SCREEN_WIDTH * 0.25f, SCREEN_HEIGHT * 0.11f);
 
 	// 順位分スコアの生成
 	for (int nCntRank = 0; nCntRank < NUM_RANK; nCntRank++)
@@ -95,11 +97,11 @@ HRESULT CRanking::Init(void)
 		{
 			p = CObject2D::Create(7);
 			p->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\ranking001.png"));
-			p->SetPosition(D3DXVECTOR3(350.0f, 250.0f + nCntRank * 100.0f, 0.0f));
-			p->SetSize(30, 50);
+			p->SetPosition(D3DXVECTOR3(395.0f, 250.0f + nCntRank * 100.0f, 0.0f));
+			p->SetSize(40, 50);
 			p->SetVtx(nCntRank + 1, 10, 1);
 
-			m_apScore[nCntRank] = CScore::Create(D3DXVECTOR3(450.0f, 250.0f + nCntRank * 100.0f, 0.0f), 8);
+			m_apScore[nCntRank] = CScore::Create(D3DXVECTOR3(495.0f, 250.0f + nCntRank * 100.0f, 0.0f), 8);
 			m_apScore[nCntRank]->Set(aScore[nCntRank]);
 
 			if (m_nRank == nCntRank)
@@ -109,7 +111,23 @@ HRESULT CRanking::Init(void)
 		}
 	}
 
-	CManager::GetLight()->SetLight(0.49f);
+	if (CManager::GetCamera() != NULL)
+	{
+		CManager::GetCamera()->SetRotation(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * 0.475f));
+		CManager::GetCamera()->SetPositionR(D3DXVECTOR3(0.0f, 50.0f, 0.0f));
+		CManager::GetCamera()->SetLength(300.0f);
+	}
+
+	// カーマネージャーを生成
+	if (m_pCarManager == NULL)
+	{
+		m_pCarManager = new CCarManager;
+		m_pCarManager->Init();
+		m_pCarManager->SetRanking();
+	}
+
+	CManager::GetLight()->SetLight(0.9f);
+	pMesh->SetColor(0.9f);
 
 	CManager::GetSound()->Play(CSound::LABEL_BGM_RANKING);
 
@@ -129,6 +147,14 @@ void CRanking::Uninit(void)
 			delete m_apScore[nCntRank];	// メモリの開放
 			m_apScore[nCntRank] = NULL;	// 使用していない状態にする
 		}
+	}
+
+	// カーマネージャー
+	if (m_pCarManager != NULL)
+	{
+		m_pCarManager->Uninit();
+		delete m_pCarManager;
+		m_pCarManager = NULL;
 	}
 
 	if (m_pFileLoad != NULL)
@@ -154,8 +180,6 @@ void CRanking::Update(void)
 		CManager::GetFade()->Set(CScene::MODE_TITLE);
 	}
 
-	CScene::Update();
-
 	if (CManager::GetFade()->GetState() == CFade::STATE_NONE)
 	{
 		m_nTimer++;
@@ -165,6 +189,13 @@ void CRanking::Update(void)
 			CManager::GetFade()->Set(CScene::MODE_TITLE);
 		}
 	}
+
+	if (m_pCarManager != NULL)
+	{
+		m_pCarManager->Update();
+	}
+
+	CScene::Update();
 }
 
 //===============================================

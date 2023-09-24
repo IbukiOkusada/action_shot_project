@@ -45,6 +45,10 @@ public:	// 誰でもアクセス可能
 	void MoveV(void);
 	void MouseCamera(void);
 	void MoveVR(void);
+	void SetPositionR(D3DXVECTOR3 pos);
+
+	// タイトル用
+	void TitleRotateCamera(void);
 
 	// メンバ関数(取得)
 	D3DXMATRIX GetMtxView(void) { return m_mtxView; }

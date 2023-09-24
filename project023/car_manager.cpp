@@ -19,6 +19,7 @@
 #define MOVE_Z		(11.0f)		// Z移動量
 #define SPAWN_DEF	(120)		// 基本生成カウント
 #define SPAWN_RAND	(180)		// ランダム分生成カウント
+#define SET_RANKNUM	(6)			// ランキング画面初期配置数
 
 //===============================================
 // 静的メンバ変数
@@ -101,6 +102,44 @@ void CCarManager::Update(void)
 
 	// 廃棄
 	Delete();
+}
+
+//===============================================
+// ランキングの初期配置
+//===============================================
+void CCarManager::SetRanking(void)
+{
+	D3DXVECTOR3 pos = D3DXVECTOR3(LOAD_POSX, LOAD_POSY, LOAD_POSZ);
+	D3DXVECTOR3 rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	D3DXVECTOR3 move = D3DXVECTOR3(0.0f, 0.0f, MOVE_Z);
+	float fAddPos = 1400.0f;
+
+	// 車線分繰り返し
+	for (int nCnt = 0; nCnt < LOAD_MAX; nCnt++)
+	{
+		for (int nCntSet = 0; nCntSet < SET_RANKNUM; nCntSet++)
+		{
+			int nRand = rand() % MAX_CAR;
+
+			CCar *pCar = NULL;
+			rot.y = D3DX_PI * nCnt;
+
+			pCar = CCar::Create(pos, rot, m_apFileName[nRand]);
+			pCar->SetMove(move);
+			pCar->GetShadow()->SetpVtx(m_aShadowSize[nRand].x, m_aShadowSize[nRand].y);
+
+			// リストに設定
+			BindList(pCar, (LOAD)nCnt);
+
+			pos.z += fAddPos;
+		}
+
+		pos = D3DXVECTOR3(LOAD_POSX, LOAD_POSY, LOAD_POSZ);
+		pos.x *= -1.0f;
+		pos.z *= -1.0f;
+		move.z *= -1.0f;
+		fAddPos *= -1.0f;
+	}
 }
 
 //===============================================
@@ -225,6 +264,7 @@ void CCarManager::Spawn(void)
 		BindList(pCar, (LOAD)nCnt);
 		m_aSpawn[nCnt].fCount = 0.0f;
 		m_aSpawn[nCnt].fDef = SPAWN_DEF + (float)(rand() % SPAWN_RAND);
+
 		pos.x *= -1.0f;
 		pos.z *= -1.0f;
 		move.z *= -1.0f;

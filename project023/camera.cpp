@@ -33,6 +33,7 @@
 #define MAX_SLOWROT			(0.15f)
 #define MESSAGERAND			(120)
 #define SLOW_CAMERAROT		(0.7f)
+#define TITLE_ROTATESPD		(0.0025f)			// タイトル回転量
 
 //==========================================================
 // コンストラクタ
@@ -940,6 +941,42 @@ void CCamera::SetRotation(D3DXVECTOR3 rot)
 
 	SetV();
 }
+
+//==========================================================
+// タイトル自動回転
+//==========================================================
+void CCamera::TitleRotateCamera(void)
+{
+	m_rot.y += TITLE_ROTATESPD;
+
+	while (1)
+	{
+		if (m_rot.y >= -D3DX_PI && m_rot.y <= D3DX_PI)
+		{
+			break;
+		}
+		else if (m_rot.y > D3DX_PI)
+		{
+			m_rot.y += -D3DX_PI * 2;
+		}
+		else if (m_rot.y < -D3DX_PI)
+		{
+			m_rot.y += D3DX_PI * 2;
+		}
+	}
+
+	SetV();
+}
+
+//==========================================================
+// 座標設定
+//==========================================================
+void CCamera::SetPositionR(D3DXVECTOR3 pos)
+{ 
+	m_posR = pos; 
+	SetV();
+}
+
 
 //==========================================================
 // コンストラクタ

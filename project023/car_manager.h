@@ -46,6 +46,7 @@ public:	// 誰でもアクセス可能
 	void Uninit(void);
 	void Update(void);
 	CCar *Collision(D3DXVECTOR3 &pos, D3DXVECTOR3 &posOld, D3DXVECTOR3 &move, D3DXVECTOR3 vtxMin, D3DXVECTOR3 vtxMax, bool *pJump);
+	void SetRanking(void);
 
 private:	// 自分だけがアクセス可能
 

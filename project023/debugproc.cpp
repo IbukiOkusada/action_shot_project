@@ -31,6 +31,7 @@ LPD3DXFONT CDebugProc::m_pFont = NULL;	// デバッグフォントへのポインタ
 const char *CDebugProc::m_apMode[CScene::MODE_MAX] =
 {
 	"タイトル",
+	"チュートリアル",
 	"ゲーム",
 	"リザルト",
 	"ランキング",

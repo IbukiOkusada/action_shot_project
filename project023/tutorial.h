@@ -52,7 +52,6 @@ public:
 	static CMeshField *GetMeshField(void);
 	static void SetMesh(CMeshField *pMesh) { m_pMeshField = pMesh; }
 	CFileLoad *GetFileLoad(void);
-	static CPause *GetPause(void);
 	CEnemyRoute *GetEnemyRoute(void) { return m_pEnemyRoute; }
 	CCarManager *GetCarManager(void) { return m_pCarManager; }
 

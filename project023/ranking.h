@@ -17,6 +17,7 @@
 // 前方宣言
 class CScore;
 class CFileLoad;
+class CCarManager;
 
 //===============================================
 // ランキングクラスの定義(派生クラス)
@@ -51,6 +52,7 @@ private:
 	static int m_nScore;	// 今回のスコア
 	int m_nTimer;			// 自動遷移タイマー
 	int m_nRank;
+	CCarManager *m_pCarManager;		// カーマネージャーのポインタ
 };
 
 #endif
