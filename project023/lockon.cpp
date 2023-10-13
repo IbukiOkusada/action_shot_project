@@ -417,14 +417,23 @@ void CLockOn::LockOn(void)
 		}
 		else
 		{// ƒXƒ[‚µ‚Ä‚¢‚é
-			CManager::GetSound()->Play(CSound::LABEL_SE_LOCKON);
-			m_bLock = false;
-			SetSize(0.0f, 0.0f);
-			m_pObj = NULL;
+			if (CManager::GetSlow()->Get() < 1.0f)
+			{
+				CManager::GetSound()->Play(CSound::LABEL_SE_LOCKON);
+				m_bLock = false;
+				SetSize(0.0f, 0.0f);
+				m_pObj = NULL;
 
-			CLockOn *pLock = CLockOn::Create(pEnemy->GetMtx(), CLockOn::TYPE_MULTI);
-			pLock->SetTag(pEnemy);
-			pLock->SetCol(D3DXCOLOR(0.0f, 1.0f, 0.5f, 0.3f));
+				CLockOn *pLock = CLockOn::Create(pEnemy->GetMtx(), CLockOn::TYPE_MULTI);
+				pLock->SetTag(pEnemy);
+				pLock->SetCol(D3DXCOLOR(0.0f, 1.0f, 0.5f, 0.3f));
+			}
+			else
+			{
+				m_bLock = false;
+				SetSize(0.0f, 0.0f);
+				m_pObj = NULL;
+			}
 		}
 	}
 	else

@@ -371,6 +371,26 @@ void CParticle::Set(D3DXVECTOR3 Defpos, D3DXVECTOR3 Defmove, CEffect::TYPE type)
 
 		break;
 
+	case CEffect::TYPE_SLOWOK:	// ‰Œ
+
+								//ˆÚ“®—Ê‚Ìİ’è
+		move.x = sinf((float)(rand() % 629 - 314) * 0.01f) * ((float)(rand() % 100)) * 0.0025f;
+		move.y = ((float)(rand() % 50)) * 0.025f;
+		move.z = cosf((float)(rand() % 629 - 314) * 0.01f) * ((float)(rand() % 100)) * 0.0025f;
+
+		//F‚Ìİ’è
+		col = D3DXCOLOR(rand() % 20 * 0.01f + 0.1f, rand() % 20 * 0.01f + 0.4f, rand() % 50 * 0.01f + 0.4f, 0.15f);
+
+		//”¼Œa‚Ìİ’è
+		fRadius = 50.0f;
+
+		//õ–½‚Ìİ’è
+		fLife = 15.0f;
+
+		CEffect::Create(Defpos + move, move, col, fRadius, fLife, type);
+
+		break;
+
 	case CEffect::TYPE_HEATHAZE:	// ‰Œ
 
 			// À•W‚Ìİ’è

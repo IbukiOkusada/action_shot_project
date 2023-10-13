@@ -1749,7 +1749,7 @@ Mesh {
    0.400000;0.400000;0.400000;;
    0.466941;0.340941;0.004941;;
    TextureFilename {
-    "C:\\Users\\student\\Documents\\Visual Studio 2015\\Projects\\C++DirectX\\action_shot\\project023\\data\\TEXTURE\\streetlamp001.jpg";
+    "data\\TEXTURE\\streetlamp001.jpg";
    }
   }
   Material {
@@ -1758,7 +1758,7 @@ Mesh {
    0.400000;0.400000;0.400000;;
    0.429882;0.429882;0.429882;;
    TextureFilename {
-    "C:\\Users\\student\\Documents\\Visual Studio 2015\\Projects\\C++DirectX\\action_shot\\project023\\data\\TEXTURE\\streetlamp000.jpg";
+    "data\\TEXTURE\\streetlamp000.jpg";
    }
   }
   Material {

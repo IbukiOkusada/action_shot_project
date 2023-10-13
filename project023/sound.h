@@ -40,6 +40,10 @@ public:	// 誰でもアクセス可能な定義
 		LABEL_SE_SMAKE,			// 水蒸気の煙
 		LABEL_SE_CARHIT,		// 車と衝突
 		LABEL_SE_LOCKON,		// ロックオン
+		LABEL_SE_BUS,			// バス
+		LABEL_SE_TRACK,			// トラック
+		LABEL_SE_CAR,			// 車
+		LABEL_SE_CLOCK,			// 車
 		LABEL_MAX,
 	} LABEL;
 

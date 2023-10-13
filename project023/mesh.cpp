@@ -375,7 +375,7 @@ void CObjectMesh::SetSlowCol(void)
 		return;
 	}
 
-	if (pSlow->Get() == pSlow->GetOld())
+	if (pSlow->Get() == pSlow->GetOld() || pSlow->Get() > 1.0f)
 	{
 		return;
 	}

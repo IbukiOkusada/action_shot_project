@@ -282,7 +282,7 @@ D3DMATERIAL9 CObjectX::SetSlowCol(D3DMATERIAL9 *pMat)
 		return mat;
 	}
 
-	if (pSlow->Get() == 1.0f)
+	if (pSlow->Get() >= 1.0f)
 	{
 		return mat;
 	}

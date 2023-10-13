@@ -7,16 +7,19 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Xfile.cpp" />
+    <ClCompile Include="billboard.cpp" />
     <ClCompile Include="block.cpp" />
     <ClCompile Include="bullet.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="car.cpp" />
+    <ClCompile Include="car_manager.cpp" />
     <ClCompile Include="character.cpp" />
     <ClCompile Include="debugproc.cpp" />
     <ClCompile Include="editor.cpp" />
     <ClCompile Include="effect.cpp" />
     <ClCompile Include="enemy.cpp" />
     <ClCompile Include="enemy_manager.cpp" />
+    <ClCompile Include="enemy_route.cpp" />
     <ClCompile Include="explosion.cpp" />
     <ClCompile Include="fade.cpp" />
     <ClCompile Include="fileload.cpp" />
@@ -47,6 +50,7 @@
     <ClCompile Include="particle.cpp" />
     <ClCompile Include="pause.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="precompile.cpp" />
     <ClCompile Include="ranking.cpp" />
     <ClCompile Include="renderer.cpp" />
     <ClCompile Include="result.cpp" />
@@ -59,27 +63,25 @@
     <ClCompile Include="thermo.cpp" />
     <ClCompile Include="time.cpp" />
     <ClCompile Include="title.cpp" />
+    <ClCompile Include="tutorial.cpp" />
     <ClCompile Include="waist.cpp" />
     <ClCompile Include="wet.cpp" />
-    <ClCompile Include="billboard.cpp" />
-    <ClCompile Include="car.cpp" />
-    <ClCompile Include="car_manager.cpp" />
-    <ClCompile Include="enemy_route.cpp" />
-    <ClCompile Include="tutorial.cpp" />
-    <ClCompile Include="precompile.cpp" />
+    <ClCompile Include="Xfile.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="billboard.h" />
     <ClInclude Include="block.h" />
     <ClInclude Include="bullet.h" />
-    <ClInclude Include="bulletmanager.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="car.h" />
+    <ClInclude Include="car_manager.h" />
     <ClInclude Include="character.h" />
     <ClInclude Include="debugproc.h" />
     <ClInclude Include="editor.h" />
     <ClInclude Include="effect.h" />
     <ClInclude Include="enemy.h" />
     <ClInclude Include="enemy_manager.h" />
+    <ClInclude Include="enemy_route.h" />
     <ClInclude Include="explosion.h" />
     <ClInclude Include="fade.h" />
     <ClInclude Include="fileload.h" />
@@ -110,6 +112,7 @@
     <ClInclude Include="particle.h" />
     <ClInclude Include="pause.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="precompile.h" />
     <ClInclude Include="ranking.h" />
     <ClInclude Include="renderer.h" />
     <ClInclude Include="result.h" />
@@ -122,13 +125,9 @@
     <ClInclude Include="thermo.h" />
     <ClInclude Include="time.h" />
     <ClInclude Include="title.h" />
+    <ClInclude Include="tutorial.h" />
     <ClInclude Include="waist.h" />
     <ClInclude Include="wet.h" />
     <ClInclude Include="Xfile.h" />
-    <ClInclude Include="car.h" />
-    <ClInclude Include="car_manager.h" />
-    <ClInclude Include="enemy_route.h" />
-    <ClInclude Include="tutorial.h" />
-    <ClInclude Include="precompile.h" />
   </ItemGroup>
 </Project>

@@ -426,6 +426,12 @@ float CMeshField::GetHeight(D3DXVECTOR3 pos)
 		// ‚‚³‚ÌêŠ‚ðŽæ“¾
 		nNowHeight = (int)((float)(pMesh->GetNumHeight() * nor0.z));
 
+		if (nNowHeight * (pMesh->GetNumWidth() + 1) + nNowWidth + pMesh->GetNumWidth() + 2 >= pMesh->GetVertex())
+		{
+			pMesh = pMeshNext;	// ŽŸ‚ÉˆÚ“®
+			continue;
+		}
+
 		Pos0 = pMesh->m_pVtx[nNowHeight * (pMesh->GetNumWidth() + 1) + nNowWidth + pMesh->GetNumWidth() + 1].pos;
 		Pos1 = pMesh->m_pVtx[nNowHeight * (pMesh->GetNumWidth() + 1) + nNowWidth + 0].pos;
 		Pos2 = pMesh->m_pVtx[nNowHeight * (pMesh->GetNumWidth() + 1) + nNowWidth + pMesh->GetNumWidth() + 2].pos;

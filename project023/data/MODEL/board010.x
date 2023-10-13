@@ -245,7 +245,7 @@ Mesh {
    1.000000;1.000000;1.000000;;
    0.568627;0.568627;0.568627;;
    TextureFilename {
-    "C:\\Users\\student\\Documents\\Visual Studio 2015\\Projects\\C++DirectX\\action_shot\\project023\\data\\TEXTURE\\board000.jpg";
+    "data\\TEXTURE\\board000.jpg";
    }
   }
   Material {
@@ -254,7 +254,7 @@ Mesh {
    0.180000;0.180000;0.180000;;
    0.820000;0.820000;0.820000;;
    TextureFilename {
-    "C:\\Users\\student\\Documents\\Visual Studio 2015\\Projects\\C++DirectX\\action_shot\\project023\\data\\TEXTURE\\tutorial010.jpg";
+    "data\\TEXTURE\\tutorial010.jpg";
    }
   }
  }

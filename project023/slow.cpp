@@ -81,10 +81,16 @@ void CSlow::Update(void)
 		m_b = true;
 	}
 
-	m_fAdd = 1.0f;
 	if (m_nTimer > 0)
 	{
 		m_fAdd = 1.0f / (float)(m_nTimer);	// ˆÊ’uƒtƒŒ[ƒ€•Ó‚è‚Ì”{—¦
+	}
+	else
+	{
+		if (m_fAdd <= 1.0f)
+		{
+			m_fAdd = 1.0f;
+		}
 	}
 }
 

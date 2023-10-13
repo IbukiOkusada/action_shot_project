@@ -237,7 +237,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\Users\\student\\Documents\\Visual Studio 2015\\Projects\\C++DirectX\\action_shot\\project023\\data\\TEXTURE\\UV\\player_UV.png";
+    "data\\TEXTURE\\UV\\player_UV.png";
    }
   }
  }

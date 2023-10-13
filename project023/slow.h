@@ -24,6 +24,7 @@ public:		// 誰でもアクセス可能
 	float Get(void);
 	float GetOld(void);
 	void SetSlow(bool bUse);
+	void SetSlow(float fValue) { m_fAdd = fValue; }
 
 private:	// 自分だけがアクセス可能
 

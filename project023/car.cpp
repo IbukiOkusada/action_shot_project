@@ -86,7 +86,7 @@ void CCar::Draw(void)
 //==========================================================
 // ¶¬
 //==========================================================
-CCar *CCar::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, const char *pFileName, const int nPriority)
+CCar *CCar::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, const char *pFileName, int nType, const int nPriority)
 {
 	CCar *pObjectX = NULL;
 	CXFile *pModelFile = CManager::GetModelFile();
@@ -96,7 +96,7 @@ CCar *CCar::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, const char *pFileName, cons
 
 	if (pObjectX != NULL)
 	{// ¶¬‚Å‚«‚½ê‡
-	 // ‰Šú‰»ˆ—
+		// ‰Šú‰»ˆ—
 		pObjectX->Init();
 
 		// À•W
@@ -108,6 +108,9 @@ CCar *CCar::Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, const char *pFileName, cons
 
 		// Ží—ÞÝ’è
 		pObjectX->SetType(TYPE_CAR);
+
+		// Ží—Þ
+		pObjectX->m_nType = nType;
 
 		// “Ç‚Ýž‚ÝŠm”F
 		pObjectX->BindFile(pModelFile->Regist(pFileName));

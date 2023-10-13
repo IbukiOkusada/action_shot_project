@@ -27,7 +27,7 @@ public:	// 誰でもアクセス可能
 	void Uninit(void);
 	void Update(void);
 	void Draw(void);
-	static CCar *Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, const char *pFileName, const int nPriority = 3);
+	static CCar *Create(D3DXVECTOR3 pos, D3DXVECTOR3 rot, const char *pFileName, int nType = 0, const int nPriority = 3);
 
 	// メンバ関数(設定)
 	void SetMove(D3DXVECTOR3 move) { m_move = move; }
@@ -41,6 +41,7 @@ public:	// 誰でもアクセス可能
 	CCar *GetNext(void) { return m_pNext; }
 	CCar *GetPrev(void) { return m_pPrev; }
 	CShadow *GetShadow(void) { return m_pShadow; }
+	int GetType(void) { return m_nType; }
 
 private:	// 自分だけがアクセス可能
 
@@ -50,6 +51,7 @@ private:	// 自分だけがアクセス可能
 	CShadow *m_pShadow;	// 影
 	CCar *m_pPrev;	// 前
 	CCar *m_pNext;	// 次
+	int m_nType;
 };
 
 #endif

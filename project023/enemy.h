@@ -12,7 +12,9 @@
 #include "enemy_route.h"
 
 // マクロ定義
-#define NUM_ROUTE	(27 + 14 )
+#define SHOP_ROUTE	(27)
+#define PARK_ROUTE	(14)
+#define NUM_ROUTE	(SHOP_ROUTE + PARK_ROUTE)
 
 // 前方宣言
 class CCharacter;
@@ -90,6 +92,7 @@ public:	// 誰でもアクセス可能
 	D3DXMATRIX *GetMtx(void) { return &m_Info.mtxWorld; }
 	CEnemy *GetEnemy(void) { return this; }
 	CCharacter *GetBody(void) { return m_pBody; }
+	void SetRoute(int nIdx);
 
 private:	// 自分だけがアクセス可能
 
@@ -113,7 +116,7 @@ private:	// 自分だけがアクセス可能
 	float m_fStateCnt;		// 状態管理カウント
 	INFO m_Info;			// 自分自身の情報
 	bool m_bRescue;			// 移動したかどうか
-	float m_fStateMoveMul;		// 状態加味した移動量倍率
+	float m_fStateMoveMul;	// 状態加味した移動量倍率
 	float m_fRotMove;		// 現在の角度
 	float m_fRotDiff;		// 目的の角度
 	float m_fRotDest;		// 角度計算

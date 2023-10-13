@@ -14,7 +14,7 @@
 //==========================================================
 class CEnemyManager
 {
-private:
+public:
 
 	enum ENEMY
 	{
@@ -38,14 +38,24 @@ public:		// 誰でもアクセス可能
 	void AddSuv(void) { m_nSuvCounter++; }
 	int GetSuv(void) { return m_nSuvCounter; }
 	int GetDead(void) { return m_nDeadCounter; }
+	void SetRouteRange(int nRange, int nSetPlus);
+	void SetTypeRange(int nRange, int nSetPlus);
+	void SetNum(int nNum);
+	void SetTimer(int nTime) { m_nSetTimer = nTime; }
 
 private:	// 自分だけがアクセス可能
 
 	int m_nMaxEnemy;	// 現在のエネミー最大数
 	int m_nTimer;		// 生成
+	int m_nSetTimer;	// 生成タイム
 	int m_nFrameTimer;	// タイマーフレーム
 	int m_nDeadCounter;	// 死亡人数
 	int m_nSuvCounter;	// 生存人数
+	int m_nSetNum;		// 一回の配置数
+	int m_nRouteRandRange;	// ランダム配置数
+	int m_nRouteSetPlus;	// ランダム開始地点
+	int m_nTypeRandRange;	// ランダム種類
+	int m_nTypeSetPlus;	// ランダム種類開始地点
 	static const char *m_apEnemyFileName[ENEMY_MAX];
 };
 

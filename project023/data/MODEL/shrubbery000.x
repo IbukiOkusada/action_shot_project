@@ -1319,7 +1319,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\Users\\student\\Documents\\Visual Studio 2015\\Projects\\C++DirectX\\action_shot\\project023\\data\\TEXTURE\\field001.jpg";
+    "data\\TEXTURE\\field001.jpg";
    }
   }
  }

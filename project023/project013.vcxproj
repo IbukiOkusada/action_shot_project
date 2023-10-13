@@ -19,20 +19,19 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="car.cpp" />
-    <ClCompile Include="car_manager.cpp" />
-    <ClCompile Include="enemy_manager.cpp" />
-    <ClCompile Include="enemy_route.cpp" />
-    <ClCompile Include="meshballoon.cpp" />
     <ClCompile Include="billboard.cpp" />
     <ClCompile Include="block.cpp" />
     <ClCompile Include="bullet.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="car.cpp" />
+    <ClCompile Include="car_manager.cpp" />
     <ClCompile Include="character.cpp" />
     <ClCompile Include="debugproc.cpp" />
     <ClCompile Include="editor.cpp" />
     <ClCompile Include="effect.cpp" />
     <ClCompile Include="enemy.cpp" />
+    <ClCompile Include="enemy_manager.cpp" />
+    <ClCompile Include="enemy_route.cpp" />
     <ClCompile Include="explosion.cpp" />
     <ClCompile Include="fade.cpp" />
     <ClCompile Include="fileload.cpp" />
@@ -45,6 +44,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="manager.cpp" />
     <ClCompile Include="mesh.cpp" />
+    <ClCompile Include="meshballoon.cpp" />
     <ClCompile Include="meshcylinder.cpp" />
     <ClCompile Include="meshdome.cpp" />
     <ClCompile Include="meshfield.cpp" />
@@ -83,21 +83,19 @@
     <ClCompile Include="Xfile.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="car.h" />
-    <ClInclude Include="car_manager.h" />
-    <ClInclude Include="enemy_manager.h" />
-    <ClInclude Include="enemy_route.h" />
-    <ClInclude Include="meshballoon.h" />
     <ClInclude Include="billboard.h" />
     <ClInclude Include="block.h" />
     <ClInclude Include="bullet.h" />
-    <ClInclude Include="bulletmanager.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="car.h" />
+    <ClInclude Include="car_manager.h" />
     <ClInclude Include="character.h" />
     <ClInclude Include="debugproc.h" />
     <ClInclude Include="editor.h" />
     <ClInclude Include="effect.h" />
     <ClInclude Include="enemy.h" />
+    <ClInclude Include="enemy_manager.h" />
+    <ClInclude Include="enemy_route.h" />
     <ClInclude Include="explosion.h" />
     <ClInclude Include="fade.h" />
     <ClInclude Include="fileload.h" />
@@ -110,6 +108,7 @@
     <ClInclude Include="main.h" />
     <ClInclude Include="manager.h" />
     <ClInclude Include="mesh.h" />
+    <ClInclude Include="meshballoon.h" />
     <ClInclude Include="meshcylinder.h" />
     <ClInclude Include="meshdome.h" />
     <ClInclude Include="meshfield.h" />
@@ -246,7 +245,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>

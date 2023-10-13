@@ -18,6 +18,7 @@
 #include "meshdome.h"
 #include "meshcylinder.h"
 #include "sound.h"
+#include "slow.h"
 
 //===============================================
 // 静的メンバ変数
@@ -31,6 +32,7 @@ int CResult::m_nDeadNum = 0;
 CResult::CResult()
 {
 	m_pMeshSky = NULL;
+	m_nTimer = 0;
 }
 
 //===============================================
@@ -62,11 +64,11 @@ HRESULT CResult::Init(void)
 			break;
 
 		case SCORE_DEAD:
-			m_apScore[nCnt]->Set(m_nDeadNum * 1000);
+			m_apScore[nCnt]->Set(m_nDeadNum * 200);
 			break;
 
 		case SCORE_ALL:
-			m_apScore[nCnt]->Set(m_nSuvNum * 1000 + m_nDeadNum * -1000);
+			m_apScore[nCnt]->Set(m_nSuvNum * 1000 + m_nDeadNum * -200);
 			break;
 		}
 	}
@@ -125,6 +127,8 @@ HRESULT CResult::Init(void)
 
 	CManager::GetSound()->Play(CSound::LABEL_BGM_RESULT);
 
+	CManager::GetSlow()->SetSlow(false);
+
 	return S_OK;
 }
 
@@ -152,6 +156,16 @@ void CResult::Uninit(void)
 		}
 	}
 
+	for (int nCnt = 0; nCnt < SCORE_ALL; nCnt++)
+	{
+		if (m_apNum[nCnt] != NULL)
+		{
+			m_apNum[nCnt]->Uninit();
+			delete m_apNum[nCnt];	// メモリの開放
+			m_apNum[nCnt] = NULL;	// 使用していない状態にする
+		}
+	}
+
 	if (m_pFileLoad != NULL)
 	{
 		m_pFileLoad->Uninit();
@@ -169,6 +183,14 @@ void CResult::Uninit(void)
 void CResult::Update(void)
 {
 	CInputPad *pInputPad = CManager::GetInputPad();
+
+	m_nTimer++;
+
+	if (m_nTimer > 600)
+	{
+		m_nTimer = 0;
+		CManager::GetFade()->Set(CScene::MODE_RANKING);
+	}
 
 	if (CManager::GetInputKeyboard()->GetTrigger(DIK_RETURN) || pInputPad->GetTrigger(CInputPad::BUTTON_A, 0))
 	{

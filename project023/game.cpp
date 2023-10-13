@@ -33,6 +33,7 @@
 #include "car_manager.h"
 #include "enemy_route.h"
 #include "sound.h"
+#include "filter.h"
 
 //===============================================
 // マクロ定義
@@ -40,8 +41,16 @@
 #define START_TIME	(60 * 4)	// 制限時間
 #define START_SCORE	(0)		// 開始スコア
 #define MAP_SIZE	(100.0f)	// マップサイズ
-#define STARTSET_NUMENEMY	(30)	// 開始時に配置する敵の数
-#define MAX_TIME	(60 * 20)	// 最大時間
+#define STARTSET_NUMENEMY	(3)	// 開始時に配置する敵の数
+#define MORNING_TIME	(60 * 6)	// 早朝終了時刻
+#define AM_COMRUSH	(60 * 9)	// 通勤ラッシュ
+#define RELAX_TIME	(60 * 11)	// リラックスタイム
+#define NOON_TIME	(60 * 12.5)	// 昼休み
+#define EVENT_RUSH	(60 * 15.5)	// イベント
+#define PM_RELAX_TIME	(60 * 16)	// 帰宅開始時間
+#define PM_GOHOME_RUSH	(60 * 19)	// 帰宅ラッシュ
+#define MAX_TIME	(60 * 20 + 10)	// 最大時間
+#define SPEED_UP	(30.0f)
 
 //===============================================
 // 静的メンバ変数
@@ -67,6 +76,12 @@ CGame::CGame()
 	m_pEditor = NULL;
 	m_pCarManager = NULL;
 	m_pMeshDome = NULL;
+	m_pStart = NULL;
+
+	for (int nCnt = 0; nCnt < NUM_FILTER; nCnt++)
+	{
+		m_apFilter[nCnt] = NULL;
+	}
 }
 
 //===============================================
@@ -117,7 +132,7 @@ HRESULT CGame::Init(void)
 	m_pScore->Set(START_SCORE);
 
 	// タイムの生成
-	m_pTime = CTime::Create(D3DXVECTOR3(600.0f, 100.0f, 0.0f));
+	m_pTime = CTime::Create(D3DXVECTOR3(550.0f, 100.0f, 0.0f));
 	m_pTime->Set(START_TIME);
 	m_pTime->SetMax(MAX_TIME);
 
@@ -130,6 +145,15 @@ HRESULT CGame::Init(void)
 	pUi->SetPosition(D3DXVECTOR3(MAP_SIZE, MAP_SIZE, 0.0f));
 	pUi->SetSize(MAP_SIZE, MAP_SIZE);
 	pUi->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\map000.png"));
+
+	if (m_pStart == NULL)
+	{
+		m_pStart = CObject2D::Create(7);
+		m_pStart->SetPosition(D3DXVECTOR3(SCREEN_WIDTH * 1.5f, SCREEN_HEIGHT * 0.4f, 0.0f));
+		m_pStart->SetRotation(D3DXVECTOR3(0.0f, 0.0f, -D3DX_PI * 0.05f));
+		m_pStart->SetLength(SCREEN_WIDTH * 0.75f, SCREEN_HEIGHT * 0.25f);
+		m_pStart->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\start.png"));
+	}
 
 	// マップの生成
 	if (m_pMapThermo == NULL)
@@ -185,7 +209,7 @@ HRESULT CGame::Init(void)
 	{
 		m_pEnemyManager = new CEnemyManager;
 		m_pEnemyManager->Init();
-		//m_pEnemyManager->Spawn(STARTSET_NUMENEMY);
+		m_pEnemyManager->Spawn(STARTSET_NUMENEMY);
 	}
 
 	// カーマネージャーを生成
@@ -195,10 +219,23 @@ HRESULT CGame::Init(void)
 		m_pCarManager->Init();
 	}
 
+	// 敵の配置管理
+	EnemySet();
+
+	// 車の配置管理
+	CarSet();
+
+	// 空の色変更
+	SkySet();
+
 	// スポットライトをオン
 	CManager::GetLight()->EnablePointLight(true);
 
 	CManager::GetSound()->Play(CSound::LABEL_BGM_GAME);
+
+	m_apFilter[0] = CHeatFilter::Create();
+	m_apFilter[1] = CHeatFilter::Create();
+	m_apFilter[1]->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\smake000.jpg"));
 
 	return S_OK;
 }
@@ -302,6 +339,49 @@ void CGame::Uninit(void)
 //===============================================
 void CGame::Update(void)
 {
+	if (m_pStart != NULL)
+	{
+		D3DXVECTOR3 pos = m_pStart->GetPosition();
+
+		// 移動
+		if (pos.x > SCREEN_WIDTH * 0.75f)
+		{
+			pos.x -= 30.0f;
+		}
+		else if (pos.x < SCREEN_WIDTH * 0.35f)
+		{
+			pos.x -= 40.0f;
+		}
+		else
+		{
+			pos.x -= 2.5f;
+		}
+
+		m_pStart->SetPosition(pos);
+		m_pStart->SetVtx();
+		
+		if (pos.x < -SCREEN_WIDTH * 0.5f)
+		{
+			m_pStart->Uninit();
+			m_pStart = NULL;
+			CManager::GetSlow()->SetSlow(1.0f);
+		}
+
+		if (m_pScore != NULL)
+		{
+			m_pScore->Update();
+		}
+
+		if (m_pTime->GetNum() != m_pTime->GetStartNum())
+		{
+			CarSet();
+		}
+
+		CScene::Update();
+
+		return;
+	}
+
 	// ポーズ
 	if (m_pPause != NULL)
 	{
@@ -314,6 +394,21 @@ void CGame::Update(void)
 				CManager::GetFade()->Update();
 			}
 			return;
+		}
+	}
+
+	// 陽炎フィルターの色を変更
+	if (m_pEnemyManager->GetDead() > 0)
+	{
+		int nDead = m_pEnemyManager->GetDead();
+		int nSuv = m_pEnemyManager->GetSuv();
+
+		for (int nCnt = 0; nCnt < NUM_FILTER; nCnt++)
+		{
+			if (m_apFilter[nCnt] != NULL)
+			{
+				m_apFilter[nCnt]->SetFil((float)((float)nDead / (float)(nSuv + 20)));
+			}
 		}
 	}
 
@@ -365,14 +460,15 @@ void CGame::Update(void)
 
 	if (m_pMapThermo != NULL)
 	{
+		int nDead = m_pEnemyManager->GetDead();
 		D3DXCOLOR col = m_pMapThermo->GetCol();
-		if (m_nMaxEnemy > 0)
+		if (nDead > 0)
 		{// 一体でも存在している
-			col.a = 1.0f - (float)(CObject::GetNumEnemAll() / m_nMaxEnemy);
+			col.a = (float)(nDead / 100);
 		}
 		else
 		{
-			col.a = 1.0f;
+			col.a = 0.0f;
 		}
 		m_pMapThermo->SetColor(col);
 	}
@@ -513,10 +609,125 @@ void CGame::DataReset(void)
 //===================================================
 void CGame::EnemySet(void)
 {
-	if (m_pEnemyManager != NULL)
+	if (m_pEnemyManager == NULL)
 	{
-		m_pEnemyManager->Update();
+		return;
 	}
+
+	// 配置範囲、種類、数を設定
+	if(m_pTime->GetNum() < MORNING_TIME)
+	{// 早朝
+		m_pEnemyManager->SetRouteRange(PARK_ROUTE, SHOP_ROUTE);
+		m_pEnemyManager->SetTypeRange(CEnemyManager::ENEMY_MAX, 0);
+		m_pEnemyManager->SetNum(1);
+		m_pEnemyManager->SetTimer(15);
+	}
+	else if (m_pTime->GetNum() >= MORNING_TIME && m_pTime->GetNum() < AM_COMRUSH)
+	{// 出勤ラッシュ
+		m_pEnemyManager->SetRouteRange(SHOP_ROUTE, 0);
+		m_pEnemyManager->SetTypeRange(CEnemyManager::ENEMY_KIDSBOY, 0);
+		m_pEnemyManager->SetNum(3);
+		m_pEnemyManager->SetTimer(8);
+
+		if (m_pTime->GetNum() == MORNING_TIME && m_pTime->GetAnim() == 0.0f)
+		{
+			if (m_pStart == NULL)
+			{
+				m_pEnemyManager->Spawn(CObject::GetNumEnemAll() + 30);
+				m_pStart = CObject2D::Create(7);
+				m_pStart->SetPosition(D3DXVECTOR3(SCREEN_WIDTH * 1.5f, SCREEN_HEIGHT * 0.4f, 0.0f));
+				m_pStart->SetRotation(D3DXVECTOR3(0.0f, 0.0f, -D3DX_PI * 0.05f));
+				m_pStart->SetLength(SCREEN_WIDTH * 0.75f, SCREEN_HEIGHT * 0.25f);
+				m_pStart->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\rush000.png"));
+				m_pStart->SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.8f));
+				CManager::GetSlow()->SetSlow(SPEED_UP);
+				CManager::GetSound()->Play(CSound::LABEL_SE_CLOCK);
+			}
+		}
+	}
+	else if (m_pTime->GetNum() >= RELAX_TIME && m_pTime->GetNum() < NOON_TIME)
+	{// 昼休み
+		m_pEnemyManager->SetRouteRange(PARK_ROUTE, SHOP_ROUTE);
+		m_pEnemyManager->SetTypeRange(CEnemyManager::ENEMY_KIDSBOY, CEnemyManager::ENEMY_KIDSBOY);
+		m_pEnemyManager->SetTimer(20);
+		m_pEnemyManager->SetNum(2);
+	}
+	else if (m_pTime->GetNum() >= NOON_TIME && m_pTime->GetNum() < EVENT_RUSH)
+	{// イベントラッシュ
+		m_pEnemyManager->SetRouteRange(PARK_ROUTE, SHOP_ROUTE);
+		m_pEnemyManager->SetTypeRange(CEnemyManager::ENEMY_KIDSBOY, CEnemyManager::ENEMY_KIDSBOY);
+		m_pEnemyManager->SetTimer(5);
+		m_pEnemyManager->SetNum(3);
+
+		if (m_pTime->GetNum() == NOON_TIME && m_pTime->GetAnim() == 0.0f)
+		{
+			if (m_pStart == NULL)
+			{
+				m_pEnemyManager->Spawn(CObject::GetNumEnemAll() + 30);
+				m_pStart = CObject2D::Create(7);
+				m_pStart->SetPosition(D3DXVECTOR3(SCREEN_WIDTH * 1.5f, SCREEN_HEIGHT * 0.4f, 0.0f));
+				m_pStart->SetRotation(D3DXVECTOR3(0.0f, 0.0f, -D3DX_PI * 0.05f));
+				m_pStart->SetLength(SCREEN_WIDTH * 0.75f, SCREEN_HEIGHT * 0.25f);
+				m_pStart->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\rush002.png"));
+				CManager::GetSlow()->SetSlow(SPEED_UP);
+				CManager::GetSound()->Play(CSound::LABEL_SE_CLOCK);
+			}
+		}
+	}
+	else if (m_pTime->GetNum() >= PM_RELAX_TIME && m_pTime->GetNum() < PM_GOHOME_RUSH)
+	{// 帰宅ラッシュ
+		m_pEnemyManager->SetRouteRange(NUM_ROUTE, 0);
+		m_pEnemyManager->SetTypeRange(CEnemyManager::ENEMY_MAX, 0);
+		m_pEnemyManager->SetNum(2);
+		m_pEnemyManager->SetTimer(3);
+
+		if (m_pTime->GetNum() == PM_RELAX_TIME && m_pTime->GetAnim() == 0.0f)
+		{
+			if (m_pStart == NULL)
+			{
+				m_pEnemyManager->Spawn(CObject::GetNumEnemAll() + 30);
+				m_pStart = CObject2D::Create(7);
+				m_pStart->SetPosition(D3DXVECTOR3(SCREEN_WIDTH * 1.5f, SCREEN_HEIGHT * 0.4f, 0.0f));
+				m_pStart->SetRotation(D3DXVECTOR3(0.0f, 0.0f, -D3DX_PI * 0.05f));
+				m_pStart->SetLength(SCREEN_WIDTH * 0.75f, SCREEN_HEIGHT * 0.25f);
+				m_pStart->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\rush001.png"));
+				CManager::GetSlow()->SetSlow(SPEED_UP);
+				CManager::GetSound()->Play(CSound::LABEL_SE_CLOCK);
+			}
+		}
+	}
+	else if (m_pTime->GetNum() >= PM_GOHOME_RUSH)
+	{// 帰宅ラッシュ終わりからゲーム終了まで
+		m_pEnemyManager->SetRouteRange(SHOP_ROUTE + 5, 0);
+		m_pEnemyManager->SetTypeRange(CEnemyManager::ENEMY_MAX, 0);
+		m_pEnemyManager->SetNum(1);
+		m_pEnemyManager->SetTimer(20);
+
+		if (m_pTime->GetNum() == MAX_TIME - 10 && m_pTime->GetAnim() == 0.0f)
+		{
+			if (m_pStart == NULL)
+			{
+				m_pEnemyManager->Spawn(CObject::GetNumEnemAll() + 30);
+				m_pStart = CObject2D::Create(7);
+				m_pStart->SetPosition(D3DXVECTOR3(SCREEN_WIDTH * 1.5f, SCREEN_HEIGHT * 0.4f, 0.0f));
+				m_pStart->SetRotation(D3DXVECTOR3(0.0f, 0.0f, -D3DX_PI * 0.05f));
+				m_pStart->SetLength(SCREEN_WIDTH * 0.75f, SCREEN_HEIGHT * 0.25f);
+				m_pStart->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\rush003.png"));
+				CManager::GetSlow()->SetSlow(SPEED_UP);
+				CManager::GetSound()->Play(CSound::LABEL_SE_CLOCK);
+			}
+		}
+	}
+	else
+	{// それ以外
+		m_pEnemyManager->SetRouteRange(NUM_ROUTE, 0);
+		m_pEnemyManager->SetTypeRange( CEnemyManager::ENEMY_MAX, 0);
+		m_pEnemyManager->SetNum(1);
+		m_pEnemyManager->SetTimer(40);
+	}
+
+	// 更新
+	m_pEnemyManager->Update();
 }
 
 //===================================================
@@ -537,7 +748,10 @@ void CGame::SkySet(void)
 {
 	if (m_pMeshDome != NULL)
 	{
-		m_pMeshDome->SetColor(m_pTime->GetDiff());
-		CManager::GetLight()->SetLight(m_pTime->GetDiff());
+		if (CManager::GetSlow()->Get() >= 1.0f)
+		{
+			m_pMeshDome->SetColor(m_pTime->GetDiff());
+			CManager::GetLight()->SetLight(m_pTime->GetDiff());
+		}
 	}
 }

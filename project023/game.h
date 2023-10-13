@@ -26,6 +26,11 @@ class CEnemyManager;
 class CCarManager;
 class CEnemyRoute;
 class CMeshDome;
+class CObject2D;
+class CHeatFilter;
+
+// マクロ定義
+#define NUM_FILTER	(2)
 
 //===============================================
 // ゲームクラスの定義(派生クラス)
@@ -81,6 +86,8 @@ private:
 	CEnemyRoute *m_pEnemyRoute;		// 敵の順路管理のポインタ
 	CMeshDome *m_pMeshDome;			// メッシュドームのポインタ
 	int m_nMaxEnemy;				// 現在のエネミー最大数
+	CObject2D *m_pStart;			// スタート時の文字
+	CHeatFilter *m_apFilter[NUM_FILTER];
 };
 
 #endif

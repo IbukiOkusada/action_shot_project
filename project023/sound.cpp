@@ -31,9 +31,12 @@ const CSound::SOUNDINFO CSound::m_aSoundInfo[LABEL_MAX] =
 	{ "data/SE/balloonsplash.wav", 0 },	// …•—‘D”š”­
 	{ "data/SE/waterhit.wav", 0 },		// –½’†‰¹
 	{ "data/SE/evaporation.wav", 0 },	// …ö‹C‚Ì‰Œ
-	{ "data/SE/crash.wav", 0 },	// Ô‚ÆÕ“Ë
-	{ "data/SE/lockon.wav", 0 },	// Ô‚ÆÕ“Ë
-
+	{ "data/SE/crash.wav", 0 },			// Ô‚ÆÕ“Ë
+	{ "data/SE/lockon.wav", 0 },		// Ô‚ÆÕ“Ë
+	{ "data/SE/bus_klaxon.wav", 0 },	// Ô‚ÆÕ“Ë
+	{ "data/SE/truck_klaxon.wav", 0 },	// Ô‚ÆÕ“Ë
+	{ "data/SE/car_klaxon.wav", 0 },	// Ô‚ÆÕ“Ë
+	{ "data/SE/clock.wav", 0 },		// Ô‚ÆÕ“Ë
 };										
 
 //=============================================================================

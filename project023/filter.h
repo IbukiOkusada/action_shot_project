@@ -46,6 +46,7 @@ public:	// 誰でもアクセス可能
 	void Update(void);
 	void Draw(void);
 	static CFilter *Create(TYPE type);
+	D3DXCOLOR GetCol(void);
 
 private:	// 自分だけがアクセス可能
 
@@ -54,6 +55,33 @@ private:	// 自分だけがアクセス可能
 	float m_fSpeed;		// サイズ変更
 	float m_fCola;		// 透明度変更量
 	STATE m_state;		// 状態
+};
+
+//==========================================================
+// 陽炎フィルタークラス
+//==========================================================
+class CHeatFilter : public CObject2D
+{
+public:	// 誰でもアクセス可能
+
+	//CFilter();	// コンストラクタ
+	CHeatFilter(int nPriority = 7);	// デフォルト引数コンストラクタ
+	~CHeatFilter();	// デストラクタ
+
+	// メンバ関数
+	HRESULT Init(void);
+	void Uninit(void);
+	void Update(void);
+	void Draw(void);
+	static CHeatFilter *Create();
+	void SetFil(float fDiff);
+
+private:	// 自分だけがアクセス可能
+
+	// メンバ変数
+	D3DXCOLOR m_col;	// 色
+	D3DXVECTOR3 m_move;	// 移動量
+	float m_fTex;		// テクスチャ座標
 };
 
 #endif

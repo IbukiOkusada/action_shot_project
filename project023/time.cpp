@@ -58,15 +58,22 @@ HRESULT CTime::Init(void)
 	m_pSun = CObject2D::Create(7);
 	m_pSun->BindTexture(pTexture->Regist("data\\TEXTURE\\timer000.png"));
 	m_pSun->SetLength((HEIGHT + WIDTH) * 2, (HEIGHT + WIDTH) * 2);
-	m_pSun->SetPosition(D3DXVECTOR3(m_pos.x + X_SPACE * 1.25f + NUM_WIDTH, m_pos.y - HEIGHT * 1.25f, 0.0f));
+	m_pSun->SetPosition(D3DXVECTOR3(m_pos.x + X_SPACE * 1.05f + NUM_WIDTH, m_pos.y - HEIGHT * 1.25f, 0.0f));
 	m_pSun->SetVtx();
 
 	// テクスチャの読み込み
 	m_nIdxTexture = pTexture->Regist(CTexture::GetFileName(CTexture::TYPE_TIMER));
 	CObject2D *pObj = CObject2D::Create(7);
-	pObj->SetPosition(D3DXVECTOR3(m_pos.x + X_SPACE * 1.0f + NUM_WIDTH * 1.75f, m_pos.y, 0.0f));
-	pObj->SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f));
+	pObj->SetPosition(D3DXVECTOR3(m_pos.x + X_SPACE * 1.0f + NUM_WIDTH * 1.4f, m_pos.y, 0.0f));
+	pObj->SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.75f));
 	pObj->SetSize(NUM_WIDTH * 2 + X_SPACE * 1.5f, NUM_HEIGHT);
+	pObj->BindTexture(pTexture->Regist("data\\TEXTURE\\map001.png"));
+
+	pObj = CObject2D::Create(7);
+	pObj->SetPosition(D3DXVECTOR3(m_pos.x + X_SPACE * 1.0f + NUM_WIDTH * 1.4f, m_pos.y, 0.0f));
+	pObj->SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
+	pObj->SetSize(NUM_WIDTH * 0.4f, NUM_HEIGHT * 0.5f);
+	pObj->BindTexture(pTexture->Regist("data\\TEXTURE\\number002.png"));
 
 	for (int nCnt = 0; nCnt < NUM_PLACE; nCnt++)
 	{
@@ -75,7 +82,7 @@ HRESULT CTime::Init(void)
 		if (m_apNumber[nCnt] == NULL)
 		{// 使用していない場合
 			D3DXVECTOR3 pos = m_pos;	// 設定座標
-			pos.x += nCnt * X_SPACE;	// 横移動
+			pos.x += nCnt * X_SPACE + 1.0f;	// 横移動
 			m_apNumber[nCnt] = CNumber::Create(pos, NUM_WIDTH, NUM_HEIGHT);
 
 
@@ -115,10 +122,29 @@ void CTime::Update(void)
 {
 	m_fAnimTimer += CManager::GetSlow()->Get();
 
-	if (m_fAnimTimer >= 12)
-	{// 60フレーム立った
-		m_fAnimTimer = 0;	// カウンターリセット
-		Add(1);
+	if (m_nNum >= 60 * 14 && m_nNum <= 60 * 16)
+	{
+		if (m_fAnimTimer >= 25)
+		{// 12フレーム立った
+			m_fAnimTimer = 0;	// カウンターリセット
+			Add(1);
+		}
+	}
+	else if (m_nNum >= 60 * 16 && m_nNum <= 60 * 20)
+	{
+		if (m_fAnimTimer >= 20)
+		{// 12フレーム立った
+			m_fAnimTimer = 0;	// カウンターリセット
+			Add(1);
+		}
+	}
+	else
+	{
+		if (m_fAnimTimer >= 12)
+		{// 12フレーム立った
+			m_fAnimTimer = 0;	// カウンターリセット
+			Add(1);
+		}
 	}
 }
 

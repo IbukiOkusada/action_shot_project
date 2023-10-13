@@ -255,6 +255,11 @@ void CTutorial::Uninit(void)
 //===============================================
 void CTutorial::Update(void)
 {
+	if (CManager::GetInputPad()->GetTrigger(CInputPad::BUTTON_START, 0))
+	{
+		CManager::GetFade()->Set(CScene::MODE_GAME);
+	}
+
 	// ƒ^ƒCƒ€
 	if (m_pTime != NULL)
 	{

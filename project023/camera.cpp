@@ -122,6 +122,7 @@ void CCamera::Update(void)
 	}
 	else
 	{
+		MouseCamera();
 		SlowShw();
 	}
 

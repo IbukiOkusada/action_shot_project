@@ -457,7 +457,7 @@ void CEnemy::Controller(void)
 {
 	if (m_pRoute != NULL)
 	{
-		m_Info.pos += m_Info.move;
+		m_Info.pos += m_Info.move * CManager::GetSlow()->Get();
 
 		if ((m_Info.posOld.x >= m_pRoute->pPoint[m_nTargetPoint].x && m_Info.pos.x < m_pRoute->pPoint[m_nTargetPoint].x) ||
 			(m_Info.pos.x > m_pRoute->pPoint[m_nTargetPoint].x && m_Info.posOld.x <= m_pRoute->pPoint[m_nTargetPoint].x) ||
@@ -526,7 +526,7 @@ void CEnemy::SetState(void)
 		m_bRescue = true;
 		m_state = STATE_COOLDOWN;
 		m_fStateCnt = COOLDOWNCNT;
-		CManager::GetSound()->Play(CSound::LABEL_SE_SMAKE);
+		//CManager::GetSound()->Play(CSound::LABEL_SE_SMAKE);
 		m_pBody->GetMotion()->BlendSet(1);
 
 		CParticle::Create(D3DXVECTOR3(GetMtx()->_41,
@@ -569,14 +569,29 @@ void CEnemy::SetState(void)
 	}
 	else if (m_fLife >= STATE_LINE * STATE_HEAT && m_state == STATE_HOT)
 	{// ほとんど残っている
-		m_state = STATE_HEAT;
-
-		if (m_state != stateOld && CManager::GetMode() != CScene::MODE_TUTORIAL)
+		if (CManager::GetSlow()->Get() <= 1.0f)
 		{
-			// 初期モーションの設定
-			m_pBody->GetMotion()->BlendSet(3);
-			m_fStateMoveMul = 0.0f;
-			SetMove();
+			m_state = STATE_HEAT;
+
+			if (m_state != stateOld && CManager::GetMode() != CScene::MODE_TUTORIAL)
+			{
+				// 初期モーションの設定
+				m_pBody->GetMotion()->BlendSet(3);
+				m_fStateMoveMul = 0.0f;
+				SetMove();
+			}
+		}
+		else
+		{
+			m_state = STATE_HOT;
+
+			if (m_state != stateOld && CManager::GetMode() != CScene::MODE_TUTORIAL)
+			{
+				// 初期モーションの設定
+				m_pBody->GetMotion()->BlendSet(2);
+				m_fStateMoveMul = 0.5f;
+				SetMove();
+			}
 		}
 	}
 }
@@ -828,7 +843,10 @@ void CEnemy::SetBodyTemp(void)
 		if (m_Interval.fHot >= HOTINTERVAL)
 		{
 			m_Interval.fHot = 0;
-			m_fLife += CManager::GetSlow()->Get() * 2.5f;
+			if (CManager::GetSlow()->Get() <= 1.0f)
+			{
+				m_fLife += CManager::GetSlow()->Get() * 3.0f;
+			}
 
 			if (m_fLife > MAX_LIFE)
 			{
@@ -888,8 +906,49 @@ void CEnemy::SetMove(void)
 
 	D3DXVec3Normalize(&vec, &vec);	// ベクトルを正規化する
 
-	m_Info.move.x = vec.x * m_pRoute->fMove * m_fStateMoveMul;
-	m_Info.move.y = vec.y * m_pRoute->fMove * m_fStateMoveMul;
-	m_Info.move.z = vec.z * m_pRoute->fMove * m_fStateMoveMul;
+	float fMulti = 1.0f;
+
+	if (m_state == STATE_NORMAL && m_bRescue == true)
+	{
+		fMulti = 1.1f;
+	}
+
+	m_Info.move.x = vec.x * m_pRoute->fMove * m_fStateMoveMul * fMulti;
+	m_Info.move.y = vec.y * m_pRoute->fMove * m_fStateMoveMul * fMulti;
+	m_Info.move.z = vec.z * m_pRoute->fMove * m_fStateMoveMul * fMulti;
+	m_Info.posOld = m_Info.pos;
+}
+
+//===============================================
+// ルート設定
+//===============================================
+void CEnemy::SetRoute(int nIdx)
+{
+	m_pRoute = CManager::GetScene()->GetEnemyRoute()->SetAddress(m_apFileName[nIdx]);
+
+	if (m_pRoute == NULL)
+	{
+		return;
+	}
+
+	m_Info.pos = m_pRoute->StartPos;
+	m_Info.rot = m_pRoute->StartRot;
+
+	float fRotDest;	//現在の移動量、目標の移動方向、目標までの差分
+
+	fRotDest = atan2f(m_Info.pos.x - m_pRoute->pPoint[m_nTargetPoint].x,
+		m_Info.pos.z - m_pRoute->pPoint[m_nTargetPoint].z);	//目標への向き
+	m_Info.rot.y = fRotDest;
+
+	D3DXVECTOR3 vec;
+	vec.x = m_pRoute->pPoint[m_nTargetPoint].x - m_Info.pos.x;
+	vec.y = m_pRoute->pPoint[m_nTargetPoint].y - m_Info.pos.y;
+	vec.z = m_pRoute->pPoint[m_nTargetPoint].z - m_Info.pos.z;
+
+	D3DXVec3Normalize(&vec, &vec);	// ベクトルを正規化する
+
+	m_Info.move.x = vec.x * m_pRoute->fMove;
+	m_Info.move.y = vec.y * m_pRoute->fMove;
+	m_Info.move.z = vec.z * m_pRoute->fMove;
 	m_Info.posOld = m_Info.pos;
 }

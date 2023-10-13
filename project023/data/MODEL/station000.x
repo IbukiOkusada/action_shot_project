@@ -2320,7 +2320,7 @@ Mesh {
    0.200000;0.200000;0.200000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\Users\\student\\Documents\\Visual Studio 2015\\Projects\\C++DirectX\\action_shot\\project023\\data\\TEXTURE\\Station001noMizutamaUra.png";
+    "data\\TEXTURE\\Station001noMizutamaUra.png";
    }
   }
   Material {
@@ -2329,7 +2329,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\Users\\student\\Documents\\Visual Studio 2015\\Projects\\C++DirectX\\action_shot\\project023\\data\\TEXTURE\\AURORA_TOWN.png";
+    "data\\TEXTURE\\AURORA_TOWN.png";
    }
   }
   Material {
@@ -2338,7 +2338,7 @@ Mesh {
    0.200000;0.200000;0.200000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\Users\\student\\Documents\\Visual Studio 2015\\Projects\\C++DirectX\\action_shot\\project023\\data\\TEXTURE\\Station001noMizutamaUshiro.png";
+    "data\\TEXTURE\\Station001noMizutamaUshiro.png";
    }
   }
   Material {
@@ -2347,7 +2347,7 @@ Mesh {
    0.200000;0.200000;0.200000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\Users\\student\\Documents\\Visual Studio 2015\\Projects\\C++DirectX\\action_shot\\project023\\data\\TEXTURE\\Station001noMizutamaUshiroUchi.png";
+    "data\\TEXTURE\\Station001noMizutamaUshiroUchi.png";
    }
   }
   Material {

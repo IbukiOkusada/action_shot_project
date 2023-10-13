@@ -130,6 +130,7 @@ private:	// 自分だけがアクセス可能
 	CModel *m_pWeaponL;		// 武器左
 	CModel *m_pWeaponR;		// 武器右
 	CObject2D *m_pSlowGage;	// スローゲージ
+	CObject2D *m_pSlowManual;	// スローゲージ
 	CMeshOrbit *m_pOrbit;	// 軌跡
 	CMeshBalloon *m_pBalloon;	// 風船のポインタ
 	INFO m_Info;			// 自分自身の情報
@@ -157,6 +158,7 @@ private:	// 自分だけがアクセス可能
 	static const char *m_apFileName[WEAPON_MAX];	// 武器ファイル名
 	static const CMeshBalloon::SET m_SetBalloon;	// 風船初期設定
 	CObject3D *m_pMapIcon;	// マップアイコン
+	float m_fMove;
 };
 
 #endif

@@ -215,6 +215,15 @@ void CEffect::Update(void)
 			m_Info.move.z += (rand() % 100 - 50) * 0.01f;
 
 			break;
+
+		case CEffect::TYPE_SLOWOK:	// ”š”­
+
+			m_Info.col.a -= 0.0001f * CManager::GetSlow()->Get();
+			m_Info.fRadius -= (rand() % 100 - 50) * 0.05f * CManager::GetSlow()->Get();
+			m_Info.move.x += (rand() % 100 - 50) * 0.01f;
+			m_Info.move.z += (rand() % 100 - 50) * 0.01f;
+
+			break;
 		}
 
 		if (m_Info.col.a < 0.0f || m_Info.fRadius < 0.0f)

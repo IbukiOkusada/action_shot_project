@@ -3249,7 +3249,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\Users\\student\\Documents\\Visual Studio 2015\\Projects\\C++DirectX\\action_shot\\project023\\data\\TEXTURE\\container_wall.jpg";
+    "data\\TEXTURE\\container_wall.jpg";
    }
   }
   Material {
@@ -3258,7 +3258,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\Users\\student\\Documents\\Visual Studio 2015\\Projects\\C++DirectX\\action_shot\\project023\\data\\TEXTURE\\truck000.jpg";
+    "data\\TEXTURE\\truck000.jpg";
    }
   }
   Material {
@@ -3267,7 +3267,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\Users\\student\\Documents\\Visual Studio 2015\\Projects\\C++DirectX\\action_shot\\project023\\data\\TEXTURE\\truck000.jpg";
+    "data\\TEXTURE\\truck000.jpg";
    }
   }
   Material {
@@ -3276,7 +3276,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\Users\\student\\Documents\\Visual Studio 2015\\Projects\\C++DirectX\\action_shot\\project023\\data\\TEXTURE\\block005.jpg";
+    "data\\TEXTURE\\block005.jpg";
    }
   }
   Material {

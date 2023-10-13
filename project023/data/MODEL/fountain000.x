@@ -1347,7 +1347,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\Users\\student\\Documents\\Visual Studio 2015\\Projects\\C++DirectX\\action_shot\\project023\\data\\TEXTURE\\block002.jpg";
+    "data\\TEXTURE\\block002.jpg";
    }
   }
   Material {
@@ -1356,7 +1356,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.220000;0.220000;0.220000;;
    TextureFilename {
-    "C:\\Users\\student\\Documents\\Visual Studio 2015\\Projects\\C++DirectX\\action_shot\\project023\\data\\TEXTURE\\block004.jpg";
+    "data\\TEXTURE\\block004.jpg";
    }
   }
   Material {
@@ -1365,7 +1365,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.270000;0.270000;0.270000;;
    TextureFilename {
-    "C:\\Users\\student\\Documents\\Visual Studio 2015\\Projects\\C++DirectX\\action_shot\\project023\\data\\TEXTURE\\block004.jpg";
+    "data\\TEXTURE\\block004.jpg";
    }
   }
   Material {
@@ -1380,7 +1380,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.200000;0.200000;0.200000;;
    TextureFilename {
-    "C:\\Users\\student\\Documents\\Visual Studio 2015\\Projects\\C++DirectX\\action_shot\\project023\\data\\TEXTURE\\field006.jpg";
+    "data\\TEXTURE\\field006.jpg";
    }
   }
   Material {

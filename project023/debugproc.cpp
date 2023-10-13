@@ -98,10 +98,10 @@ void CDebugProc::Update(void)
 {
 	CInputKeyboard *pInputKeyboard = CManager::GetInputKeyboard();	// キーボードのポインタ
 
-	if(pInputKeyboard->GetTrigger(DIK_F1) == true)
-	{//F1キーが押されたとき
-		m_bDisp = m_bDisp ? false : true;
-	}
+	//if(pInputKeyboard->GetTrigger(DIK_F1) == true)
+	//{//F1キーが押されたとき
+	//	m_bDisp = m_bDisp ? false : true;
+	//}
 
 	Print("FPS : %d\n", GetFPS());
 	Print("現在のモード [ %s ]\n", m_apMode[CManager::GetMode()]);

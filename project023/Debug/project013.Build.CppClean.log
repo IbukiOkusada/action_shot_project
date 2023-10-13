@@ -2,7 +2,6 @@ c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\pr
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\vc140.pdb
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\vc140.idb
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\precompile.obj
-c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\object3d.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\objectx.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\particle.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\pause.obj
@@ -19,10 +18,10 @@ c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\pr
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\thermo.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\time.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\title.obj
+c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\tutorial.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\waist.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\wet.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\xfile.obj
-c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\game.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\input.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\item.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\light.obj
@@ -42,6 +41,7 @@ c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\pr
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\number.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\object.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\object2d.obj
+c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\object3d.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\car.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\car_manager.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\enemy_manager.obj
@@ -60,7 +60,7 @@ c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\pr
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\fade.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\fileload.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\filter.obj
-c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\tutorial.obj
+c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\game.obj
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\project013.ilk
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\project013.exe
 c:\users\student\documents\visual studio 2015\projects\c++directx\action_shot\project023\debug\project013.pdb

@@ -83,7 +83,6 @@ HRESULT CRanking::Init(void)
 		}
 	}
 
-
 	// ロゴの生成
 	CObject2D *p = CObject2D::Create(7);
 	p->BindTexture(CManager::GetTexture()->Regist("data\\TEXTURE\\ranking_logo.png"));
@@ -115,7 +114,7 @@ HRESULT CRanking::Init(void)
 	{
 		CManager::GetCamera()->SetRotation(D3DXVECTOR3(0.0f, 0.0f, D3DX_PI * 0.475f));
 		CManager::GetCamera()->SetPositionR(D3DXVECTOR3(0.0f, 50.0f, 0.0f));
-		CManager::GetCamera()->SetLength(300.0f);
+		CManager::GetCamera()->SetLength(500.0f);
 	}
 
 	// カーマネージャーを生成
@@ -249,7 +248,7 @@ void CRanking::Load(int *pScore)
 		//要素を入れておく
 		for (int nCntRanking = 0; nCntRanking < NUM_RANK; nCntRanking++)
 		{
-			pScore[nCntRanking] = 5 * (nCntRanking + 1);
+			pScore[nCntRanking] = 40000 - (nCntRanking * 5000);
 		}
 	}
 }

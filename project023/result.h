@@ -51,6 +51,7 @@ private:
 	CMeshDome *m_pMeshSky;		// ‹ó—p
 	CScore *m_apScore[SCORE_MAX];
 	CScore *m_apNum[SCORE_ALL];
+	int m_nTimer;
 	static int m_nSuvNum;
 	static int m_nDeadNum;
 };

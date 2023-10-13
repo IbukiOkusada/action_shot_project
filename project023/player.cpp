@@ -52,6 +52,7 @@
 #define DEF_SLOWGAGELENGSH	(SCREEN_WIDTH * 0.4f)	// スローゲージマックスサイズ
 #define SLOWGAGE_HEIGHT	(SCREEN_HEIGHT * 0.01f)
 #define GAGE_TEXNAME	"data\\TEXTURE\\gage000.jpg"	// ゲージファイル名
+#define MANUAL_TEXNAME	"data\\TEXTURE\\slow_button.png"
 #define NOCHARGE_CNT	(20)		// チャージまでのカウント数
 #define BALLOON_MOVE	(25.0f)		// 風船移動量
 #define BALLOON_WEIGHT	(150.0f)	// 最大重量
@@ -129,6 +130,7 @@ CPlayer::CPlayer(const D3DXVECTOR3 pos)
 	m_pSlowGage = NULL;
 	m_pBalloon = NULL;
 	m_pMapIcon = NULL;
+	m_fMove = 0.0f;
 }
 
 //===============================================
@@ -162,6 +164,8 @@ CPlayer::CPlayer(int nPriOrity)
 	m_nAttackHand = 0;
 	m_fChargeCnt = 0;
 	m_pCar = NULL;
+	m_pSlowManual = NULL;
+	m_fMove = 0.0f;
 
 	for (int nCnt = 0; nCnt < WEAPON_MAX; nCnt++)
 	{
@@ -198,6 +202,7 @@ HRESULT CPlayer::Init(void)
 HRESULT CPlayer::Init(const char *pBodyName, const char *pLegName)
 {
 	CTexture *pTexture = CManager::GetTexture();
+	m_fMove = 1.0f;
 
 	// 腰の生成
 	if (m_pWaist == NULL)
@@ -268,12 +273,20 @@ HRESULT CPlayer::Init(const char *pBodyName, const char *pLegName)
 
 	// ゲージの設定
 	m_pSlowGage = CObject2D::Create(7);
+	m_pSlowManual = CObject2D::Create(7);
 
 	if (m_pSlowGage != NULL)
 	{
 		m_pSlowGage->SetPosition(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.95f, 0.0f));
 		m_pSlowGage->SetSize(0, SLOWGAGE_HEIGHT);
 		m_pSlowGage->BindTexture(CManager::GetTexture()->Regist(GAGE_TEXNAME));
+	}
+
+	if (m_pSlowManual != NULL)
+	{
+		m_pSlowManual->SetPosition(D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.85f, 0.0f));
+		m_pSlowManual->SetSize(SCREEN_WIDTH * 0.12f, SCREEN_HEIGHT * 0.09f);
+		m_pSlowManual->BindTexture(CManager::GetTexture()->Regist(MANUAL_TEXNAME));
 	}
 
 	// 種類設定
@@ -361,6 +374,11 @@ void CPlayer::Uninit(void)
 //===============================================
 void CPlayer::Update(void)
 {
+	if (CManager::GetSlow()->Get() > 1.0f)
+	{
+		return;
+	}
+
 	// 前回の座標を取得
 	m_Info.posOld = GetPosition();
 	int nSlowTimerOld = m_nSlowTime;	// 変更前のスロー可能時間
@@ -539,11 +557,6 @@ void CPlayer::Controller(void)
 	D3DXVECTOR3 CamRot = pCamera->GetRotation();	// カメラの角度
 	m_fRotMove = rot.y;	//現在の向きを取得
 	m_bMove = false;	// 移動状態リセット
-
-	if (pInputPad->GetTrigger(CInputPad::BUTTON_UP,0))
-	{
-		AddSlowTime(1000);
-	}
 
 	// 移動
 	if (m_bJump == false)
@@ -937,7 +950,21 @@ void CPlayer::Slow(void)
 		// 可能時間回復
 		if (m_nSlowTime == DEF_SLOWTIME)
 		{// 満タンまでたまった
+			CParticle::Create(D3DXVECTOR3(m_pBody->GetParts(0)->GetMtxWorld()->_41, m_pBody->GetParts(0)->GetMtxWorld()->_42, m_pBody->GetParts(0)->GetMtxWorld()->_43),
+				CEffect::TYPE_SLOWOK);
+			m_pSlowManual->SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
+			m_pSlowManual->SetSize(m_pSlowManual->GetWidth() + m_fMove, m_pSlowManual->GetHeight() + m_fMove * 0.5f);
+
+			if (m_pSlowManual->GetWidth() < SCREEN_WIDTH * 0.1f || m_pSlowManual->GetWidth() > SCREEN_WIDTH * 0.12f)
+			{
+				m_fMove *= -1.0f;
+			}
+
 			m_bActiveSlow = false;
+		}
+		else
+		{
+			m_pSlowManual->SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f));
 		}
 
 		CManager::GetSlow()->SetSlow(false);
@@ -1510,14 +1537,16 @@ void CPlayer::SetGageColor(float fRate)
 
 	if (fRate >= 1.0f)
 	{
-		m_pSlowGage->SetCol(D3DXCOLOR(1.0f, 1.0f, 0.6f, 1.0f));
+		m_pSlowGage->SetCol(D3DXCOLOR(0.0f, 0.8f, 1.0f, 1.0f));
 	}
 	else if (fRate <= 0.1f)
 	{
 		m_pSlowGage->SetCol(D3DXCOLOR(0.1f, 1.0f, 0.1f, 1.0f));
+		m_pSlowManual->SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f));
 	}
 	else
 	{
+		m_pSlowManual->SetCol(D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.0f));
 		m_pSlowGage->SetCol(D3DXCOLOR(1.0f * fRate, 1.0f, 1.0f * fRate, 1.0f));
 	}
 }

@@ -4775,7 +4775,7 @@ Mesh {
    0.160000;0.160000;0.160000;;
    0.300000;0.136471;0.000000;;
    TextureFilename {
-    "C:\\Users\\student\\Documents\\Visual Studio 2015\\Projects\\C++DirectX\\action_shot\\project023\\data\\TEXTURE\\white-square-tiled.png";
+    "data\\TEXTURE\\white-square-tiled.png";
    }
   }
   Material {

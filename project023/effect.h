@@ -33,6 +33,7 @@ public:	// 誰でもアクセス可能な定義
 		TYPE_BALEXPLOSION,	// 風船爆発
 		TYPE_SMAKE,		// 煙
 		TYPE_HEATHAZE,	// 陽炎
+		TYPE_SLOWOK,	// スロー可能
 		TYPE_MAX
 	}TYPE;
 
