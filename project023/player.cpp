@@ -50,7 +50,7 @@
 #define SHOT_INTERVAL	(10)		// 攻撃インターバル
 #define GUN_BULMOVE	(50.0f)
 #define DEF_SLOWGAGELENGSH	(SCREEN_WIDTH * 0.4f)	// スローゲージマックスサイズ
-#define SLOWGAGE_HEIGHT	(SCREEN_HEIGHT * 0.01f)
+#define SLOWGAGE_HEIGHT	(SCREEN_HEIGHT * 0.015f)
 #define GAGE_TEXNAME	"data\\TEXTURE\\gage000.jpg"	// ゲージファイル名
 #define MANUAL_TEXNAME	"data\\TEXTURE\\slow_button.png"
 #define NOCHARGE_CNT	(20)		// チャージまでのカウント数
@@ -58,6 +58,7 @@
 #define BALLOON_WEIGHT	(150.0f)	// 最大重量
 #define WIDTH	(20.0f)		// 幅
 #define HEIGHT	(80.0f)		// 高さ
+#define GAGE_SPEED	(0.001f)
 
 //===============================================
 // 武器ごとの設定
@@ -131,6 +132,7 @@ CPlayer::CPlayer(const D3DXVECTOR3 pos)
 	m_pBalloon = NULL;
 	m_pMapIcon = NULL;
 	m_fMove = 0.0f;
+	m_fTexU = 0.0f;
 }
 
 //===============================================
@@ -166,6 +168,7 @@ CPlayer::CPlayer(int nPriOrity)
 	m_pCar = NULL;
 	m_pSlowManual = NULL;
 	m_fMove = 0.0f;
+	m_fTexU = 0.0f;
 
 	for (int nCnt = 0; nCnt < WEAPON_MAX; nCnt++)
 	{
@@ -425,7 +428,7 @@ void CPlayer::Update(void)
 		pCamera->SetRot(GetRotation());
 	}
 
-	if (m_pSlowGage == NULL || m_nSlowTime == nSlowTimerOld)
+	if (m_pSlowGage == NULL)
 	{// 使用していない、またはスロー時間に変更がない
 		return;
 	}
@@ -433,8 +436,15 @@ void CPlayer::Update(void)
 	// スロー最大時間からの割合を求める
 	float fRate = (float)m_nSlowTime / (float)DEF_SLOWTIME;
 
+	m_fTexU += GAGE_SPEED;
+
+	if (m_fTexU > 1.0f)
+	{
+		m_fTexU -= 1.0f;
+	}
+
 	m_pSlowGage->SetSize(DEF_SLOWGAGELENGSH * fRate, SLOWGAGE_HEIGHT);
-	m_pSlowGage->SetTex(-5.0f * fRate, 0.0f, 5.0f * fRate);
+	m_pSlowGage->SetTex(-5.0f * fRate, m_fTexU, 5.0f * fRate);
 	SetGageColor(fRate);
 }
 

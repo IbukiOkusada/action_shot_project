@@ -149,6 +149,7 @@ private:	// 自分だけがアクセス可能
 	float m_fRotMove;		// 現在の角度
 	float m_fRotDiff;		// 目的の角度
 	float m_fRotDest;		// 角度計算
+	float m_fTexU;
 	CShadow *pShadow;		// 影
 	CLockOn *m_pLockon;		// ロックオン
 	CCar *m_pCar;

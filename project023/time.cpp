@@ -124,7 +124,7 @@ void CTime::Update(void)
 
 	if (m_nNum >= 60 * 14 && m_nNum <= 60 * 16)
 	{
-		if (m_fAnimTimer >= 25)
+		if (m_fAnimTimer >= 18)
 		{// 12フレーム立った
 			m_fAnimTimer = 0;	// カウンターリセット
 			Add(1);
@@ -132,7 +132,7 @@ void CTime::Update(void)
 	}
 	else if (m_nNum >= 60 * 16 && m_nNum <= 60 * 20)
 	{
-		if (m_fAnimTimer >= 20)
+		if (m_fAnimTimer >= 12)
 		{// 12フレーム立った
 			m_fAnimTimer = 0;	// カウンターリセット
 			Add(1);
@@ -140,7 +140,7 @@ void CTime::Update(void)
 	}
 	else
 	{
-		if (m_fAnimTimer >= 12)
+		if (m_fAnimTimer >= 8)
 		{// 12フレーム立った
 			m_fAnimTimer = 0;	// カウンターリセット
 			Add(1);
